@@ -1,0 +1,245 @@
+\VimNewChapter
+\VimBookMark{第32章　\ChapterThirtyTwoTitle}{usr_32.txt}
+\VimFileNameDest{usr\VimTT{\_}32.txt}{ \VimDocVer  最后修改：2006年04月30日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{树状撤消\\}
+
+Vim可以有多级撤消。如果你撤消了一些改动然后又做了新的改动一个撤消分支就会被创建。
+这些被改动的文本将在一条虚拟的撤消分支上移动。
+
+\VimSecList{32.1}{撤消到文件保存\VimMyFootnote{译注：原文为[Undo up to file
+write], 具体意思是新增的earlier *f和later *f命令，以每次文件被保存的时间，作为undo的
+基本步长，比如上午8点保存了一次文件，此后进行过3次独立的修改，没有再保存过，那
+么:earlier 1f命令会直接回到8点保存文件时的状态，效果上等于成批撤消了此后的
+这3次独立的修改。这一小节针对Vim 7.3中这一新增的特性，对这一段，原文和翻译对
+理解的帮助都不大，相信我，绝知此事要躬行。}}
+\VimSecList{32.2}{\ChapterThirtyTwoSectionTwoTitle}
+\VimSecList{32.3}{\ChapterThirtyTwoSectionThreeTitle}
+\VimSecList{32.4}{\ChapterThirtyTwoSectionFourTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{40}  \ChapterFortyTitle\\
+前一章：& \VimFileName{31}  \ChapterThirtyOneTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+\VimSecDest{32.1}{\ChapterThirtyTwoSectionOneTitle}
+
+有时你会在对文件作了几处改动之后，发现最好还是全部放弃这些修改，回到上次保存文
+件时的状态。下面的命令可助你得偿所愿：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:earlier 1f
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+此处的f指的是file. 
+
+你还可以不断重复这一命令继续为你的后悔药买单，回到更早的过去。或者使用比1档起步
+火力更大的数字加速你的时间之旅。\VimMyFootnote{译注：数字参数1指的是相对的前一
+次保存文件，比如8点钟保存过一次，然后有3次独立的修改，至9点钟再保存一次。再
+作5次独立修改，此时应用:earlier 1f会回到9点钟那次保存的状态，而再应
+用:earlier 1f命令则回到8点钟保存时的状态。若在5次独立修改后用:earlier 2f则
+直接回到8点钟保存文件时的状态。}
+
+如果不小心撤的太远了，还可以再向前调节：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:later 1f
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimCautionTitle{注意}这些命令的作用都是基于保存文件的时间序列。这会在你撤消一些修
+改后再作其它修改时造成影响。这一点会在下面的小节中进一步解释。\VimMyFootnote{
+译注：这一小节为7.3版新增特性，本章中后续小节译者没找到对这一点作进一步解释的
+。帮助主题\VimCommonSrc{:earlier}倒是有一些帮助。}
+
+\VimCautionTitle{再次请注意}此处我们所讨论的是被编辑文件的保存。关于把撤消信息保存
+到文件中则完全是另一码事，请另行参考\VimCommonSrc{undo-persistence}. 
+
+\VimSepartor
+\VimSecDest{32.2}{\ChapterThirtyTwoSectionTwoTitle}
+
+在\VimSecSrc{02.5}中我们已经讨论过线性的撤消/重做。撤消/重做还可以有独立的
+分支。撤消一些改动然后又做了新的修改。此时新的修改变成树型撤消的一个分支。
+
+我们来以文本\VimDQuote{one}为例。首先对它做一个改动：追加一个\VimDQuote{ too}. 
+然后把光标移到第一个\VimSQstr{o}上把它改成\VimSQstr{w}. 至此我们已做了两个改动，分别
+被编号为1和2, 文本可以看作有如下三个状态：
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+\textcolor{VimHelpHeaderColor}{
+  one}
+   |
+change 1
+   |
+\textcolor{VimHelpHeaderColor}{
+one too}
+   |
+change 2
+   |
+\textcolor{VimHelpHeaderColor}{
+one two}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果这时我们撤消了一个改动，回到了\VimDQuote{one too}, 然后把\VimDQuote{one}改
+成\VimDQuote{me}, 就会在撤消树中分化出一个新的撤消分支：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\}]
+\textcolor{VimHelpHeaderColor}{
+       one}
+        |
+     change 1
+        |
+\textcolor{VimHelpHeaderColor}{
+     one too}
+     /     \VimBS{}
+change 2  change 3
+   |         |
+\textcolor{VimHelpHeaderColor}{
+one two    me too}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+现在你可以用\VimCommonSrc{u}命令来撤消。如果撤消两次就回到了\VimDQuote{one}. 
+用\VimCommonSrc{CTRL-R}来重做，你就又回到了\VimDQuote{one too}. 再用一次
+\VimCommonSrc{CTRL-R}就又转到了\VimDQuote{me too}. 撤消和重做就是这样在最后一
+次使用的分支上往返运动。
+
+这里的关键是我们做出修改的前后次序。撤消和重做并不被视为是一种修改。每次改动之
+后我们编辑的内容就等于有了一个新的文本修改状态。
+
+\VimCaution{
+    \VimCautionTitle{注意:}只有修改才被编号，在撤消的树形分支上显示的文本本身
+并没有任何标识。他们往往靠出现在它上面的数字指代。但是也有时是它下面的数字才能
+正确反映其状态，尤其是你在这棵树上往上移动，所以你要知道刚刚撤消的是哪处改动。
+} %end VimCaution
+
+\VimSepartor
+\VimSecDest{32.3}{\ChapterThirtyTwoSectionThreeTitle}
+
+现在怎么回到\VimDQuote{one two}的状态？可以用下面这个命令：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:undo 2
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在文本变回了\VimDQuote{one two}, 位于2号改动的状态。你可以用
+\VimCommonSrc{:undo}命令回到撤消树中任何在此之前的状态。
+
+现在再做一个修改：把\VimDQuote{one}改成\VimDQuote{not}:
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\}]
+\textcolor{VimHelpHeaderColor}{
+       one}
+        |
+     change 1
+        |
+\textcolor{VimHelpHeaderColor}{
+     one too}
+     /     \VimBS{}
+change 2  change 3
+   |         |
+\textcolor{VimHelpHeaderColor}{
+one two    me too}
+   |
+change 4
+   |
+\textcolor{VimHelpHeaderColor}{
+not two}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+假设现在你又改变主意想回到\VimDQuote{me too}的状态。命令\VimCommonSrc{g-}会马
+上带你过去。这样一来你就不用在整个撤消树上来回翻滚，即可轻松回到以前作出修改的
+状态。
+
+重复命令\VimCommonSrc{g-}你会看到不同的修改状态：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+me too
+one two
+one too
+one
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimCommonSrc{g+}是往前遍历：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+one
+one too
+one two
+me too
+not two
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+如果你清楚知道你要跳到几号改动上去，\VimCommonSrc{:undo}命令会比较有用。如果
+你并不知道想回到哪一次改动之后的状态那\VimCommonSrc{g-}和
+\VimCommonSrc{g+}命令更为适合。
+
+你还可以在\VimCommonSrc{g-}和\VimCommonSrc{g+}命令前加上命令计数来多次执行。
+
+\VimSepartor
+\VimSecDest{32.4}{\ChapterThirtyTwoSectionFourTitle}
+
+你在一块文本上工作一段时间之后整个撤消树可能就会变得很大了。这时你可能会想回到
+一段时间之前的某个状态。
+
+下面的命令可以帮你了解当前撤消树上就有了哪些分支：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimExampleColor}{
+:undolist}
+\textcolor{VimHelpHeaderColor}{
+number changes  time}
+     3       2  16 seconds ago
+     4       3  5 seconds ago
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+在这可以看出每个撤消分支上都有了几次改动以及什么时间做的修改。假设我们当前的状态是
+在4号改动，对应的内容是\VimDQuote{not two}, 可以用下面的命令回到10秒前的状态：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:earlier 10s
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+依你耗在这块文本上的时间之多寡不同，你终会停在这棵树上的某个位置。
+\VimCommonSrc{:earlier}命令的参数还可以以\VimDQuote{m}为尾辍表示分钟，以
+\VimDQuote{h}为尾辍表示小时，以\VimDQuote{d}表示天数。比如下面的命令就以一个很
+大的时间数一下子回到了从前的从前的从前的从前：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:earlier 100d
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimCommonSrc{:later}命令可以让时间之箭向后推进：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:later 1m
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+跟\VimCommonSrc{:earlier}命令一样，数字参数可以以\VimDQuote{s}, \VimDQuote{m}
+和\VimDQuote{h}\VimMyFootnote{译注：原文中漏掉了\VimDQuote{d}, 至于:earlier 1f中的f, 
+因为不能算时间单位，所以此处不提倒也正常。}为尾辍。
+
+如果你还想知道更多的细节，或者想动手操纵这些信息，可以调用
+\VimCommonSrc{undotree()}函数。下面的命令可以查看该函数的返回值：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:echo undotree()
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{40}  \ChapterFortyTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

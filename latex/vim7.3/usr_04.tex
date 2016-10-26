@@ -1,0 +1,675 @@
+\VimNewChapter
+\VimBookMark{第04章　\ChapterFourTitle}{usr_04.txt}
+\VimFileNameDest{usr\VimTT{\_}04.txt}{ \VimDocVer  最后修改：2008年09月06日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{小幅改动\\}
+
+\begin{flushright}
+\small\CJKfamily{kai}
+天下大事，必作于细。
+
+---老子《道德经》
+\end{flushright}
+
+本章向你展示几种移动文本和作出更改的方法。你会学到3种改变文本的基本方法：
+操作符命令和位移，Visual模式和文本对象。
+
+\VimSecList{04.1}{\ChapterFourSectionOneTitle}
+\VimSecList{04.2}{\ChapterFourSectionTwoTitle}
+\VimSecList{04.3}{\ChapterFourSectionThreeTitle}
+\VimSecList{04.4}{\ChapterFourSectionFourTitle}
+\VimSecList{04.5}{\ChapterFourSectionFiveTitle}
+\VimSecList{04.6}{\ChapterFourSectionSixTitle}
+\VimSecList{04.7}{\ChapterFourSectionSevenTitle}
+\VimSecList{04.8}{\ChapterFourSectionEightTitle}
+\VimSecList{04.9}{\ChapterFourSectionNineTitle}
+\VimSecList{04.10}{\ChapterFourSectionTenTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{05} \ChapterFiveTitle\\
+前一章：& \VimFileName{03}  \ChapterThreeTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{04.1}{\ChapterFourSectionOneTitle}
+
+在第2章中你已经知道\VimDQuote{x}命令可以删除一个字符。使用一个命令记数\VimDQuote{4x}可以删除4个字符。
+
+   \VimDQuote{dw}命令可以删除一个word. 你可以把其中的\VimDQuote{w}看作是向右移
+一个word的命令。事实上，\VimDQuote{d}命令可以后跟任何一个位移命令，它将删除从当
+前光标起到位移的终点处的文本内容。
+
+   举例来说，\VimDQuote{4w}命令是向前移动4个word. 所以\VimDQuote{d4w}命令是删
+除4个word.
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+To err is human. To really foul up you need a computer.}
+                 ------------------>
+                         d4w
+
+\textcolor{VimHelpHeaderColor}{
+To err is human. you need a computer.}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+Vim只删除到位移命令之后光标的前一个位置。这是因为Vim知道你并不是要删除下一
+个word的第一个字符。如果你用\VimDQuote{e}命令来移动到word的末尾，Vim也会假
+设你是要包括那最后一个字符\VimMyFootnote{译注：所幸，这种假设对绝大多数人来说
+是正确的}:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+To err is human. you need a computer.}
+                -------->
+                   d2e
+
+\textcolor{VimHelpHeaderColor}{
+To err is human. a computer.}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+删除的内容是否包括光标所移动到的那个字符上取决于你的位移命令。在联机参考手册
+上把这种不包括该位置的操作叫做\VimDQuote{排外的}, 把包括该位置的操作叫
+\VimDQuote{内含的}\VimMyFootnote{译注：英文原文分别是exclusive和inclusive, 其实
+就是数学上的开区间闭区间的意思，前者形如[0, 5)意为 $0\le{}x<5$, 后者则是[0,
+5], 意为$0\le{}x\le{}5$. 实在想不出雅致一点的译法。}. 
+
+\VimDQuote{\$}命令是移动光标到行尾。所以\VimDQuote{d\$}命令就是删除自当前光标
+到行尾的内容。这是一个\VimDQuote{内含的}位移，所以该行最后一个字符也被删除：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+To err is human. a computer.}
+               ------------>
+                    d$
+
+\textcolor{VimHelpHeaderColor}{
+To err is human}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+此类命令有一个固定的模式：操作符命令+位移命令。首先键入一个操作符命令。比如
+\VimDQuote{d}是一个删除操作符。接下来是一个位移命令如\VimDQuote{4l}或
+\VimDQuote{w}. 这样任何移动光标命令所及之处，都是命令的作用范围。
+
+%======...
+\VimSepartor
+
+\VimSecDest{04.2}{\ChapterFourSectionTwoTitle}
+
+另一个操作符命令是\VimDQuote{c}, 改变命令。它的行为与\VimDQuote{d}命令类似，不
+过在命令执行后会进入Insert模式。比如\VimDQuote{cw}改变一个word. 或者，更准确地
+说，它删除一个word并让你置身于Insert模式：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+To err is human}
+   ------->
+     c2wbe\VimSpecialChar{<Esc>}
+
+\textcolor{VimHelpHeaderColor}{
+To be human}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_123}{view_123}\hypertarget{view_123}{}\fbox{\textcolor{red}{Review}}\\
+这里的\VimDQuote{c2wbe\VimSpecialChar{<Esc>}}包含了下面的命令元素：
+\begin{VimVBList}[commandchars=\\\{\}]
+c       修改操作符
+2w      移动两个word(它们将被删除并从此开始Insert模式)
+be      插入这两个字符
+\VimSpecialChar{
+<Esc>}   回到Normal模式
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_124}{view_124}\hypertarget{view_124}{}\fbox{\textcolor{red}{Review}}\\
+如果你留心的话也许已经注意到这里面有一些奇怪的事情：\VimDQuote{human}之前的空
+格并没有被删除。就象那句谚语里说的：对每一个问题，都会有一个简单而清晰的答案，
+而那个答案总是错的。这正是\VimDQuote{cw}命令的情况。\VimDQuote{c}操作符与d操作
+符一样，只是有一个例外：\VimDQuote{cw},它就象\VimDQuote{ce}一样，改变到一直
+到word结尾的内容。而word之后的空格被留下了。这个例外可以一直追溯到古老
+的Vi编辑器。因为多数人已经习惯了，所以Vim里这个例外也被保留下来了
+\VimMyFootnote{译注：规律：每条规律都有例外}。
+
+\VimSubSection{更多的更改}
+
+就象\VimDQuote{dd}命令可以删除整行一样，\VimDQuote{cc}命令可以改变整行。不过仍
+保持原来的缩进(一行打头的空白).
+
+也正如\VimDQuote{d\$}删除到行尾为止的内容，\VimDQuote{c\$}改变当前光标到行尾的
+内容。就好象是用\VimDQuote{d\$}删除然后又以\VimDQuote{a}进入Insert模式追加新的
+文本一样。
+
+
+\VimSubSection{快捷命令}
+
+有一些操作符+位移命令使用率是如此之高以至于它们以一个单独的字符作为其
+快捷方式：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+x  代表dl(删除当前光标下的字符)
+X  代表dh(删除当前光标左边的字符)
+D  代表d$(删除到行尾的内容)
+C  代表c$(修改到行尾的内容)
+s  代表cl(修改一个字符)
+S  代表cc(修改一整行)
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimSubSection{命令记数放在哪}
+
+命令\VimDQuote{3dw}和\VimDQuote{d3w}都是删除3个word. 如果你真要钻牛角尖的话，
+第一个命令\VimDQuote{3dw}可以看作是删除一个word的操作执行3次；第二个命令
+\VimDQuote{d3w}是一次删除3个word. 这是其中不明显的差异。事实上你可以在两处都放
+上命令记数，比如，\VimDQuote{3d2w}是删除两个word, 重复执行3次，总共是6个word.
+
+\VimSubSection{替换单个字符}
+
+\VimDQuote{r}命令不是一个操作符命令。它等待你键入下一个字符用以替换当前光标下
+的那个字符。你也可以用\VimDQuote{cl}或\VimDQuote{s}完成同样的事情，但用
+\VimDQuote{r}的话就不需要再用\VimSpecialChar{<Esc>}键回到Normal模式了。
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+there is somerhing grong here
+\textcolor{black}{
+rT           rt    rw}
+
+There is something wrong here
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimDQuote{r}命令前辍以一个命令记数是将多个字符都替换为即将输入的那个字符。
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+There is something wrong here
+\textcolor{black}{
+                   5rx}
+
+There is something xxxxx here
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+要把一个字符替换为一个换行符使用\VimDQuote{r\VimSpecialChar{<Enter>}}. 它会删除
+一个字符并插入一个换行符。在此处使用命令记数只会删除指定个数的字符：
+\VimDQuote{4r\VimSpecialChar{<Enter>}}将把4个字符替换为一个换行符
+\VimMyFootnote{译注：规律：通常的规律延伸至无实际意义时，将打破规律}。
+
+%======...
+\VimSepartor
+
+\VimSecDest{04.3}{\ChapterFourSectionThreeTitle}
+
+\VimDQuote{.}命令是Vim中一个简单而强大的命令。它会重复上一次做出的改动。例如，
+假设你在编辑一个HTML文件，想删除其中所有的\VimSpecialChar{<B>}标签。你把光标置于
+\VimSpecialChar{<B>}的\VimTT{<}字符上然后命令\VimDQuote{df\VimTT{>}}. 然后到\VimTT{<}/B\VimTT{>}的\VimTT{<}上
+用\VimDQuote{.}命令做同样的事。\VimDQuote{.}命令会执行上一次所执行的更改命令(
+此例中是\VimDQuote{df\VimTT{>}}). 要删除另一个标签，同样把光标置于\VimTT{<}字符上然后执行
+\VimDQuote{.}命令即可。
+
+% vim: no special highlight in verbatim
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+                      To <B>generate</B> a table of <B>contents}
+f<   找到第一个 <     --->
+df>  删除到 >处的内容    -->
+f<   找到下一个 <          --------->
+.    重复 df>                       --->
+f<   找到下一个 <                      ------------->
+.    重复 df>                                       -->
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{.}命令会重复你做出的所有修改，除了\VimDQuote{u}命令
+\VimSpecialChar{CTRL-R}和以冒号开头的命令。 
+
+\VimBeginMyChunkNote
+\VimDQuote{.}需要在Normal模
+式下执行，它重复的是命令，而不是被改动的内容，如下两行文本：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+asdf 123
+asdf 1234
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_125}{view_125}\hypertarget{view_125}{}\fbox{\textcolor{red}{Review}}\\
+光标置于第一行的1上时执行了\VimDQuote{cwxyz}, 然后退回到Normal模式，
+此时第一行变为：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+asdf xyz
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_126}{view_126}\hypertarget{view_126}{}\fbox{\textcolor{red}{Review}}\\
+标置于第二行的1上，执行\VimDQuote{.}命令，则第二行将变为：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+asdf xyz
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+而不是：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+asdf xyz4
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+因为真正重复的是命令，而不是从字面上看到的将3个字符换为\VimDQuote{xyz}. 
+\VimEndMyChunkNote
+
+另一个例子：你想把\VimDQuote{four}改为\VimDQuote{five}. 它在你的文件里多次出现
+。你可以用以下命令来做出修改：
+% vim: angle_bracket_special_key
+\begin{VimVBList}[commandchars=\\\{\}]
+/four<Enter>    找到第一个字符串"four"
+cwfive<Esc>     把它改为"five"
+n               找到下一个字符串"four"
+.               同样改为"five"
+n               继续找下一个
+.               做同样的修改
+                等等
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_127}{view_127}\hypertarget{view_127}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{04.4}{\ChapterFourSectionFourTitle}
+
+删除那些简单的文本对象用操作符命令+位移命令就足够了。但是通常很难说用什么位移
+命令可以把光标刚好移动到你想删除的文本范围。这时你可以用Visual模式。
+
+按\VimDQuote{v}可以进入Visual模式。移动光标以覆盖你想操纵的文本范围。同时被选
+中的文本会以高亮显示。最后键入操作符命令。
+
+   例如，要删除一个单词的后半部分至下一个单词的前半部分：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+This is an examination sample of visual mode}
+               ---------->
+                 velllld
+
+\textcolor{VimHelpHeaderColor}{
+This is an example of visual mode}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+要做这样的修改你不必去计算要按多少次\VimDQuote{l}才能刚好达到想要的位置。在你
+按下\VimDQuote{d}命令时就可准确看到哪些文本将会被删除。
+
+发出实际的更改命令之前任何时间你都可以决定放弃，用\VimSpecialChar{<Esc>}命令退
+出Visual模式。一切都象没发生过一样。
+
+
+\VimSubSection{选择多行}
+
+如果你想整行整行地操纵文本，使用\VimDQuote{V}进入Visual模式。你会看到被选中的
+文本是一整行为最小选择单位。此时左右移动命令毫无意义。而上下位移命令则会整行整
+行地选择文本。
+
+   如下例中，用\VimDQuote{Vjj}命令选中3行：
+\begin{VimVBDisplayNoAdjustSpace}
+                  +------------------------+
+                  | text more text         |
+               >> | more text more text    | |
+selected lines >> | text text text         | | Vjj
+               >> | text more              | V
+                  | more text more         |
+                  +------------------------+
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimSubSection{选择文本块}
+
+如果你想以一个矩形的文本块为对象进行操作，你需要用
+\VimSpecialChar{CTRL-V}\VimMyFootnote{译注：在MS-Windows下
+使用\VimSpecialChar{CTRL-Q}代替，\VimSpecialChar{CTRL-V}保留原来的粘贴功能。}
+进入Visual模式。在编辑表格时这可就派上用场了。
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+name            Q1      Q2      Q3
+pierre          123     455     234
+john            0       90      39
+steve           392     63      334
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+要删除其中的\VimDQuote{Q2}列，把光标置于\VimDQuote{Q2}的\VimDQuote{Q}上。按下
+\VimSpecialChar{CTRL-V}进入文本块Visual模式。现在可以用\VimDQuote{3j}向下移
+动3行，用\VimDQuote{w}选择直到下一个word的区域。你可以看到被选中的文本中包含了下
+一列的第一个字符。使用\VimDQuote{h}排除这一列。现在按下\VimDQuote{d}中间的这一
+列就被删除了。
+
+
+\VimSubSection{到另一端}
+
+如果你已经在Visual模式下选中了一些文本，但此时发现还要改变另一头的被选择区域，
+\VimDQuote{o}命令(提示：o代表other end另一头)会让光标置于被选中文本的另一头，
+这样你就可以通过控制光标移动来决定被选文本将从何处开始。再按\VimDQuote{o}又会
+让光标置于被选文本的末端。
+
+当你进行矩形文本块内容的选择时，你有4个角都可以改变。\VimDQuote{o}只会把你带到
+对角的位置去，使用\VimDQuote{O}命令可以让你在同一行的左右两个角之间移动
+\VimMyFootnote{译注：你应该知道如何在4个角之间移动}。
+
+注意\VimDQuote{o}和\VimDQuote{O}在Visual模式与Normal模式下行为迥异，在Normal模
+式下它们是在当前行的下面或上面插入一个新行。
+
+%======...
+\VimSepartor
+
+\VimSecDest{04.5}{\ChapterFourSectionFiveTitle}
+
+你以\VimDQuote{d}或\VimDQuote{x}这样的命令删除文本时，被删除的内容还是被保存了
+起来。你还可以用p命令把它取回来(在Vim中这叫put)
+
+   看一下这是如何工作的。首先你删除一整行内容，把光标置于该行键入
+\VimDQuote{dd}. 现在移动光标到想放入该的地方键入\VimDQuote{p}命令。这样该行就
+被插入到当前光标下面了。
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+a line          a line        a line
+line 2    dd    line 3    p   line 3
+line 3                        line 2
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+因为你删除的是整行的内容，所以\VimDQuote{p}命令把整个文本行都放到光标下面作为
+单独一行。如果你删除的是一行的部分内容(比如说一个word), \VimDQuote{p}命令就会
+把这部分文本放到当前光标后面\VimMyFootnote{译注：不会因此多出一个新行}。
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+Some more boring try text to out commands.}
+                 ---->
+                  dw
+
+\textcolor{VimHelpHeaderColor}{
+Some more boring text to out commands.}
+                 -------->
+                    welp
+
+\textcolor{VimHelpHeaderColor}{
+Some more boring text to try out commands.}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{关于PUTTING的更多内容}
+
+\VimDQuote{P}命令与\VimDQuote{p}一样取回被删除的内容，不过它把被取回的内容置于
+光标之前。对于以\VimDQuote{dd}删除的整行内容，\VimDQuote{P}会把它置于当前行的
+上一行。对于以\VimDQuote{dw}删除的部分内容，\VimDQuote{P}会把它放回到光标之前
+\VimMyFootnote{译注：即光标左边}。
+
+你可以多次取回被删除的内容。其内容取之不竭。
+
+也可以对命令\VimDQuote{p}和\VimDQuote{P}命令使用命令记数。它的效果是同样的内容
+被取回指定的次数。这样一来\VimDQuote{dd}之后的\VimDQuote{3p}就可以把被删除行
+的3份副本放到当前位置。
+
+
+\VimSubSection{交换两个字符}
+
+输入文本的时候，人们常常会发现手比脑跑得要快(或者脑比手跑得快). 不管谁更快结果
+都是拼错字，比如把\VimDQuote{the}拼成\VimDQuote{teh}. 在Vim中改正此类错误十分
+容易，把光标置于\VimDQuote{teh}的e上执行命令\VimDQuote{xp}. 它的工作如下：
+\VimDQuote{x}删除字符e并把它放入一个寄存器中。 \VimDQuote{p}命令把被删除的e再
+放回到当前光标之后，也就是h后面。
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+teh     th     the}
+ x       p
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimSecDest{04.6}{\ChapterFourSectionSixTitle}
+
+要把文本内容从一处复制到另一处，你可以先删除它，然后马上用\VimDQuote{u}命令恢
+复删除。再用\VimDQuote{p}把它放到你想要的地方去。不过做这件事还有另一种更快的方
+法：yanking \VimMyFootnote{译注：在计算机的史前史中yanking一词表示现今的复制功
+能，你完全可以理解为Windows系统上的\VimSpecialChar{CTRL-C}, 但是够年头的
+老字号编辑器比如Vim或Emacs文档中都用yanking}. \VimDQuote{y}操作符命令会把文
+本复制到一个寄存器\VimMyFootnote{译注：所谓\VimDQuote{一个寄存器}是指默认的寄
+存器(\VimTT{"})}中。然后可以用\VimDQuote{p}命令把它取回。
+
+   Yanking只是Vim对复制的另一种说法，\VimDQuote{c}字母已经用来表示更改操作符了
+\VimMyFootnote{译注：代表单词change, 所以不能再代表copy了}, \VimDQuote{y}还没人占用。把这个操
+作符叫做\VimDQuote{yank} 也会时时提醒你记得用\VimDQuote{y}操作符。
+
+因为\VimDQuote{y}是一个操作符命令，所以你可以用\VimDQuote{yw}来复制一个word. 
+同样可以使用命令记数。如下例中用\VimDQuote{y2w}命令复制两个word:
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+let sqr = LongVariable *}
+         -------------->
+               y2w
+
+\textcolor{VimHelpHeaderColor}{
+let sqr = LongVariable *}
+                       p
+
+\textcolor{VimHelpHeaderColor}{
+let sqr = LongVariable * LongVariable}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+注意\VimDQuote{yw}复制的内容中包括了word之后的空白字符。如果你不想要它们，那就
+用\VimDQuote{ye}. 
+
+\VimDQuote{yy}命令复制一整行，就象\VimDQuote{dd}是删除一整行一样。不过并不象
+\VimDQuote{D}删除当前光标至行尾的内容那样，\VimDQuote{Y}也是复制整行的内容。注
+意这种规律中的例外！复制当前光标至行尾的命令是\VimDQuote{y\$}. 
+
+\begin{VimVBDisplayNoAdjustSpace}
+a text line   yy        a text line            a text line
+line 2                  line 2          p      line 2
+last line               last line              a text line
+                                               last line
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimSecDest{04.7}{\ChapterFourSectionSevenTitle}
+
+如果你用的是Vim的GUI版本(gvim), 你会在\VimDQuote{Edit}菜单中发现
+\VimDQuote{Copy}命令。首先在Visual模式下选择一些文本，然后用Edit/Copy菜单。现
+在被选择的文本就被复制到了剪贴板。这样你就可以在其它程序里粘贴这些内容了。当然
+也可以在Vim里面使用\VimMyFootnote{译注：从技术上说，此处的Copy命令与Normal模式下的yank命令
+区别在于工具栏或菜单中的Copy是把内容复制到了各应用程序共享的公用剪贴板上
+，Vim中对应的寄存器是*,而y命令则把文本对象复制到了Vim内部的默认寄存器上\VimTT{"}上，
+它是Vim私有的}.  
+
+如果你在其它应用程序里把文本内容复制到了剪贴板，也可以用Vim的Edit/Paste菜单把
+它粘贴过来。这在Normal模式和Insert模式下都可以。在Visual模式下被选中的文本就会
+被粘贴进来的内容给替换掉。
+
+\VimDQuote{Cut}菜单命令会在把文本放到剪贴板之前先将其删除。\VimDQuote{Copy},
+\VimDQuote{Cut}和\VimDQuote{Paste}菜单命令可从上下文菜单中选取(当然前提是要有
+上下文菜单才行). 如果你的Vim有一个工具栏的话，你应该也能在那里找到它们对应的小
+图标。 
+
+如果你没用GUI, 或者你不喜欢用菜单，你也可以用另一种方法来做同样的事。使用通常
+的\VimDQuote{y}(yank)和\VimDQuote{p}(put)命令，不过在命令之前附加一个
+\VimTT{"}*(一个双引号，紧挨着是一个星). 要把一行内容复制到剪贴板：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"*yy
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+要把剪贴板的内容复制过来：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"*p
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这些功能只有Vim支持剪贴板操作时才可用。关于剪贴板操作的更多内容请参考
+\VimSecSrc{09.3}和\VimCommonSrc{clipboard}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{04.8}{\ChapterFourSectionEightTitle}
+
+如果光标位于一个单词的中间而你要删除这个单词，通常你需要把光标移到该单词的开头
+然后用\VimDQuote{dw}命令。不过有一个更简单的办法：\VimDQuote{daw}
+\VimMyFootnote{译注：Vim也赞成Perl的哲学：There is more than one way to do the
+same thing. \<huanlf@gmail.com>这位朋友建议我把上一版中的PERL改
+为Perl, 理由如下：Perl是一个语言，perl是个解释器，有句话说：只有perl能编译Perl.
+用PERL这个词的一般是因为对Perl不甚了解}. 
+
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+this is some example text.
+\textcolor{black}{
+               daw}
+
+this is some text.
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{daw}中的\VimDQuote{d}还是操作符命令。\VimDQuote{aw}是一个文本对象。
+提示：\VimDQuote{aw}意为\VimDQuote{A Word}. 这样\VimDQuote{daw}的完整意思是
+\VimDQuote{Delete A Word}, 更准确地说，该Word之后的空白字符也被删除了(即位于行
+末尾的单词之前的空白).
+
+使用文本对象是在Vim中更改文本的第三种方法。我们已经介绍过操作符+位移命令
+和Visual模式了。现在来看一下操作符命令\VimTT{+}文本对象。
+
+   它很象操作符+位移命令，但是它的起始点不象前者一样始于当前光标，终于位移命令
+。它不管当前光标所在的位置而把整个文本对象作为操作对象。
+
+要修改一整个句子使用命令\VimDQuote{cis}. 以下面的文本为例：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Hello there.  This
+is an example.  Just
+some text.
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+现在把光标移到第二行的\VimDQuote{is an}上。使用\VimDQuote{cis}命令：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Hello there.    Just
+some text.
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+光标被置于第一行中的空白位置。现在你可以在此键入新的句子\VimDQuote{Another line.}:
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Hello there.  Another line.  Just
+some text.
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{cis}由操作符\VimDQuote{c}和文本对象\VimDQuote{is}组成。它是
+\VimDQuote{Inner Sentence}的缩写。相应地还有一个叫\VimDQuote{as}(a sentence)的
+。如果你想删除一个句子，你会希望把它后面的空白也给删除，所以此时最好用
+\VimDQuote{das}.如果你是想以新的文本替代它，空白就可以留下来，使用
+\VimDQuote{cis}好了。
+
+你也可以在Visual模式使用文本对象。它将把指定的文本对象选进Visual模式的文本选择
+区域中。当前模式仍是Visual模式，所以你可以多次使用该命令。例如，以
+\VimDQuote{v}开始Visual模式，以\VimDQuote{as}选取一个句子。现在你可以重复使用
+\VimDQuote{as}来包括进更多的句子。最后你可以用一个操作符命令来作用于最终被选中
+的范围。
+
+你可以在\VimCommonSrc{text-objects}处发现一个很长的文本对象列表。
+
+%======...
+\VimSepartor
+
+\VimSecDest{04.9}{\ChapterFourSectionNineTitle}
+
+\VimDQuote{R}命令会让Vim进入replace模式。在此模式下，每个键入的字符都会替换掉
+当前光标下的字符。直到你键入\VimSpecialChar{<Esc>}结束该模式\VimMyFootnote{译注：replace模式
+下的例外是按下回车键并不会把当前字符替换为回车，而是插入一个回车}.  
+
+   下例中你可以在\VimDQuote{text}的\VimDQuote{t}上开始进入Replace模式：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+This is text.
+\textcolor{black}{
+        Rinteresting.\VimSpecialChar{<Esc>}}
+
+This is interesting.
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+也许你已经注意到该命令用12个字符的\VimDQuote{interesting.}替换掉了原来的5个字
+符\VimDQuote{text.}\VimMyFootnote{译注：对这句话的翻译我当时就是一根筋拧住了，
+死活想不出来这12从何而来，感谢\<ringken@gmail.com>的指正。}.
+\VimDQuote{R}命令会在无字符可替换时继续拓展该行以容纳更多你要键入的内容。不过
+并不会延续到下一行。
+
+你可以用\VimSpecialChar{<Insert>}键来在Insert模式和Replace模式之间来回切换。
+\VimMyFootnote{译注：在Replace模式下}你按下\VimSpecialChar{<BS>}键作出修改时，你会发现原来的字
+符又回来了。所以它对于最后键入的字符来说实际上等价于一个撤消操作。
+
+%======...
+\VimSepartor
+
+\VimSecDest{04.10}{\ChapterFourSectionTenTitle}
+
+操作符命令，位移命令和文本对象可以让你在使用这些命令时任意组合。现在你已经知道
+它们是如何工作的了，你可以使用操作符命令N配上位移命令M来构造一个N*M命令了！
+
+你可以在\VimCommonSrc{operator}找到一个操作符命令的列表。
+
+比如，有多种办法可以删除文本。下面是一些常用的方法：
+
+\begin{VimVBListNoIndent}[commandchars=\\\{\}]
+x       删除当前光标下的字符("dl"的快捷命令)
+X       删除当前光标之前的字符("dh"的快捷命令)
+D       删除自当前光标至行尾的内容("d$"的快捷命令)
+dw      删除自当前光标至下一个word的开头
+db      删除自当前光标至前一个word的开始
+diw     删除当前光标所在的word(不包括空白字符)
+daw     删除当前光标所在的word(包括空白字符)
+dG      删除当前行至文件尾的内容
+dgg     删除当前行至文件头的内容
+\end{VimVBListNoIndent}
+\vspace{-1.3\parskip}
+
+如果你用\VimDQuote{c}命令代替\VimDQuote{d}这些命令就都变成更改命令。使用
+\VimDQuote{y}就是yank命令，如此类推。
+
+此外还有一些很常用的用于更改文本内容的命令：
+
+\VimNewFooterInVerbatim
+\begin{samepage}
+
+\begin{VimVBList}[commandchars=\\\{\}]
+~    改变当前光标下字符的大小写，并将光标移至下一个字符。这不是
+     一个操作符命令(除非你设置了'tildeop'选项\VimFooterMarkInVerbatim{}), 所以你
+     不能让它与一个位移命令搭配使用。但它可以在Visual模式下改变
+     所有被选中的文本的大小写。
+
+I    将光标置于当前行第一个非空白字符处并进入Insert模式
+
+A    当光标置于当前行尾并进入Insert模式
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_128}{view_128}\hypertarget{view_128}{}\fbox{\textcolor{red}{Review}}\\
+\VimFootnoteForListEnv{
+\VimFooterTextInVerbatim{译注：不论是否设置\VimSQ{}tildeop\VimSQ{}选项你都可
+以用g\VimTT{\~}命令，它是一个操作符命令}
+}
+\end{samepage}
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{05}  \ChapterFiveTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

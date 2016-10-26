@@ -1,0 +1,832 @@
+\VimNewChapter
+\VimBookMark{第29章　\ChapterTwentyNineTitle}{usr_29.txt}
+\VimFileNameDest{usr\VimTT{\_}29.txt}{ \VimDocVer  最后修改：2008年06月28日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar}
+
+\VimBookChapter{在源代码中移动}
+
+Vim的作者就是一个程序员\VimMyFootnote{译注：这句大白话翻译得有点...让我想起里
+根的一句名言：美国是一个大国，人民主要是美国人}.所以不奇怪Vim拥有大量辅助
+写程序的功能：辗转于标识符的定义语句与引用语句。在另一个窗口中预览程序中相应的
+声明部分，等等。下一章还会介绍更多这方面的东西。
+
+\VimSecList{29.1}{\ChapterTwentyNineSectionOneTitle}
+\VimSecList{29.2}{\ChapterTwentyNineSectionTwoTitle}
+\VimSecList{29.3}{\ChapterTwentyNineSectionThreeTitle}
+\VimSecList{29.4}{\ChapterTwentyNineSectionFourTitle}
+\VimSecList{29.5}{\ChapterTwentyNineSectionFiveTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{30}  \ChapterThirtyTitle\\
+前一章：& \VimFileName{28}  \ChapterTwentyEightTitle\\
+目　录：& \VimFileName{toc} \\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+\VimSecDest{29.1}{\ChapterTwentyNineSectionOneTitle}
+
+tag是什么？一个位置。记录了关于一个标识符在哪里被定义的信息。比如C或C\VimTT{\VimTT{++}}程序
+中的一个函数定义。这种tag聚集在一起被放入一个tags文件。这个文件可以让Vim能够
+从任何位置起跳达到tag所指示的位置--标识符被定义的位置。
+
+   下面的命令可以为当前目录下的所有C程序文件生成对应的tags文件：
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+ctags *.c
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{ctags}是一个独立的程序。绝大多数Unix系统上都会预装这个程序，如果你的系统上
+还没有，你可以在下面找到一个功能丰富的ctags:
+
+\begin{VimVBurl}[commandchars=\\\{\}]
+\VimInlineURL{http://ctags.sf.net}
+\end{VimVBurl}
+\vspace{-1.3\parskip}
+
+现在你在Vim中要跳到一个函数的定义就可以用下面的命令：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tag startlist
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个命令会带你到函数\VimDQuote{startlist}的定义处，哪怕它是在另一个文件中。
+
+   \VimSpecialChar{CTRL-\VimTT{]}}命令会取当前光标下的word作为tag的名字并直接
+跳转。这使得在大量C程序中进行探索更容易一些。假设你正看函数
+\VimDQuote{write\VimTT{\_}block}, 发现它调用了一个叫
+\VimDQuote{write\VimTT{\_}line}的函数，这个函数是干什么的呢？你可以把光标置于
+\VimDQuote{write\VimTT{\_}line}上，按下\VimSpecialChar{CTRL-\VimTT{]}}即可。
+
+   如果\VimDQuote{write\VimTT{\_}line}函数又调用了
+\VimDQuote{write\VimTT{\_}char}.你当然又要知道这个函数又是什么功能。同时，置当
+标于\VimDQuote{write\VimTT{\_}char}上按下\VimSpecialChar{CTRL-\VimTT{]}}. 现
+在你位于函数\VimDQuote{write\VimTT{\_}char}的定义处。
+
+\begin{VimVBCodeSippetNoAdjustSpace}
++-------------------------------------+
+|void write_block(char **s; int cnt)  |
+|{                                    |
+|   int i;                            |
+|   for (i = 0; i < cnt; ++i)         |
+|      write_line(s[i]);              |
+|}          |                         |
++-----------|-------------------------+
+            |
+     CTRL-] |                                 
+            |  +----------------------------+ 
+            +->|void write_line(char *s)    | 
+               |{                           | 
+               |   while (*s != 0)          | 
+               |      write_char(*s++);     | 
+               |}       |                   | 
+               +--------|-------------------+ 
+                        |                                         
+                 CTRL-] |                                         
+                        |  +------------------------------------+ 
+                        +->|void write_char(char c)             | 
+                           |{                                   | 
+                           |    putchar((int)(unsigned char)c); | 
+                           |}                                   | 
+                           +------------------------------------+ 
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:tags}命令会列出现在你就已经到过哪些tag了：
+
+\begin{VimVBexcmd}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+:tags
+  # TO tag         FROM line  in file/text
+  1  1 write_line          8  write_block.c
+  2  1 write_char          7  write_line.c
+>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在往回走。\VimSpecialChar{CTRL-T}命令会跳到你前一次的tag处。在上例中它会带
+你到调用了\VimDQuote{write\VimTT{\_}char}的\VimDQuote{write\VimTT{\_}line}函数
+的地方。
+
+   \VimSpecialChar{CTRL-T}可以带一个命令记数，以此作为往回跳的次数，你已经向
+前跳过了，现在正在往回跳，我们再往前跳一次。下面的命令可以直接跳转到当前tag序列
+的最后：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tag
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你也可以给它一个前辍，让它向前跳指定的步长。比如\VimDQuote{:3tag}. 
+\VimSpecialChar{CTRL-T}也可以带一个前辍。
+
+   这些命令可以让你向下深入一个函数调用树(使用
+\VimSpecialChar{CTRL-\VimTT{]}}), 也可以回溯跳转(使用
+\VimSpecialChar{CTRL-T}). 还可以随时用\VimDQuote{:tags}看你当前的跳转历史记录。
+
+
+\VimSubSection{分隔窗口}
+
+\VimDQuote{:tag}命令会在当前窗口中载入包含了目标函数定义的文件\VimMyFootnote{
+译注：如果它是在另外的文件中的话}。但假设你不仅要查看新的函数定义，还要同时保
+留当前的上下文呢？你可以在分隔窗口命令\VimDQuote{:split}后再跟一个
+\VimDQuote{:tag}命令。Vim还有一个一举两得的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:stag tagname
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要分隔当前窗口并跳转到光标下的tag:
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-W ]
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+如果同时还指定了一个命令记数，它会被当作新开窗口的行高。
+
+
+\VimSubSection{多个tags文件}
+
+如果你的源文件位于多个目录下，你可以为每个目录都建一个tags文件。Vim会在使用某
+个目录下的tags文件进行跳转时只在那个目录下跳转\VimMyFootnote{译注：比如多个目录下的源程序中
+含有相同名字的标识符时}。
+
+   要使用更多tags文件，可以通过改变\VimOption{tags}选项的设置来引入更多的tags文件。如：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set tags=./tags,./../tags,./*/tags
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这样的设置使Vim可以使用当前目录下的tags文件，上一级目录下的tags文件，以及
+当前目录下所有子目录下的tags文件。
+
+   这样可能会引入很多的tags文件，但还有可能不敷其用。比如说你正在编辑
+\VimDQuote{\~{}/proj/src}下的一个文件，但又想使用
+\VimDQuote{\~{}/proj/sub/tags}作为tags文件。
+对这种Vim情况提供了一种深度搜索目录的形式。如下：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set tags=~/proj/**/tags
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{单个tags文件}
+
+Vim在搜索众多的tags文件时，你可能会听到你的硬盘在咔嗒咔嗒拼命地叫。显然这会
+降低速度。如果这样还不如花点时间生成一个大一点的tags文件。这可能要花一个通宵
+\VimMyFootnote{译注：没那么恐怖了，现在的PC个个威力十足，象Linux内核或Xwindows也是数分钟内
+可以搞定的}。
+
+   这需要一个功能丰富的ctags程序，比如上面提到的那个。它有一个参数可以搜索整个
+目录树：
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+cd ~/proj
+ctags -R .
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+用一个功能更强的ctags的好处是它能处理多种类型的文件。不光是C和\VimCPP{}源程序，也
+能对付Eiffel或者是Vim脚本。你可以参考ctags程序的文件调整自己的需要。
+
+   现在你只要告诉Vim你那一个tags文件在哪就行了：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set tags=~/proj/tags
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{同名tag}
+
+当一个函数被多次重载(或者几个类里都定义了一些同名的函数), \VimDQuote{:tag}命令会跳转
+到第一个符合条件的。如果当前文件中就有一个匹配的，那又会优先使用它。
+
+   当然还得有办法跳转到其它符合条件的tag去：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tnext
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+重复使用这个命令可以发现其余的同名tag. 如果实在太多，还可以用下面的命令从中直接
+选取一个：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tselect tagname
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会提供给你一个选择列表：
+
+% vim: no special highlight in verbatim
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+  # pri kind tag               file
+  1 F   f    mch_init          os_amiga.c
+               mch_init()
+  2 F   f    mch_init          os_mac.c
+               mch_init()
+  3 F   f    mch_init          os_msdos.c
+               mch_init(void)
+  4 F   f    mch_init          os_riscos.c
+               mch_init()
+Enter nr of choice (<CR> to abort): 
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在你只需键入相应的数字(位于第一栏的). 其它栏中的信息是为了帮你作出决策的。
+
+在多个匹配的tag之间移动，可以使用下面这些命令：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tfirst                 go to first match
+:[count]tprevious       go to [count] previous match
+:[count]tnext           go to [count] next match
+:tlast                  go to last match
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果没有指定[count], 默认是1.
+
+
+\VimSubSection{tag的名字...}
+
+命令补齐真是避免键入一个长tag名的好办法。只要输入开头的几个字符然后按下制表符：
+
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tag write_<Tab>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会为你补全第一个符合的tag名。如果还不合你意，接着按制表符直到找到你要的。
+
+   有时候你只记得一个tag名的片段。或者有几个tag开头相同。这里你可以用一个模式
+匹配来告诉Vim你要找的tag.
+
+   假设你想跳转到一个包含\VimDQuote{block}的tag. 首先键入命令\VimMyFootnote{译
+注：不要急着按回车键，看下面}:
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tag /block
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在使用命令补齐：按\VimSpecialChar{<Tab>}. Vim会找到所有包含
+\VimDQuote{block}的tag并先提供给你第一个符合的。
+
+   \VimDQuote{/}告诉Vim下面的名字不是一五一十的tag名，而是一个搜索模式。通常的搜索技巧
+都可以用在这里。比如你有一个tag以\VimDQuote{write\_}开始：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tselect /^write_
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{\^{}}表示这个tag以\VimDQuote{\VimTT{write\_}}开始。不然在半中间
+出现write的tag也会被搜索到。同样\VimDQuote{\$}可以用于告诉Vim要查找的tag如
+何结束。
+
+
+\VimSubSection{tags的浏览器}
+
+\VimSpecialChar{CTRL-]}可以直接跳转到以当前光标下的word为tag名的地方去，所以可以在一个tag列表
+中使用它。下面是一个例子。
+
+   首先建立一个标识符的列表(这需要一个好的ctags):
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+ctags --c-types=f -f functions *.c
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+现在直接启动Vim, 以一个垂直分隔窗口的编辑命令打开生成的文件
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim
+:vsplit functions
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+这个窗口中包含所有函数名的列表。可能会有很多内容，但是你可以暂时忽略它。用一个
+\VimDQuote{:setlocal ts=99}命令清理一下显示。
+
+   在该窗口中，定义这样的一个映射：
+
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:nnoremap <buffer> <CR> 0ye<C-W>w:tag <C-R>"<CR>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在把光标移到你想要查看其定义的函数名上，按下回车键，Vim就会在另一个窗口中打开
+相应的文件并定位到到该函数的定义上。
+
+
+\VimSubSection{其它相关主题}
+
+设置\VimOption{ignorecase}也可以让tag名的处理忽略掉大小写。
+
+\VimOption{tagbsearch}选项告诉Vim当前参考的tags文件是否是排序过的。默认情况假设该文件是
+排序过的，这会使tag的搜索快一些，但如果tag文件实际上没有排序就可能会在搜索时漏掉
+一些tag.
+
+\VimOption{taglength}告诉Vim一个tag名字中有效部分的字符个数。
+
+\VimBeginMyChunkNote
+\begin{VimVBCodeSippetNoAdjustSpace}
+#include <stdio.h>
+int very_long_variable_1;
+int very_long_variable_2;
+int very_long_variable_3;
+int very_long_variable_4;
+
+int main()
+{
+    very_long_variable_4 = very_long_variable_1 *
+        very_long_variable_2;
+}
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_162}{view_162}\hypertarget{view_162}{}\fbox{\textcolor{red}{Review}}\\
+对于上面这段代码，4个变量长度都为20, 如果将\VimOption{taglength}设为10, 则
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tag very_long_variable_4
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_163}{view_163}\hypertarget{view_163}{}\fbox{\textcolor{red}{Review}}\\
+会匹配到4个tag, 而不是1个，光标停留在\VimTT{very\_long\_variable\_1}所在行上，
+因为被搜索的tag部分只有前面的10个字符：
+\VimDQuote{\VimTT{very\_long\_}}, 相应的显示是(是gvim中文版的真正显示，不是翻译的):
+\begin{VimVBDisplayNoAdjustSpace}
+找到 tag: 1/4 或更多
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimEndMyChunkNote
+
+如果你使用SNiFF\VimTT{+}, 你可以使用Vim与它通讯。
+参考\VimCommonSrc{sniff}. SNiFF是一个商业程序。
+
+Cscope是一个可自由使用的程序。它不仅可以找到标识符在哪里定义，也可以找出它们
+在哪里被使用。参考\VimCommonSrc{cscope}. 
+
+%======...
+\VimSepartor
+\VimSecDest{29.2}{\ChapterTwentyNineSectionTwoTitle}
+
+当你在写一个函数调用时，往往需要获知这个函数的参数列表--查看函数的定义。tag所
+提供的机制正为此用。最好是函数的定义可以显示在另一窗口中以免影响当前的编辑。
+这可以由预览窗口提供。
+
+   要打开一个预览窗口显示函数\VimDQuote{write\VimTT{\_}char}的定义使用命令：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:ptag write_char
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会打开一个窗口，并将找到的\VimDQuote{write\VimTT{\_}char}函数的定义显示其中
+。此时光标仍保持在你的当前编辑位置。这样你无需以\VimSpecialChar{CTRL-W} k来切
+换窗口就可以继续工作。
+
+   如果一个函数名出现在当前文本中，你还可以以下面的命令在预览窗口中打开它：
+
+\begin{VimVBnormalcmdNoAdjustSpace}
+CTRL-W }
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+Vim的发行包中还有一个脚本用来自动显示以当前word为tag的定义。
+参考\VimCommonSrc{CursorHold-example}. 
+
+要关闭该预览窗口，使用命令：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:pclose
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要在预览窗口中编辑一个文件，使用\VimDQuote{:pedit}. 这主要用于在预览窗口中编辑一个
+头文件，比如：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:pedit defs.h
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+最后，\VimDQuote{:psearch}可以搜索当前文件以及它所include的文件并显示匹配的行。尤其是
+在使用以库的形式提供的函数时，这时不会有对应的tags文件。比如：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:psearch popen
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这会在预览窗口中显示\VimDQuote{stdio.h}文件，定位在popen()的原型上：
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+FILE    *popen __P((const char *, const char *));
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimOption{previewheight}选项用于指定打开一个预览窗口时它占多少行的屏幕高度。
+
+%======...
+\VimSepartor
+\VimSecDest{29.3}{\ChapterTwentyNineSectionThreeTitle}
+
+因为程序一般是结构良好的文本，所以Vim得以识别其中的元素。有一些特殊的命令
+就利用这一点提供一些便利的功能方便在程序中移动。
+
+   C程序经常有如下的结构：
+
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+#ifdef USE_POPEN
+    fd = popen("ls", "r")
+#else
+    fd = fopen("tmp", "w")
+#endif
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+但实际情况往往比这段代码长，而且很可能含有此类结构的嵌套。把光标置于
+\VimDQuote{\VimSharp{}ifdef}上按下~\VimPercent{}. Vim就会跳转到
+\VimDQuote{\VimSharp{}else}.再次按~\VimPercent{}~又会跳转到
+\VimDQuote{\VimSharp{}endif}. 再一次按下~\VimPercent{}~又会回到
+\VimDQuote{\VimSharp{}ifdef}上。
+
+   当上述结构被嵌套使用时，Vim会准确找到匹配的对应元素。这是检查是否遗漏
+\VimDQuote{\VimSharp{}endif}的好办法。
+
+   当你在\VimDQuote{\VimSharp{}if}-\VimDQuote{\VimSharp{}endif}结构的中间某个地方时，
+可以使用这个命令跳转到此结构的开始元素\VimMyFootnote{译注：指\VimDQuote{\VimSharp{}if}}:
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+[#
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+如果你不是在\VimDQuote{\VimSharp{}if}或\VimDQuote{\VimSharp{}ifdef}的后面使用
+这个命令，Vim会发出蜂鸣声以示警告。要向前跳转到下一
+个\VimDQuote{\VimSharp{}else}或\VimDQuote{\VimSharp{}endif}使用命令：
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+]#
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这两个命令会跳过\VimDQuote{\VimSharp{}if}-\VimDQuote{\VimSharp{}endif}块的内容。如下例：
+
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+#if defined(HAS_INC_H)
+    a = a + inc();
+# ifdef USE_THEME
+    a += 3;
+# endif
+    set_width(a);
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+置光标于最后一行按下\VimDQuote{\VimTT{[\#}}命令会移动到第一行。中间
+\VimDQuote{\VimSharp{}ifdef}-\VimDQuote{endif}块都会被跳过去。
+
+
+\VimSubSection{在代码块中移动}
+
+在C代码中代码块以\VimTT{\{\}}括起来。代码块可长可短。要移动到一个代码块的开头，
+使用\VimDQuote{\VimTT{[[}}命令。\VimDQuote{\VimTT{][}}可以到它的末尾，
+这两个命令都假设\VimDQuote{\VimTT{\{}}和\VimDQuote{\VimTT{\}}}字符位于第一列。
+
+   \VimDQuote{\VimTT{[\{}}命令跳转到当前代码块的开头，它会跳过与它平级的代码块。
+相应地\VimDQuote{\VimTT{]\}}}会跳转到当前代码块的末尾。
+	
+    来看一段例子：
+\begin{VimVBCodeSippetNoAdjustSpace}
+                function(int a)
+   +->          {
+   |                if (a)
+   |       +->      {
+[[ |       |            for (;;)               --+
+   |       |      +->   {                        |
+   |    [{ |      |         foo(32);             |     --+
+   |       |   [{ |         if (bar(a))  --+     | ]}    |
+   +--     |      +--           break;     | ]}  |       |
+           |            }                <-+     |       | ][
+           +--          foobar(a)                |       |
+                    }                          <-+       |
+                }                                      <-+
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+写\VimCPP{}或Java的源代码时\VimMyFootnote{译注：推而广之，类似的语法形式的面向
+对象语言，如C\VimSharp{}, Eiffel也都一样}，外层的\VimTT{\{\}}用于类的定义。下
+一级的\VimTT{\{\}}才是函数定义。光标在类中时使用\VimDQuote{\VimTT{[}m}可以找到
+前一个函数的开始。 \VimDQuote{\VimTT{]}m}到下一个函数的开始\VimMyFootnote{译注
+：对于Java或C\VimSharp{}, 其类的成员函数的定义既是声明，正是这里的情况，
+对于\VimCPP{}, 成员函数的定义可以在声明时同时指定，也可以在完成类定义后定义成
+员函数，这与前面对C程序的处理类似}。
+
+另外，\VimDQuote{\VimTT{[]}}是查找上一个函数的结尾，
+\VimDQuote{\VimTT{]]}}则查找下一个函数的开始，函数的结尾以第一行出现
+\VimDQuote{\VimTT{\}}}为标志。
+
+\begin{VimVBCodeSippetNoAdjustSpace}
+                        int func1(void)
+                        {
+                                return 1;
+          +---------->  }
+          |
+      []  |             int func2(void)
+          |        +->  {
+          |    [[  |            if (flag)
+start     +--      +--                  return flag;
+          |    ][  |            return 2;
+          |        +->  }
+      ]]  |
+          |             int func3(void)
+          +---------->  {
+                                return 3;
+                        }
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+别忘了你还可以使用\VimDQuote{\VimTT{\%}}在(), \VimTT{\{\}}和\VimTT{[]}之间移动，
+这些符号跨越多行时该命令仍然有效。
+
+\VimSubSection{括号内的移动}
+
+\VimDQuote{\VimTT{[}(}和\VimDQuote{\VimTT{]})}命令类似于
+\VimDQuote{\VimTT{[\{}}和\VimDQuote{\VimTT{]\}}},
+只不过它工作于()的内部而不是\VimTT{\{\}}内部。
+\begin{VimVBCodeSippetNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimExampleColor}{
+                  [(}
+    <--------------------------------
+              <-------
+\textcolor{VimHelpHeaderColor}{
+if (a == b && (c == d || (e > f)) && x > y)}
+                  -------------->
+          --------------------------------> >
+\textcolor{VimExampleColor}{
+                       ])}
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimSubSection{注释内的移动}
+
+向后移动到注释的开头用使用\VimDQuote{\VimTT{[}/}. 向前移动到其末尾用
+\VimDQuote{\VimTT{]}/}. 这只对/* - */形式的注释有效。
+
+\begin{VimVBCodeSippetNoAdjustSpace}
+   +->     +-> /*
+   |    [/ |    * A comment about      --+
+[/ |       +--  * wonderful life.        | ]/
+   |            */                     <-+
+   |
+   +--          foo = bar * 3;         --+
+                                         | ]/
+                /* a short comment */  <-+
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+\VimSecDest{29.4}{\ChapterTwentyNineSectionFourTitle}
+
+你在写C程序时可能经常会想知道一个变量是被声明为\VimDQuote{int}还是
+\VimDQuote{unsigned}. 解决这个问题的快速办法是使用\VimDQuote{\VimTT{[}I}命令。
+
+   假设你的光标置身于\VimDQuote{column}上。键入：
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+[I
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+Vim会列出所有包含该标识符的行。不光在当前文件中，也查找当前文件所include的文件
+\VimMyFootnote{译注：指C/\VimCPP{}程序中用\VimSharp{}include语句引入的文件，通
+常是头文件如stdio.h}，以及在头文件中include的其它头文件，如此类推。结果类
+似于：
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+structs.h
+ 1:   29     unsigned     column;    /* column number */
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+使用tags或预览窗口的一个好处是include文件也会被搜索。多数情况下你都会找到要找
+的东西。即使你的tags文件已经过期，或者你并没有头文件对应的tags.
+
+   不过，\VimDQuote{\VimTT{[}I}的正常工作还是需要你预先告诉Vim一些事情，
+首先\VimOption{include} 选项定义什么样的文本行应被视为一个include指令。它的默认
+值是为C和\VimCPP{}而设的，对其它语言还需要做些调整。
+
+
+\VimSubSection{定位include文件}
+
+   Vim会在由选项\VimOption{path}指定的路径里查找include文件。如果漏掉了某个路径，可能
+就找不到一些include文件了。下面的命令可以用于检查路径是否正确：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:checkpath
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+它会列出所有能找到和不能找到的include文件。输出的示例如下：
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+--- Included files not found in path ---
+<io.h>
+vim.h -->
+  <functions.h>
+  <clib/exec_protos.h>
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimDQuote{io.h}文件被当前文件指定但找不到。\VimDQuote{vim.h}可以找到，
+所以\VimDQuote{:checkpath}命令继而深入\VimDQuote{vim.h}并检查它所include的文件。
+其中的\VimDQuote{functions.h}和\VimDQuote{clib/exec\VimTT{\_}protos.h}文件又没找到。
+
+\VimCaution{
+        \VimCautionTitle{备注}:
+        Vim不是编译器。它并不能识别\VimDQuote{\VimSharp{}ifdef}语句。
+        所以每个\VimDQuote{\VimSharp{}include}语句都
+        会被检查，即使它是在\VimDQuote{\VimSharp{}if NEVER}之后\VimMyFootnote{译注：
+        这里的意思是在实际编译过程该条件永远不会满足，比如C/\VimCPP{}中的
+	\VimSharp{}if 0}
+} %end VimCaution
+
+要处理这些找不到的文件，可以向\VimOption{path}选项中再添加一个搜索路
+径。到Makefile里去找要添加的路径是一个好办法，找到那些包含
+了\VimDQuote{-I}的行，比如\VimDQuote{-I/usr/local/X11}. 要把这个目录添加进去使用命令：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set path+=/usr/local/X11
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果有多个子目录，还可以使用通配符\VimDQuote{*}. 如：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set path+=/usr/*/include
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这会同时在\VimDQuote{/usr/local/include}和\VimDQuote{/usr/X11/include}下搜索文件。
+
+所从事的项目包含一个复杂的嵌套目录结构和众多头文件时，\VimDQuote{**}显得特别有用。它会
+指示Vim遍历向下的所有子目录。如：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set path+=/projects/invent/**/include
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这将会在下面目录中搜索include文件：
+
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+/projects/invent/include
+/projects/invent/main/include
+/projects/invent/main/os/include
+\textcolor{black}{etc.}
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+其它更多细节请参考\VimOption{path}. 
+
+   如果你想知道实际找到了哪些include文件，使用命令：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:checkpath!
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你可以会因此得到一个很长的头文件列表，包括每个头文件
+中include的其它头文件，如此类推。为缩减这个列表，Vim会对已经找到过的文件
+以\VimDQuote{(Already listed)}显示，并不再重复列出它们所包含的头文件了。
+
+
+\VimSubSection{跳转到匹配的目标}
+
+\VimDQuote{\VimTT{[}I}生成的列表只含有一行上下文信息。要仔细查看它找到的第一个匹配项，
+可以使用
+
+% vim: no special highlight in verbatim
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+[<Tab>
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+跳转到该项，也可以用\VimDQuote{\VimTT{[} \VimSpecialChar{CTRL-I}}, \VimSpecialChar{CTRL-I}等同于\VimSpecialChar{<Tab>}. 
+
+\VimDQuote{\VimTT{[}I}命令列出的列表中每一行都有一个标号。
+你要跳转到其它项时只要先键入对应的标号：
+
+% vim: no special highlight in verbatim
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+3[<Tab>
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这会跳转到列表中的第3项。记住\VimSpecialChar{CTRL-O}可以把你再带回来。
+
+
+\VimSubSection{相关命令}
+
+\begin{VimVBList}[commandchars=\\\{\}]
+[i              只列出第一个匹配的
+]I              只列出当前光标之后的匹配项
+]i              只列出当前光标之后的第一个匹配项
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{查找定义的标识符}
+
+\VimDQuote{\VimTT{[}I}命令查找任何的标识符。要只查找以
+\VimDQuote{\VimSharp{}define}定义的宏使用：
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+[D
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+同样它会遍历进include文件。\VimOption{define}选项定义了哪些行是
+\VimDQuote{[D}命令所要检查的。如果使用C和\VimCPP{}之外的语句你可以把它改为其它的值。
+
+   与\VimDQuote{\VimTT{[}D}相关的命令是：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+[d              只列出第一个匹配
+]D              只列出当前光标之后的匹配
+]d              只列出当前光标之后的第一个匹配
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+\VimSecDest{29.5}{\ChapterTwentyNineSectionFiveTitle}
+
+\VimDQuote{\VimTT{[}I}命令会搜索include文件。要使搜索限制在当前文件里并执行同样的功能，以命令：
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+gD
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+替代之。
+
+    提示：goto Definition. 这对查找一些静态的变量或函数很有用处。例如(假设光标
+在\VimDQuote{counter}上):
+
+\begin{VimVBCodeSippetNoAdjustSpace}
+   +->   static int counter = 0;
+   |
+   |     int get_counter(void)
+gD |     {
+   |         ++counter;
+   +--       return counter;
+         }
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+要进一步限制查找的范围，让它只在当前函数里查找，使用命令：
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+gd
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+它会先往回找到当前函数的开始然后向下查找当前光标下的word的第一次出现。实际上，
+它只是往回查找一个第一列是\VimDQuote{\VimTT{\{}}字符的行。
+然后再从那个位置向前查找目标标识符。如例(假设当前光标在\VimDQuote{idx}上):
+
+\begin{VimVBCodeSippetNoAdjustSpace}
+        int find_entry(char *name)
+        {
+   +->      int idx;
+   |
+gd |        for (idx = 0; idx < table_len; ++idx)
+   |            if (strcmp(table[idx].name, name) == 0)
+   +--              return idx;
+        }
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{30}  \ChapterThirtyTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

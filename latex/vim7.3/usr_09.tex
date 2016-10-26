@@ -1,0 +1,323 @@
+\VimNewChapter
+\VimBookMark{第09章　\ChapterNineTitle}{usr_09.txt}
+\VimFileNameDest{usr\VimTT{\_}09.txt}{ \VimDocVer  最后修改：2006年04月24日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{使用GUI\\}
+
+
+Vim运行在普通终端上。GVim除了能做跟Vim一样的工作之外，还有一些其它功
+能。GUI提供了菜单，工具栏，滚动条等等。本章的内容是关于GVim有别于Vim的GUI特性的。
+
+\VimSecList{09.1}{\ChapterNineSectionOneTitle}
+\VimSecList{09.2}{\ChapterNineSectionTwoTitle}
+\VimSecList{09.3}{\ChapterNineSectionThreeTitle}
+\VimSecList{09.4}{\ChapterNineSectionFourTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{10}  \ChapterTenTitle\\
+前一章：& \VimFileName{08}  \ChapterEightTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{09.1}{\ChapterNineSectionOneTitle}
+
+你应该在桌面上有一个启动gVim的图标。如果没有的话，可以用下面两个命令之一来
+启动：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+gvim file.txt
+vim -g file.txt
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+如果还是不能启动那说明你的Vim没有GUI功能。你要安装好先。
+
+   Vim会打开一个窗口并在其中显示\VimDQuote{file.txt}的内容。窗口的外观要看你的Vim版本
+而定。基本上大致是下图的样子(用ASCII来画这个也只能这样了！).
+
+\begin{VimVBDisplayNoAdjustSpace}[xleftmargin=-1cm,xrightmargin=-1cm]
++----------------------------------------------------+
+| file.txt + (~/dir) - VIM                         X |  <- window title
++----------------------------------------------------+
+| File  Edit  Tools  Syntax  Buffers  Window  Help   |  <- menubar
++----------------------------------------------------+
+| aaa  bbb  ccc  ddd  eee  fff  ggg  hhh  iii  jjj   |  <- toolbar
+| aaa  bbb  ccc  ddd  eee  fff  ggg  hhh  iii  jjj   |
++----------------------------------------------------+
+| file text                                          | ^ |
+| ~                                                  | # |
+| ~                                                  | # | <- scrollbar
+| ~                                                  | # |
+| ~                                                  | # |
+| ~                                                  | # |
+|                                                | V |
++----------------------------------------------------+
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+最大的区域还是留给了文本显示。这跟在终端中使用Vim一样。只有部分文本的颜色或
+字体有些不同。
+
+
+\VimSubSection{窗口标题}
+
+窗口顶部是它的标题。这由你的窗口系统负责显示。Vim会把当前文件的名字设为窗口
+的标题。首先是文件名，然后一些特殊字符和文件所在的目录。其中特殊字符是这样的
+形式：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+-       文件内容不可更改(例如一个帮助文件)
++       文件内容已被改变
+=       文件是只读的
+=+      文件是只读的，但内容已被更改
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+如果没有特殊字符的话就是一个未被更改的普通文件。
+
+
+\VimSubSection{菜单条}
+
+你早就知道菜单是怎么回事，对不对？Vim中的菜单也一样，不过当然也有自己的特色。
+请先浏览一下菜单看看你会怎么使用。以Edit/Global Settings菜单为例。你会看到
+下面这样的菜单命令：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+Toggle Toolbar          打开/关闭工具栏的显示
+Toggle Bottom Scrollbar 打开/关闭底部滚动条的显示
+Toggle Left Scrollbar   打开/关闭左边滚动条的显示
+Toggle Right Scrollbar  打开/关闭右边滚动条的显示
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+在多数系统上你都可以把这些菜单剪切下来使它成为一个浮动窗口。选择顶级菜单，
+你会看到最上面的菜单项是一行点线。点击该行它会变成一个包含了该菜单下所有命令的
+浮动窗口。该窗口在你关闭它之前都会一直存在。
+
+
+\VimSubSection{工具栏}
+
+工具栏包含了最常用命令的图标。希望这些图标的选择都是可以望图生意的。同时每个
+图标还有一个小提示描述它的功能(将鼠标移到图标上不要点击，稍停一下你会看到)
+
+\VimDQuote{Edit/Global Settings/Toggle Toolbar}菜单命令可以控制工具栏的存亡。如果你
+从来都不用工具栏，可以在你的vimrc文件里这样设置：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set guioptions-=T
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令将移除\VimOption{guioptions}选项中的\VimDQuote{T}标志。通过该选项还可以控制GUI的其它组件
+是否显示。请参考相关的帮助。
+
+
+\VimSubSection{滚动条}
+
+默认情况下右边会有一个滚动条。它的功能显而易见。当你分隔窗口时，
+每个窗口也都会有它自己的垂直滚动条。
+   你也可以通过\VimDQuote{Edit/Global Settings/Toggle Bottom Scrollbar}菜单命令来打开
+位于底部的水平滚动条。在diff模式下或者关闭了\VimOption{wrap}选项(稍后会有详解)时水平
+滚动条就派上用场了。
+
+如果有垂直分隔的窗口的话，只有最右边的窗口会有一个滚动条。而且你定位到左边的
+窗口时，滚动条所控制的还是最右边的窗口。你可能要花些时间来习惯它
+\VimMyFootnote{译注：在MS-Windows上，垂直分隔后窗口左边也会有一个滚动条，它控制除最右边窗口
+外所有窗口的滚动}。
+
+   如果你经常用到垂直分隔的窗口。可以考虑在窗口左边加一个滚动条。这可以通过
+控制\VimOption{guioptions}选项来实现：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set guioptions+=l
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令把\VimDQuote{l}标志加到\VimOption{guioptions}选项中去。
+
+%======...
+\VimSepartor
+
+\VimSecDest{09.2}{\ChapterNineSectionTwoTitle}
+
+标准化真是好东东。在微软Windows操作系统下，你可以用鼠标以通用的方式选取文本。
+X windows系统也有使用鼠标的标准。不幸的是，这两个标准本身并不相同。
+   幸运的是，你还可以定制Vim. 你可以让以X windows的方式或微软的方式来使用你的
+鼠标。下面的命令控制鼠标遵循X Window标准：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:behave xterm
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+下面的命令则使鼠标服从微软的标准：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:behave mswin
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+在UNIX系统上鼠标默认使用xterm标准。对于微软Windows系统安装时可以进行选择。
+关于这两套标准的更多内容，请参考\VimCommonSrc{:behave}. 下面是一个小结。
+
+\VimSubSection{XTERM鼠标}
+
+\begin{VimVBList}[commandchars=\\\{\}]
+左键单击                        定位光标
+左键拖动                        在Visual模式下选取文本
+中键单击                        粘贴剪贴板的内容
+右键单击                        扩展被选择的文本到单击的位置
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{微软Windows下的鼠标行为}
+
+\begin{VimVBList}[commandchars=\\\{\}]
+左键单击                        定位光标
+左键拖动                        在Visual模式下选取文本(参考\VimSecSrc{09.4})
+左键单击，同时按下Shift键       扩展被选择的文本到单击的位置
+中键单击                        粘贴剪贴板的内容
+右键单击                        显示弹出菜单
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+鼠标的行为还可进一步调节。如果你想进一步定制鼠标的话请参考下面的选项：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+\VimOption{mouse}        Vim在哪些模式中使用鼠标
+\VimOption{mousemodel}   控制鼠标单击的效果
+\VimOption{mousetime}    双击鼠标的间隔时间
+\VimOption{mousehide}    键入时隐藏鼠标
+\VimOption{selectmode}   控制如何可以进入Visual模式或选择模式
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimSecDest{09.3}{\ChapterNineSectionThreeTitle}
+
+在\VimSecSrc{04.7}节中介绍了剪贴板的基本使用。不过关于X-windows系统还有一个重要的不同：
+它有两个地方供应用程序之间交换信息。MS-Windows没有此项功能。
+
+在X-Windows系统中有一个\VimDQuote{当前选择区}。这是当前被高亮显示的文
+本。在Vim中这就是Visual区域(假设你用的是默认的设置). 你可以在另外的程序中
+直接粘贴这部分内容。
+
+   例如，在本文中用鼠标选取几个单词。Vim会切换到Visual模式并高亮这被选取的文本。
+现在启动另一个gVim, 不要带文件名参数，这样它启动后会显示一个空的窗口。点击鼠标
+右键。前面被选取的部分将会被插入。
+
+\VimDQuote{当前选择区}会一直保持有效，直到你下次又选取了另外的部分。上例中，在另一gVim中
+粘贴之后，现在在该窗口选取一些内容，你会注意到此前在第一个窗口中被选取的部分有
+所改变。这意味着它不再是\VimDQuote{当前选择区}了。
+
+使用鼠标进行选取并不是必需的。你也可以通过键盘上的命令进行Visual模式下的选取。
+
+
+\VimSubSection{真正的剪贴板}
+
+现在轮到说另一个可以交换信息的场所了。为避免混淆，我们把它叫做\VimDQuote{真正的剪贴板}. 
+通常情况下\VimDQuote{当前选择区}和\VimDQuote{真正的剪贴板}都叫剪贴板，你应该习惯这种叫法。
+
+   要把文本放到真正的剪贴板上，还是先进行选取。然后用Edit/Copy菜单命令。现在
+文本就被复制到了\VimDQuote{真正的剪贴板}上。当然你看不到，除非你有一个程序可以显示剪贴
+板的内容(比如KDE的klipper程序).
+
+   现在换到另一个gVim中，将鼠标定位在某处后使用Edit/Paste菜单命令。你会看到
+来自\VimDQuote{真正的剪贴板}的内容已被插入。
+
+
+\VimSubSection{二者并用}
+
+同时使用\VimDQuote{当前选择区}和\VimDQuote{真正的剪贴板}听起来就很混乱。但实际
+上很有用。我们用一个例子来说明。使用其中一个gVim执行下面的动作
+\VimMyFootnote{译注：对于此例，我在Ubuntu8.04上自己编译的gvim(7.2版)中验证的
+结果是：如果Copy/Paste通过鼠标选取菜单来完成，并不能在最后一步得到被剪贴板所替换
+掉的单词，而是一条错误信息E353: Nothing in register *, 似乎存放当前选中文本的寄存
+器*因所对应文本被替换而随之被删除，但如果以键盘操作寄存器+和*则可以如实再现上述
+结果，不知这是一个Bug还是另有解释。感谢\<jnbo.wang@gmail.com>, 他对
+此处一句译文的推敲促使我在X11上验证此例。另外，此例仅对X11下的gvim适用}：
+
+\begin{enumerate}
+\item{在Visual模式下选取两个单词。}
+\item{使用Edit/Copy菜单命令将它复制到剪贴板。}
+\item{在Visual模式下选取另一个单词。}
+\item{使用Edit/Paste菜单命令。实际发生的是被选择的单词被前面的两个单词所取代。}
+\item{将鼠标移至别处单击中键。你会看到刚才被剪贴板替换掉的那个单词被插入。}
+\end{enumerate}
+
+如果你小心使用\VimDQuote{当前选择区}和\VimDQuote{真正的剪贴板}的话，它们可以为你做很多事。
+
+
+\VimSubSection{使用键盘}
+
+如果你不喜欢使用鼠标，你可以用两个寄存器来访问\VimDQuote{当前选择区}和
+\VimDQuote{真正的剪贴板}.  \VimTT{"}*寄存器指代\VimDQuote{当前选择区}. 
+
+   要使被选取的文本变成\VimDQuote{当前选择区}, 使用Visual模式。例如，要选取整行的话按
+\VimDQuote{V}. 
+
+   在当前光标前插入\VimDQuote{当前选择区}的内容：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"*P
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+注意大写的\VimDQuote{P}. 小写的\VimDQuote{p}是把文本放到当前光标的后面。
+
+\VimDQuote{\VimTT{+}寄存器指代}真正的剪贴板\VimTT{"}. 例如，要把自当前光标至行
+尾的内容放到该剪贴板：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"+y$
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+记住，\VimDQuote{y}指yank, 这是Vim中对复制命令的叫法。
+
+   把\VimDQuote{真正剪贴板}的内容放到当前光标之前：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"+P
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+跟\VimDQuote{当前选择区}一样，只不过\VimTT{+}号代替了星号*.
+
+%======...
+\VimSepartor
+
+\VimSecDest{09.4}{\ChapterNineSectionFourTitle}
+
+现在用在MS-Windows上的东西比X-Windows上的更多一些。但两者都能做同样的事
+。你已经知道了Visual模式。选择模式类似于Visual模式，因为它也用于选择文本。但
+是两者有一个明显的区别：键入文本时，被选择的文本会被删除，新键入的内容会取代
+它。
+
+要用Select模式，你得先打开它(对MS-Windows很可能已经是打开的了，但你还是可以
+手工打开它):
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set selectmode+=mouse
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在用鼠标去选取一些文本。它会象Visual模式下一样被高亮。按下一个字符。被选择
+的文本将被删除，按下的字符取代了它。现在你置身于Insert模式，可以继续键入了。
+
+因为键入任何文本都会抹去被选取区域的内容，你不能用Normal模式下的
+\VimDQuote{hjkl}, \VimDQuote{w}等等这些命令。不过你可以用Shift功能键。
+\VimSpecialChar{<S-Left>}(按住Shift键的同时按左光标键)将把光标左移。被选取部分的
+变化跟在Visual模式下一样。其它的Shift\VimTT{+}光标键也行为正常。还可以使用
+\VimSpecialChar{<S-End>}和\VimSpecialChar{<S-Home>}. 
+
+可以通过\VimOption{selectmode}选项来调整Select模式的工作方式。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{10}  \ChapterTenTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

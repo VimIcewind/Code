@@ -1,0 +1,273 @@
+\VimNewChapter
+\VimBookMark{第26章　\ChapterTwentySixTitle}{usr_26.txt}
+\VimFileNameDest{usr\VimTT{\_}26.txt}{ \VimDocVer  最后修改：2006年04月24日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{重复重复，再重复}
+\begin{flushright}
+\small\CJKfamily{kai}
+请问：该标题出自星哥的哪部电影？
+
+---周星驰专业8级试题B卷
+\end{flushright}
+
+
+一个编辑任务很少是杂乱无章的。通常同一个改动需要重复多次。本章介绍了几种重复先
+前的改动的方法。
+
+\VimSecList{26.1}{\ChapterTwentySixSectionOneTitle}
+\VimSecList{26.2}{\ChapterTwentySixSectionTwoTitle}
+\VimSecList{26.3}{\ChapterTwentySixSectionThreeTitle}
+\VimSecList{26.4}{\ChapterTwentySixSectionFourTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{27}  \ChapterTwentySevenTitle\\
+前一章：& \VimFileName{25}  \ChapterTwentyFiveTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{26.1}{\ChapterTwentySixSectionOneTitle}
+
+Visual模式非常适用于以任意顺序改变一行的内容。你可以看到高亮的文本，可以清楚地
+看到是否改对了。但是选择被操作的文本颇费时间。\VimDQuote{gv}命令可以再
+次选定上次选择的Visual区域。这使你可以对同样的文本对象施以其它的操作。
+
+   假设你想把下面的文本中所有的\VimDQuote{2001}都改为\VimDQuote{2002}, \VimDQuote{2000}改为\VimDQuote{2001}:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+The financial results for 2001 are better
+than for 2000.  The income increased by 50%,
+even though 2001 had more rain than 2000.
+                2000            2001
+income          45,403          66,234
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+先把\VimDQuote{2001}改成\VimDQuote{2002}. 在Visual模式下选定这些行，然后用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:s/2001/2002/g
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在用\VimDQuote{gv}命令再次选定同一文本对象。不管光标在哪这招都管用。然后用
+\VimDQuote{:s/2000/2001/g}进行第二步的修改。
+
+   显然，你可以重复重复再重复地进行修改。
+
+%======...
+\VimSepartor
+
+\VimSecDest{26.2}{\ChapterTwentySixSectionTwoTitle}
+
+需要重复地进行数字的加减时，通常加减量是一样的。比如上例中每个年份都加1. 除了
+象上面一样用替换命令进行修改之外，\VimSpecialChar{CTRL-A}命令也可以
+\VimMyFootnote{译注：替换命令还有一个唯美的方案：\\
+:3,5s/19[0-9][0-9]|20[0-9][0-9]/\VimBS{}=((submatch(0)+1))/g
+}
+
+   同样对上例中的内容，使用搜索命令来查找一个年份：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/19[0-9][0-9]|20[0-9][0-9]
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+现在按\VimSpecialChar{CTRL-A}. 当前光标下的年份会被加1:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+The financial results for 2002 are better
+than for 2000.  The income increased by 50%,
+even though 2001 had more rain than 2000.
+                2000            2001
+income          45,403          66,234
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimDQuote{n}命令查找下一个年份，\VimDQuote{.}来重复上一次的
+\VimSpecialChar{CTRL-A}(\VimDQuote{.}更好键入一些). 不断重复\VimDQuote{n}和
+\VimDQuote{.}直到所有的年份都修改完毕。
+
+   提示：设置\VimOption{hlsearch}选项可以让你对这些要改动的地方一目了然，做起
+来信心也更足一些。
+
+加减1的命令\VimSpecialChar{CTRL-A}也可以前辍以一个数字参数。如果你有下面的列表项：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+1.  item four
+2.  item five
+3.  item six
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+置光标于\VimDQuote{1}上。按下：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+3 CTRL-A
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{1}将变为\VimDQuote{4}. 同样你可以用\VimDQuote{.}来将这一操作施于其它数字上。
+
+另一个例子：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+006     foo bar
+007     foo bar
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+在这两个数字上使用\VimSpecialChar{CTRL-A}的结果是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+007     foo bar
+010     foo bar
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+7加1等于10？原因是Vim将\VimDQuote{007}视为一个八进制的数了，因为前面有0嘛。C程序中经常
+会出现这种记法。如果你不想让此类数字被看作是8进制的，可以改变下面的选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set nrformats-=octal
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSpecialChar{CTRL-X}以类似的方式做减法操作。
+
+%======...
+\VimSepartor
+
+\VimSecDest{26.3}{\ChapterTwentySixSectionThreeTitle}
+
+如果你想把好几个C文件中名为\VimDQuote{x\VimTT{\_}cnt}的变量都改为\VimDQuote{x\VimTT{\_}counter}. 这就要动到多个文件。
+%% 冯亮指正：c_cnt => x_cnt
+
+   先把所有要改的文件放到参数列表上：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:args *.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令会找到所有的C文件并开始编辑第一个。现在你可以对所有的文件都进行同一个
+替换操作：
+\begin{VimVBexcmdNoAdjustSpace}
+:argdo %s/\<x_cnt\>/x_counter/ge | update
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:argdo}命令以另一个命令为参数。该命令将对所有待编辑的文件都执行一次。
+
+   \VimDQuote{\VimTT{\%s}}替换操作将施于所有行上。
+它通过\VimDQuote{\VimTT{\VimBS{}<x\_cnt\VimBS{}>}}查找\VimDQuote{\VimTT{x\_cnt}}. 
+其中\VimDQuote{\VimTT{\VimBS{}<}}和\VimDQuote{\VimBS{}>}使得
+只有完整的单词会被匹配，这样\VimDQuote{px\VimTT{\_}cnt}和
+\VimDQuote{x\VimTT{\_}cnt2}中的\VimTT{x\_cnt}才可以免遭毒手。
+
+   替换操作的标志\VimDQuote{g}使得每行中的全部\VimDQuote{x\VimTT{\_}cnt}都被替
+换。标志\VimDQuote{e}则用于避免某些文件中一个\VimDQuote{x\VimTT{\_}cnt}都找不到
+时的错误消息。否则的话\VimDQuote{:argdo}命令遇到这些错误就会终止整个操作。
+
+   \VimDQuote{|}用来分隔两个命令。后面的\VimDQuote{update}命令会在文件有改变时
+进行保存。如果没有一个\VimDQuote{x\VimTT{\_}cnt}被替换为
+\VimDQuote{x\VimTT{\_}counter}那就不进行任何操作。
+
+类似于\VimDQuote{:argdo}, 命令\VimDQuote{:windo}会对所有窗口都执行同样的操作。
+\VimDQuote{:bufdo}则是对所有的缓冲区执行操作。这个要小心使用，因为你可能想不到
+缓冲区列表中还有那么多文件。最好使用该命令之前用\VimDQuote{:buffers}命令(或
+\VimDQuote{:ls})看一下就有哪些缓冲区会被改动。
+
+%======...
+\VimSepartor
+
+\VimSecDest{26.4}{\ChapterTwentySixSectionFourTitle}
+
+如果你将很多文件中的\VimDQuote{-person-}都改为\VimDQuote{Jones}其后打印出来。你会怎么办？
+拼命地敲打键盘。还是写一个shell脚本来让计算机自动操作？
+
+   作为一个全屏幕编辑器，Vim的Normal模式命令十分出色。但对批处理任务来说。
+Normal模式的命令的结果是什么就不得而知了。这里最好是用Ex模式的命令。该模式下
+的命令行界面的命令很适于放入一个批处理文件中。(\VimDQuote{Ex command}只是命令行命令/冒
+号命令的另一说法)
+
+   要执行的Ex模式命令如下：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+%s/-person-/Jones/g
+write tempfile
+quit
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+将这几行命令放入\VimDQuote{change.vim}中。现在以批处理模式运行Vim:
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+for file in *.txt; do
+  vim -e -s $file < change.vim
+  lpr -r tempfile
+done
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+shell的控制结构for-done循环将对每个文件都施以循环体中的两行操作，每次循环
+都将\$file变量赋值为一个不同的文件名。
+
+   第二行的命令以Ex模式(-e参数)运行Vim来编辑文件\$file, 从\VimDQuote{change.vim}中读取
+要执行的命令。-s参数告诉Vim安静地运行。也就是说，不要再不断给出:号以及其它不必
+要的提示了。
+
+   \VimDQuote{lpr -r tempfile}命令将打印\VimDQuote{tempfile}的内容，然后删除它
+(-r参数的用处).
+
+
+\VimSubSection{从标准输入读取}
+
+Vim可以从标准输入读取要编辑的内容。因为通常情况下它从那读取的都是命令，所以你
+要告诉Vim现在从标准输入读取的是编辑内容。这需要以\VimDQuote{-}参数来代替文件名
+，如：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+ls | vim -
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+该命令将\VimDQuote{ls}命令的输出作为编辑的内容，注意此时的缓冲区没有一个对应的文件名。
+
+   如果你已经以标准输入来读取编辑内容，还可以用\VimDQuote{-S}参数来读取脚本：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+producer | vim -S change.vim -
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{Normal模式的脚本}
+
+如果你真的需要在脚本中执行Normal模式的命令，可以这样用：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -s script file.txt ...
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        \VimDQuote{-s}与\VimDQuote{-e}连用时的意义与这里不一样。此处它的意思是将\VimDQuote{script}中的脚本
+        作为Normal模式的命令执行。与\VimDQuote{-e}连用时它意思是silent(安静), 并不会把
+        下一个参数作为要执行的脚本文件。
+} %end VimCaution
+
+\VimDQuote{scrip}中的命令将象你手工键入一样执行。别忘了按下回车键时换行符会被Vim接管下来
+解释。在Normal模式它的作用是下移一行。
+
+   你当然可以一个字符一个字符地创建这样的脚本，但这样很麻烦。一
+个更好的办法是在执行这些命令的同时把它们记录下来。象这样：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -w script file.txt ...
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+所有的按键都会被记录到\VimDQuote{script}中。如果编辑过程中出了点岔子你还可以事后手工
+修改脚本文件。
+
+   \VimDQuote{-w}参数将把新键入的命令追加到脚本文件的最后。你想一点一点累积这些编辑记录
+的话这倒是不错。什么时候想全部重新开始时就用\VimDQuote{-W}参数，它会覆盖该文件的内容。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{27}  \ChapterTwentySevenTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

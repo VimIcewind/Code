@@ -1,0 +1,203 @@
+\VimNewChapter
+\VimBookMark{第43章　\ChapterFortyThreeTitle}{usr_43.txt}
+\VimFileNameDest{usr\VimTT{\_}43.txt}{ \VimDocVer  最后修改：2008年12月28日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{文件类型\\}
+
+
+当你编辑一种类型的文件时，比如C程序或shell脚本，你经常会使用一组相同的选项设置和键映射。
+每次都设置这些相同的东西很快会让人厌烦。本章教你如何让它自动化。
+
+\VimSecList{43.1}{\ChapterFortyThreeSectionOneTitle}
+\VimSecList{43.2}{\ChapterFortyThreeSectionTwoTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{44}  \ChapterFortyFourTitle\\
+前一章：& \VimFileName{42}  \ChapterFortyTwoTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{43.1}{\ChapterFortyThreeSectionOneTitle}
+\hfill\VimCommonDest{filetype-plugin}\\
+
+如何使用文件类型插件已经在\VimCommonSrc{add-filetype-plugin}帮助主题中讨论过了。但你可能
+不会满意于默认的设置，因为它们为了兼容性的原因被削减为一个最小可用的集合。假设
+你要在C源文件中设置\VimOption{softtabstop}选项为4并且定义一个映射来插入一个三行式注释。
+以下二步会满足你的要求：
+
+\hfill\VimCommonDest{your-runtime-dir}\\
+
+1. 创建你自己的运行时目录。在Unix系统上通常是\VimDQuote{\~{}/.vim}. 
+在该目录下创建名为\VimDQuote{ftplugin}\VimMyFootnote{译注：是ft\VimTT{+}plugin, 而不是ftp \VimTT{+} lugin}的目录：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+mkdir ~/.vim
+mkdir ~/.vim/ftplugin
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+   如果你不用Unix, 看一看\VimOption{runtimepath}选项的设置，
+找出Vim会在哪里寻找\VimDQuote{ftplugin}目录：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+set runtimepath
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+    一般人会用第一个目录(第一个逗号之前), 但是如果你不想接受默认目录的话可以
+在你的\VimCommonSrc{vimrc}文件里添加一个目录到\VimOption{runtimepath}选项上去。
+
+2. 创建文件\VimDQuote{\~{}/.vim/ftplugin/c.vim}, 内容如下：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+setlocal softtabstop=4
+noremap <buffer> <LocalLeader>c o/**************<CR><CR>/<Esc>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+编辑一个C源文件试试，你会看到\VimOption{softtabstop}选项已经被设置
+为4\VimMyFootnote{译注：用命令:set softtabstop可以看到}. 但如果你转而去编辑另一
+个文件它又会被重置为零。因为这里使用的是\VimDQuote{:setlocal}命令。该命令使
+\VimOption{softtabstop}选项的值局部于当前缓冲区。一旦切换到别的缓冲区，它就会
+被重置为那个缓冲区的值。对于新的缓冲区来说会使用默认值或者是最后一次通过
+\VimDQuote{:set}命令设置的值。
+
+同样，对于\VimDQuote{\VimBS{}c}的映射键会在进入另一个缓冲区时消失。
+\VimDQuote{:map \VimSpecialChar{<buffer>}}命令会创建一个局部于当前缓冲区的映射键
+。所有的映射命令都是如此：\VimDQuote{:map!}, \VimDQuote{:vmap}, 等等映射键中的
+$\mid$\VimSpecialChar{<LocalLeader>}$\mid$会被\VimDQuote{maplocalleader}替换。
+
+你可以在下面这个目录中发现一个参考例子：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+$VIMRUNTIME/ftplugin/
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+关于写filetype插件的更多信息，参见：
+\VimCommonSrc{write-plugin}. 
+%======...
+\VimSepartor
+
+\VimSecDest{43.2}{\ChapterFortyThreeSectionTwoTitle}
+
+如果你正在使用一种Vim还不认识的文件格式\VimMyFootnote{译注：如果真是这样，要么你在定义自己
+的文件类型，要么，你就是一个计算机语言专家或文件类型专家}，本节内容将教你如何让Vim识别它。
+你需要一个自己的运行时目录，参见上面的\VimCommonSrc{your-runtime-dir}. 
+
+创建一个名为\VimDQuote{filetype.vim}的文件，加入你自己的filetype相关的autocommand.
+(Autocommands在\VimSecSrc{40.3}一节中有详细解释。)  如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+augroup filetypedetect
+au BufNewFile,BufRead *.xyz     setf xyz
+augroup END
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim将据此把所有以\VimDQuote{.xyz}为扩展名的文件标识为\VimDQuote{xyz}文件类型。
+\VimDQuote{:augroup}命令把这个autocommand放在\VimDQuote{filetypedetect}组。这
+样，":filetype off"将会移除所有关于文件类型自动检测的autocommand.
+\VimDQuote{setf}命令会把\VimOption{filetype}设置为相应的值，除非当前缓冲区的
+\VimOption{filetype}已经设置好了。这样也确保了\VimOption{filetype}不会被设置两
+次。
+
+你可以使用众多的模式符来确定你的文件类型。其中也包括目录名匹配检查。参见
+\VimCommonSrc{autocmd-patterns}. 如，\VimDQuote{/usr/share/scripts/}目录下全是
+\VimDQuote{ruby}文件，但是没有正常的文件扩展名，加入下面的命令会正确设置你的filetype:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+augroup filetypedetect
+au BufNewFile,BufRead *.xyz                     setf xyz
+au BufNewFile,BufRead /usr/share/scripts/*      setf ruby
+augroup END
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+但是，如果你正在编辑/usr/share/scripts/README.txt, 当然从文件名判断它不是一
+个ruby文件。但是问题在于一个以\VimDQuote{*}为结尾的模式会匹配所有文件。为避免这个问题，可以
+把filetype.vim放在\VimOption{runtimepath}选项中最后一个目录中。对Unix用户来说，你可以放
+在\VimDQuote{\~{}/.vim/after/filetype.vim}. 
+
+   现在你可以在\~{}/.vim/filetype.vim中放上你的文本文件检测了：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+augroup filetypedetect
+au BufNewFile,BufRead *.txt                     setf text
+augroup END
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+文件\VimDQuote{filetype.vim}会先在\VimOption{runtimepath}选项中的路径里被发现。
+接下来执行最后发现的\~{}/.vim/after/filetype.vim:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+augroup filetypedetect
+au BufNewFile,BufRead /usr/share/scripts/*      setf ruby
+augroup END
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在的情况是Vim在\VimOption{runtimepath}的每个目录中搜索\VimDQuote{filetype.vim}, 先是找到了
+\~{}/.vim/filetype.vim. 检查*.txt的autocommand在那里捕获每一个扩展名
+为.txt的文件，设置filetype为text, 然后Vim在作为\VimOption{runtimepath}子集的\$VIMRUNTIME里
+发现了\~{}/.vim/after/filetype.vim, 加上检测/usr/share/scripts/下脚本的命令。
+
+    现在你再去打开/usr/share/scripts/README.txt, autocommand的执行以上面的顺序
+进行：找到\VimDQuote{*.txt}模式，执行\VimDQuote{setf text}将文件类型设置为
+\VimDQuote{text}. ruby对应的模式也被匹配了。再执行\VimDQuote{setf ruby}, 但此
+时\VimOption{filetype}已经被设为了\VimDQuote{text}, 所以此处的\VimDQuote{setf
+ruby}不再生效。
+
+    你若是编辑文件/usr/share/scripts/foobar, Vim以同样的顺序执行匹配
+的autocommand命令。只有符合ruby模式定义的缓冲区其\VimOption{filetype}才会被设置
+为ruby.
+
+
+\VimSubSection{根据内容识别}
+
+如果你的文件不能通过名字来识别，还可以通过文件的内容来确定文件类型，比如，多数
+脚本文件以此作为第一行：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+#!/bin/xyz
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+为识别此类文件，在你的运行时目录(跟filetype.vim一样)里创建一个名为
+\VimDQuote{scripts.vim}的文件，内容类似于：
+% vim: replace_backslash
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+if did_filetype()
+  finish
+endif
+if getline(1) =~ '^#!.*[/\\]xyz\>'
+  setf xyz
+endif
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+第一道检查是did\VimTT{\_}filetype(), 这是为了避免那些文件类型已经通过filetype正确识别
+的缓冲区在此浪费时间。
+
+    scripts.vim文件的执行通过在filetype.vim文件里的一个autocommand定义被触发。
+所以，整个识别过程的顺序是：
+
+\begin{enumerate}
+\renewcommand{\labelenumi}{\arabic{enumi}.}
+\item{在\VimOption{runtimepath}中位于\$VIMRUNTIME之前的filetype.vim文件}
+\item{\$VIMRUNTIME/filetype.vim的第一部分}
+\item{\VimOption{runtimepath}目录中所有名为scripts.vim的文件}
+\item{\$VIMRUNTIME/filetype.vim的剩余部分}
+\item{在\VimOption{runtimepath}中位于\$VIMRUNTIME之后的filetype.vim文件}
+\end{enumerate}
+
+如果这些还不合你用，那就增加一个能匹配所有文件的autocommand, 执行一个脚本或函数
+去检查你的文件内容吧。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{44}  \ChapterFortyFourTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=4:ft=help:norl:
+}

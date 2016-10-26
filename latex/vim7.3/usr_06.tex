@@ -1,0 +1,397 @@
+\VimNewChapter
+\VimBookMark{第06章　\ChapterSixTitle}{usr_06.txt}
+\VimFileNameDest{usr\VimTT{\_}06.txt}{ \VimDocVer  最后修改：2009年10月28日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{使用语法高亮\\}
+{
+\small\CJKfamily{kai}
+终端上颜色代码0表示暗色，1表示亮色，而2位数字的颜色代码中
+十位数字4表示背景色，3表示前景色，个位数字0表示黑色，1为红，2为绿，3黄4蓝5紫6青，7为
+白。以;分隔不同的项，m结束一个定义，如\newline
+echo -e "\VimBS{}e[1;32mthis is green \VimBS{}e[0;37m"\newline会显示亮绿色。然后恢复为暗白色。
+\begin{flushright}
+---小知识[Linux/shell]
+\end{flushright}
+}
+
+\fontfamily{cmtt}
+
+黑纸白字了然无趣。来点色彩才叫生活。这不光是为了好看，同时也会提高你的效率。你
+为不同部分的指定不同的颜色。也可以以屏幕上看到的颜色进行打印。
+
+\VimSecList{06.1}{\ChapterSixSectionOneTitle}
+\VimSecList{06.2}{\ChapterSixSectionTwoTitle}
+\VimSecList{06.3}{\ChapterSixSectionThreeTitle}
+\VimSecList{06.4}{\ChapterSixSectionFourTitle}
+\VimSecList{06.5}{\ChapterSixSectionFiveTitle}
+\VimSecList{06.6}{\ChapterSixSectionSixTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{07}  \ChapterSevenTitle\\
+前一章：& \VimFileName{05}  \ChapterFiveTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{06.1}{\ChapterSixSectionOneTitle}
+
+简单的命令打开五彩斑斓的世界：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax enable
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+多数情况下这会立即让你的文件蓬荜生辉。Vim会自动检测到你的文件类型并为之载入
+相应的语法高亮。突然之间注释变成了蓝色，关键字是棕色，字符串是红色。 整个
+文件的概况一目了然。过一会之后你就会发现原来的黑白世界里真是白活了。
+
+如果你想一直都用语法高亮，可以把\VimDQuote{:syntax enable}命令放入你的\VimCommonSrc{vimrc}文件。
+
+如果你想只在终端支持彩色显示时才启用语法高亮，可以在\VimCommonSrc{vimrc}文件中这样设置：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+if &t_Co > 1
+   syntax enable
+endif
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你想只在GUI版本中使用语法高亮，只需把\VimDQuote{:syntax enable}放入\VimCommonSrc{gvimrc}文件。
+
+%======...
+\VimSepartor
+
+\VimSecDest{06.2}{\ChapterSixSectionTwoTitle}
+
+\VimSubSection{看不到色彩可能是因为：}
+
+\VimSubTextCaption{- 你的终端不支持彩色显示。}
+
+\VimSubText{
+        Vim会用粗体，斜体和下划线来显示文本，但这看起来并不怎么样。你可能会
+        想用一个带有色彩支持的终端。对Unix系统而言，我推荐XFree86项目的xterm:
+        \VimCommonSrc{xfree-xterm}. 
+}
+
+\VimSubTextCaption{- 你的终端是支持彩色显示，但是Vim不知道。}
+
+\VimSubText{
+        确保\$TERM变量设置正确。比如，用的是xterm:
+}
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+setenv TERM xterm-color
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+        或(视你所用的shell而定):
+}
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+TERM=xterm-color; export TERM
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+        终端的名字必需与你实际所用的终端相符合。如果还是不行，请参考
+        \VimCommonSrc{xterm-color}, 此处提供了让Vim显示颜色的几个办法(不光是针对xterm).
+}
+
+\VimSubTextCaption{- 不能识别文件类型}
+
+\VimSubText{
+        Vim不可能识别所有的文件类型，有\hypertarget{v73_bugfix_misspell_1}{}时候几乎无法得知一个文件用的是什么语言。
+        试一下这个命令：
+}
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set filetype
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+        如果结果是\VimDQuote{filetype=}问题很可能就是Vim不知道文件类型。你可以手工指定
+        该文件的类型：
+}
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set filetype=fortran
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+        要知道一共就有哪些文件类型可用，请查看一下\$VIMRUNTIME/syntax目录。
+        对GUI版本你还可以查看Syntax菜单。也可以通过\VimCommonSrc{modeline}设置文件类型，
+        这样文件每次被编辑时都会被语法高亮。比如，下面的这行可以放入Makefile文件中(把它放
+	在靠近文件结尾的地方):
+}
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+# vim: syntax=make
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+        你应该知道如何确定一个文件的类型。通常来说是通过扩展名(文件名中\VimDQuote{.}之后
+        的部分). 请查看\VimCommonSrc{new-filetype}了解Vim是如何确定一个文件的类型的。
+}
+
+\VimSubTextCaption{- 你指定的文件类型没有语法高亮文件}
+
+\VimSubText{
+	你可以手工设置它为一个相近的文件类型\VimMyFootnote{译注：把Xml Schema文
+件.xsd设置为xml类型}。如果看起来太过勉强，你也可以自己写一个语法高亮文件
+，请参考\VimCommonSrc{mysyntaxfile}. 
+}
+
+
+\VimSubSection{或者颜色有错：}
+
+\VimSubTextCaption{- 被着色的文本读起来很费劲}
+
+\VimSubText{
+   Vim会猜测你所使用的背景色。如果背景是黑色的(或另一种比较暗的颜色)它就
+   会用亮色来显示文字。如果背景是白色(或另一种较亮的颜色)它就会暗色来显示
+   文字。如果Vim猜错了，很可能就会读起来很碍眼。你可以设置\VimOption{background}选项
+   来改变对比度，比如使用暗色：
+}
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set background=dark
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+    使用亮色背景：
+}
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set background=light
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+   确保你把这行放在了\VimDQuote{:syntax enable}命令的前面，否则的话因为颜色已然被设置在先
+   这样做就起不到作用了。不过还可以在重新设置了\VimOption{background}选项后用
+   \VimDQuote{:syntax reset}来让Vim能够应用最新的设置。
+}
+
+\VimSubTextCaption{- 上下滚动时颜色有误}
+
+\VimSubText{
+   Vim处理颜色时并不是通读整个文件进行解析。它从你浏览的地方开始解析。这样会节
+   省很多时间，但是有时候颜色就会弄错。一个简单的办法是用
+   \VimSpecialChar{CTRL-L}. 或者稍往回滚动几行，请查看特定类型的语法高亮文件
+   。比如\VimTeX{}语法的\VimCommonSrc{tex.vim}. 
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{06.3}{\ChapterSixSectionThreeTitle}
+
+如果你不喜欢默认的颜色，你可以选择另一种颜色方案。在GUI中使用Edit/Color Scheme菜
+单。你也可以直接使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:colorscheme evening
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{evening}是颜色方案的名字。除此之外还有其它几种颜色方案。
+请查看\$VIMRUNTIME/colors目录
+
+找到你钟爱的颜色方案后，可以在你的\VimCommonSrc{vimrc}文件里加入\VimDQuote{:colorscheme}命令选择它。
+
+你也可以写一个自己的颜色方案。下面是实施步骤：
+
+\VimSubTextCaption{
+1. 找一个相近的颜色方案。把该文件复制一份到你自己的Vim目录下。对Unix系统
+}
+
+\VimSubText{
+    可以这样：
+}
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+!mkdir ~/.vim/colors
+!cp $VIMRUNTIME/colors/morning.vim ~/.vim/colors/mine.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+    这是在运行中的Vim中做的，因为它知道\$VIMRUNTIME的值。
+}
+
+\VimSubTextCaption{
+2. 编辑该文件。下面的条目是十分有用的：
+}
+\begin{VimVBList}[commandchars=\\\{\}]
+term            黑白终端的显示属性
+cterm           彩色终端的显示属性
+ctermfg         彩色终端的前景色
+ctermbg         彩色终端的背景色
+gui             GUI的显示属性
+guifg           GUI的前景色
+guibg           GUI的背景色
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+    比如，要让注释变为绿色：
+}
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:highlight Comment ctermfg=green guifg=green
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+    可以用于\VimDQuote{cterm}和\VimDQuote{gui}的属性是\VimDQuote{bold}和\VimDQuote{underline}. 如果你想兼具两者的
+    效果，可以写成\VimDQuote{bold,underline}. 更多的细节请参考\VimCommonSrc{:highlight}. 
+}
+
+\VimSubTextCaption{
+3. 把下面这一行放入你的\VimCommonSrc{vimrc}文件可以告诉Vim一直使用你自己的颜色方案：
+}
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+colorscheme mine
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+如果你想看一下最常用的颜色设置都是什么样的效果，可以用下面的命令：
+}
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:runtime syntax/colortest.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubText{
+你会看到几种不同的颜色组合。检查一下哪一种看起来更好看可读性更好。
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{06.4}{\ChapterSixSectionFourTitle}
+
+以彩色显示文本需要编辑器花额外的气力。如果你发现显示变慢，你也可以暂时关闭
+语法高亮：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax clear
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+编辑别的文件时(或者同一个文件也一样)又会应用彩色显示。
+
+\VimToRight{\VimCommonDest{:syn-off}}
+
+要彻底停用语法高亮可以用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax off
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这将会彻底禁用语法高亮功能，并立即对各个缓冲区生效。
+
+\VimToRight{\VimCommonDest{:syn-manual}}
+
+如果你只想对某些文件施以语法高亮，用这个命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax manual
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这将会打开语法高亮功能，但并不在新开一个缓冲区时自动打开。要为当前缓冲区打开
+语法高亮功能，可以通过这样设置\VimOption{syntax}选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set syntax=ON
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_132}{view_132}\hypertarget{view_132}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{06.5}{\ChapterSixSectionFiveTitle}
+
+在MS-Windows版本的Vim中你可以用下面的命令打印当前的文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:hardcopy
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你会看到通常的打印对话框，在此可以选择一个目标打印机并进行相应的设置。如果你
+有一个彩色打印机，打印结果应该跟你在Vim里看到的一样。但如果你在Vim中应用的是
+暗色调的背景的话颜色会自动调整到适合在白纸上显示。
+
+下面几个选项会影响到Vim中的打印：
+\begin{VimVBList}[commandchars=\\\{\}]
+\VimOption{printdevice}
+\VimOption{printheader}
+\VimOption{printfont}
+\VimOption{printoptions}
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+要打印部分行，可以使用Visual模式选择被打印行，用下列命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+v100j:hardcopy
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{v}命令进入Visual模式。\VimDQuote{100j}向下移动100行，这些被选取的行将以高亮显示。
+接下来的\VimDQuote{:hardcopy}将打印这些行。当然你也可以用其它的位移命令来在Visual模
+式中进行选取。
+
+在Unix系统上也一样可以，如果你有一个兼容PostScript的打印机，直接这样做就可以。
+否则的话，稍微麻烦一点。你得把文件先转换到HTML格式，然后从浏览器
+\hypertarget{v73_bugfix_06_txt_improve_1}{}中打开该HTML文件
+进行打印。
+%% vim7.3 fix 去掉了Netscape这样的例子。这个浏览器现在不再风光了
+
+%% vim7.3 fix 添加了先尝试TOhtml的命令
+\hypertarget{v73_bugfix_06_ex_cmd_1}{}
+把当前文件转成HTML格式使用这个命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:TOhtml
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_133}{view_133}\hypertarget{view_133}{}\fbox{\textcolor{red}{Review}}\\
+如果失败则改用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:source $VIMRUNTIME/syntax/2html.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+运行后你会看到它忙个不停，文件太大时这可要花些时间。完成后会在另一个窗口中显示
+生成的HTML代码。现在你可以把它保存起来了(存到哪并不重要，反正用完后你就可以丢掉
+它了):
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:write main.c.html
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+在你喜欢的浏览器中打开该文件就可以打印它了。一切顺利的话，输出结果应该跟
+在Vim里看到的一样。请参考\VimCommonSrc{2html.vim}了解更多。别忘了打印
+完之后把刚才的HTML文件删掉。
+
+除了用来打印，你也可以把生成的HTML文件放在一个Web服务器上，这样其它人就可以
+看到你那漂亮的带语法高亮的代码了。
+
+%======...
+\VimSepartor
+
+\VimSecDest{06.6}{\ChapterSixSectionSixTitle}
+
+\VimFileName{44}  自定义语法高亮文件
+\VimCommonSrc{syntax}      囊括所有细节。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{07}  \ChapterSevenTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

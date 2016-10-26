@@ -1,0 +1,812 @@
+\VimNewChapter
+\VimBookMark{第05章　\ChapterFiveTitle}{usr_05.txt}
+\VimFileNameDest{usr\VimTT{\_}05.txt}{ \VimDocVer  最后修改：2009年06月04日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{定制你的Vim\\}
+\begin{flushleft}
+\small\CJKfamily{kai}
+用户定制的概念早已有之，比如兰州拉面，讲究的吃法要指定粗面细面，大
+碗小碗，加不加肉等等。这就相当于可定制选项。当然也有粗放型
+的吃法，进门一句话："来碗面" 就一切搞定，那是"默认值"的概念。
+\end{flushleft}
+                              
+Vim可以根据每个人的喜好进行调整。本章向你展示如何对Vim进行不同的设置。如何
+增加plugin来扩展它的功能。以及如何定义你自己的宏。
+
+\VimSecList{05.1}{\ChapterFiveSectionOneTitle}
+\VimSecList{05.2}{\ChapterFiveSectionTwoTitle}
+\VimSecList{05.3}{\ChapterFiveSectionThreeTitle}
+\VimSecList{05.4}{\ChapterFiveSectionFourTitle}
+\VimSecList{05.5}{\ChapterFiveSectionFiveTitle}
+\VimSecList{05.6}{\ChapterFiveSectionSixTitle}
+\VimSecList{05.7}{\ChapterFiveSectionSevenTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{06}  \ChapterSixTitle\\
+前一章：& \VimFileName{04}  \ChapterFourTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{05.1}{\ChapterFiveSectionOneTitle} \VimToRight{\VimCommonDest{vimrc-intro}}
+
+也许你早已厌倦于手工键入那些常用的命令。要使你喜好的选项和映射一次性准备就绪，
+你可以把它们统统写进一个叫vimrc的文件。Vim在启动时会读取该文件。
+
+如果你已经有了一个vimrc文件(比如说系统管理员已经为你配好了), 可以这样来打开：\\
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:$MYVIMRC
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+   如果你现在还没有自己的vimrc文件，请参考\VimCommonSrc{vimrc}中的建议，看看
+应该在哪新建一个。同时\VimDQuote{:version}命令也会列出Vim是在哪些
+目录寻找该文件的。
+
+对Unix和Macintosh系统而言通常是文件--这也是推荐的文件
+\begin{VimVBHelpHeaderList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+~/.vimrc
+\end{VimVBHelpHeaderList}
+\vspace{-1.3\parskip}
+
+对MS-DOS和MS-Windows来说可以从下面的文件中选用一个：
+\begin{VimVBHelpHeaderList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+$HOME/_vimrc
+$VIM/_vimrc
+\end{VimVBHelpHeaderList}
+\vspace{-1.3\parskip}
+
+vimrc文件里可以包含任何你可以在冒行命令行上使用的命令。最简单的命令是对选项的
+设置。比如你想在使用Vim时总是打开\VimOption{incsearch}选项。就可以把下面这一行
+加进你的vimrc文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+set incsearch
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要使它自动生效你还得退出Vim等到它下一次启动。本文稍后会告诉你如何在不退出Vim的
+情况下使之生效。
+\begin{comment}
+lsl建议：使用之生效 => 使之生效
+\end{comment}
+
+本章只讲述基本的设置问题，要全面了解如何写一个vim脚本请参考
+\VimFileName{41}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{05.2}{\ChapterFiveSectionTwoTitle}
+\hfill\VimCommonDest{vimrc\VimTT{\_}example.vim}
+
+第一章里我们提到如何使用vimrc的示例文件(该文件随Vim一起发布)让Vim工作
+于not-compatible模式(请参考\VimCommonSrc{not-compatible}). 这个示例文件的位置是：
+\begin{VimVBHelpHeaderList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+$VIMRUNTIME/vimrc_example.vim
+\end{VimVBHelpHeaderList}
+\vspace{-1.3\parskip}
+
+虽然这里不会逐条讲解里面的每条命令。但是你可以用\VimDQuote{:help}命令来学习更
+多的东西。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+set nocompatible
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+就象在第一章中提到的，本手册中对Vim的描述都假设它是在增强模式下，所以并不完全
+与Vi兼容。所以首先确保关闭了\VimOption{compatible}选项。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+set backspace=indent,eol,start
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这条命令告诉Vim在Insert模式下退格键何时可以删除光标之前的字符。选项中以逗号分
+隔的三项内容分别指定了Vim可以删除位于行首的空格，断行，以及开始进入Insert模式
+之前的位置。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+set autoindent
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个命令让Vim在开始一个新行时对该行施以上一行的缩进方式。这样，你在Insert模式
+下按回车或在Normal模式下按o来添加新行时该行将会与上一行有相同的缩进。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+if has("vms")
+  set nobackup
+else
+  set backup
+endif
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这段脚本告诉Vim在覆盖一个文件之前备份该文件。但是对VMS系统除外，因为该系统已经
+为文件保存了老的版本。备份文件名由当前文件名加后辍\VimDQuote{\~{}}组成。请参考
+\VimSecSrc{07.4}. 
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+set history=50
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+设置冒号命令和搜索命令的命令历史列表的长度。当然你也可以设置其它的值。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+set ruler
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+总是在Vim窗口的右下角显示当前光标的行列信息。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+set showcmd
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+在Vim窗口的右下角显示一个完整的命令已经完成的部分。比如说你键入\VimDQuote{2f},
+Vim就会在你键入下一个要查找的字符之前显示已经键入的\VimDQuote{2f}. 一旦你接下
+来再键入一个字符比如\VimDQuote{w}, 那么一个完整的命令\VimDQuote{2fw}就会
+被Vim执行，同时刚才显示的\VimDQuote{2f}也将消失。
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++-------------------------------------------------+
+|text in the Vim window                           |
+|~                                                |
+|~                                                |
+|-- VISUAL --                   2f     43,8   17% |
++-------------------------------------------------+
+ ^^^^^^^^^^^                  ^^^^^^^^ ^^^^^^^^^^
+  'showmode'                 'showcmd'  'ruler'
+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+set incsearch
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+在你键入要搜索的字串的同时就开始搜索当前已经键入的部分\VimMyFootnote{译注：对一
+个技巧的灵活运用与将之准确地以文字描述之间是个不可逆的过程。一个人总可以以他自
+己熟悉的形式将自己头脑中事物十分清楚地描述出来，但这种描述对于一个完全不了解该
+事物的人来说，几乎完全是无济于事，浪费的时间也白搭。所以最好还是你亲自去试一试
+，尤其是尝试的机会与成本都允许的情况下，对于电脑知识的学习，大多数情况下，你有
+一台电脑，有了软件环境就万事俱备了}..
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+map Q gq
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令定义了一个键映射。这一主题的更多内容在下一节。这里的这个命令定义了一个
+\VimDQuote{Q}命令映射到\VimDQuote{gq}操作符命令。其实Vim5.0版以前\VimDQuote{Q}
+本身即是这样的一个命令。现在如果没有这一映射，\VimDQuote{Q}命令会进入Ex模式，
+一般情况下你不需要进入这种模式。
+
+% vim: no special highlight in verbatim, replace_backslash
+\begin{VimVBexcmd}[xrightmargin=-2cm,commandchars=\\\{\}]
+vnoremap _g y:exe "grep /" . escape(\VimAt{}", '\\/') . "/ *.c *.h"<CR>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个映射取得Visual区域的内容，然后在C文件中搜索。这是一个复杂的映射。从这个例
+子你可以了解到映射也可以用来实现一些复杂的操作。但是本质上，它所做的与你手工连
+续键入这些命令毫无二致。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+if &t_Co > 2 || has("gui_running")
+  syntax on
+  set hlsearch
+endif
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这段脚本打开语法高亮功能，前提是当前系统支持彩色显示。\VimOption{hlsearch}告
+诉Vim高亮显示所有与最后一次搜索目标串相匹配的文本。\VimDQuote{if}命令经常用于这
+种满足某个条件才设置一个选项的情境。关于如何写Vim脚本的更多内容请参考
+\VimFileName{41}. 
+
+\hfill\VimCommonDest{vimrc-filetype}\\
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+filetype plugin indent on
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个命令开启了Vim的三种智能：
+\begin{enumerate}
+\item{
+  自动识别文件类型
+
+  你开始编辑一个文件时，Vim就会自动识别它是何种类型的文件。比如说你打开了
+   \VimDQuote{main.c}, Vim就会根据它的\VimDQuote{.c}扩展名知道它是一个类型为
+   \VimDQuote{c}的C语言源程序文件。当你编辑一个文件其第一行是
+   \VimDQuote{\#!/bin/sh}时，Vim又可以据此判断它是一个类型
+    为\VimDQuote{sh}的shell脚本文件。
+}
+\item{
+用文件类型plugin脚本
+
+   不同的文件类型需要搭配适合于它\VimMyFootnote{译注：或者是适合于你的个人爱好}的编辑选项。
+   比如说你在编辑一个\VimDQuote{c}文件，那么打开\VimOption{cindent}就非常有用。
+   这些对某种文件类型来说最常用的选项可以放在一个Vim中叫文件类型plugin的脚本里
+   。你还可以加上你自己写的，请参考\VimCommonSrc{write-filetype-plain}. 
+}
+\item{
+  使用缩进定义文件
+
+   编辑程序的时候，语句的缩进可以让它自动完成。Vim为众多不同的文件类型提供了相
+应的缩进方案。请参考\VimCommonSrc{filetype-indent-on}和\VimOption{indentexpr}选
+项。
+}
+\end{enumerate}
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+autocmd FileType text setlocal textwidth=78
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这让Vim可以自动断行，触发点是当前行已超过78个字符了。但是只对类型是普通文本的
+文件生效。\VimDQuote{autocmd FileType text}是一个自动命令。它所定义的是每当文
+件类型被设置为\VimDQuote{text}时就自动执行它后面的命令。\VimDQuote{setlocal
+textwidth=78}把\VimDQuote{textwidth}选项的值设置为78, 但这种设置只对当前的一个
+文件有效。
+
+\hypertarget{v73_bugfix_05_ex_cmd_1}{}
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+autocmd BufReadPost *
+    \VimBS{} if line("'\VimBS{}"") > 1 && line("'\VimBS{}"") <= line("$") |
+    \VimBS{}   exe "normal! g\VimBacktick{}\VimBS{}"" |
+    \VimBS{} endif
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这是另一个自动命令。这次它服务的对象是所有类型的文件。它所执行的复杂功能是检查
+是否定义了标记\VimTT{\VimSQ{}"}\VimMyFootnote{译注：该标记记录了上次编辑一个文
+件时退出前光标的最后位置}, 如果定义了就跳转到这个位置去。每一行前面的反斜杠表
+示该行是前一行命令的延续。它可以避免脚本中有些行变得过长。请参考
+\VimCommonSrc{line-continuation}. 这种表示法只能用于Vim脚本文件，不要在冒号命
+令行上使用。
+
+%======...
+\VimSepartor
+
+\VimSecDest{05.3}{\ChapterFiveSectionThreeTitle}
+
+一个映射使你可以把一连串Vim命令以一个按键来表示。假设说你要把某些词以花括号括
+起来。或者说，你需要把象\VimDQuote{amount}这个的一个词变为
+\VimDQuote{\{amount\}}. 使用\VimDQuote{:map}命令，你就可以告诉Vim按下F5就去完
+成这一操作：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmdNoAdjustSpace}
+:map <F5> i{<Esc>ea}<Esc>
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+    练习这个命令时，你必需键入4个字符来键入\VimSpecialChar{<F5>}, 键入5个字符键入
+\VimSpecialChar{<Esc>}, 而不是按下键盘上的F5键和ESC键。在该手册中都要留心这种差
+异。
+} %end VimCaution
+
+\begin{comment}
+lsl：必需=>必须
+\end{comment}
+
+我们来做动作分解：
+    \VimSpecialChar{<F5>}        F5功能键。这是引起后面一连串命令开始执行的触发键。
+
+    i\{\VimSpecialChar{<Esc>}   插入\{字符。\VimSpecialChar{<Esc>}键结束当前的Insert模式。
+
+    e           将光标移动到当前word的最后一个字符上
+
+    a\}\VimSpecialChar{<Esc>}   在该word后面加上一个\}字符。
+
+定义了上述映射之后，你要把一个word以花括号括起来就只需要把光标置于
+该word的首字符上，然后按F5.
+
+本例中，触发键是单个的按键；但是映射本身可以是任意的一个字串。这样一来如果你把
+一个Vim命令作为一个映射，那这个命令就再也不具有它本身的意义了\VimMyFootnote{译
+注：除非你删除这个映射，此时该命令会恢复它的功能}，所以最好避免以一个Vim命令作
+为映射。
+
+   反斜杠也是一个可用于映射的字符。你可能需要不止一个的映射，比如说以
+\VimDQuote{\VimBS{}p}来为一个word加上普通括号，以\VimDQuote{\VimBS{}c}
+来加花括号。就可以这样：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmdNoAdjustSpace}
+:map \p i(<Esc>ea)<Esc>
+:map \c i{<Esc>ea}<Esc>
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_129}{view_129}\hypertarget{view_129}{}\fbox{\textcolor{red}{Review}}\\
+\VimMyFootnote{译注：感谢\<qujianning@gmail.com>指正：p=\VimTT{>}\VimBS{}p}
+
+这样的映射对键入\VimBS{}与p之间的时间间隔有所要求，快速键入才会使Vim把它们看作
+是一个映射而不是两个独立的普通字符\VimMyFootnote{译注：参考\VimCommonSrc{timeoutlen}}
+
+\VimDQuote{:map}命令(不带参数)会列出当前已定义的映射。它至少会包括定义
+在Normal模式下的映射。关于映射的更多内容请参考\VimSecSrc{40.1}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{05.4}{\ChapterFiveSectionFourTitle}
+\hfill\VimCommonDest{add-plugin} \VimCommonDest{plugin}
+
+Vim的功能可以通过向它添加plugin得以扩展。所谓plugin不过是一个Vim会自动载入执行
+的脚本。把一个脚本放入你的plugin目录就可以了，非常容易。
+
+plugin基本上分为两类：
+
+  全局的：用于所有文件
+
+  专用于某类型文件的：只用于特定类型的一类文件
+
+下面先说全局的plugin, 接下来是专用于某种文件类型的plugin
+\VimCommonSrc{add-filetype-plugin}. 
+
+
+\VimSubSection{全局的plugin}\hfill\VimCommonDest{standard-plugin}\\
+
+当你启动Vim时，它会自动载入一些全局的plugin, 你不必额外地做任何事情。这
+些plugin定义了使用率很高的一些功能，但它们是以一个Vim脚本的形式而不是通过内建于Vim可执
+行文件内来提供。你可以在\VimCommonSrc{standard-plugin-list}发现一个此
+类plugin的列表。另外请参考\VimCommonSrc{load-plugins}. 
+
+\hfill\VimCommonDest{add-global-plugin}\\
+你可以通过添加一个全局的plugin来获得额外的功能，这只需两步：
+1. 得到这个plugin文件。
+2. 把它放到指定的目录下。
+
+\VimSubSection{得到一个全局的plugin文件}
+
+在哪能找到？
+\begin{enumerate}
+\renewcommand{\labelenumi}{\arabic{enumi}.}
+\item{有一些随Vim一起发行。位于目录\$VIMRUNTIME/macros以及它的子目录}
+\item{从网上下载，\VimURL{http://www.vim.org}是它的集大成者}
+\item{有时候也张贴在Vim的\VimCommonSrc{maillist}.}
+\item{你也可以自己写：\VimCommonSrc{write-plugin}.}
+\end{enumerate}
+
+有一些plugins以vimball这种文档的形式发放，请参考\VimCommonSrc{vimball}. 
+
+还有些plugins是可以自动更新的，请参考\VimCommonSrc{getscript}. 
+
+\VimSubSection{使用一个全局的plugin}
+
+首先看一下这个plugin的内容，看看使用它要先满足什么条件。然后把它copy到
+你的plugin目录下：
+% 下面原文中就对“系统”使用了不同的颜色
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+系统            相应的plugin目录}
+Unix            ~/.vim/plugin/
+PC and OS/2     $HOME/vimfiles/plugin or $VIM/vimfiles/plugin
+Amiga           s:vimfiles/plugin
+Macintosh       $VIM:vimfiles:plugin
+Mac OS X        ~/.vim/plugin/
+RISC-OS         Choices:vimfiles.plugin
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_130}{view_130}\hypertarget{view_130}{}\fbox{\textcolor{red}{Review}}\\
+以Unix为例(假设你还没有一个plugin目录):
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+mkdir ~/.vim
+mkdir ~/.vim/plugin
+cp /usr/local/share/vim/vim60/macros/justify.vim ~/.vim/plugin
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+就这么简单！现在你就可以使用这些plugin里提供的新功能新命令了。
+
+除了直接把plugins放入plugin/目录之外，可能更好的选择是把它们分门别类归置
+到plugin/的下一级子目录中。比如象"~/.vim/plugin/perl/*.vim"这样来安置所有
+跟Perl相关的plugins.
+
+\VimSubSection{文件类型plugin}\VimToRight{\VimCommonDest{add-filetype-plugin}}
+\VimCommonDest{ftplugins} \VimMyFootnote{译注：可以看成是基于文件类型的插件}
+
+Vim的发布版中已经包括了针对不同文件类型的相应plugin, 你可以使用下面命令开启对
+它的应用：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:filetype plugin on
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+就是这一个命令即可！另请查看\VimCommonSrc{vimrc-filetype}. 
+
+如果你缺少某种文件类型的plugin, 或者你找到一个更好的替代品，下面两个步骤可以
+增加一个文件类型的plugin:
+\begin{enumerate}
+\item{得到这个plugin.}
+\item{把它放到对应的目录里。}
+\end{enumerate}
+
+\VimSubSection{得到一个文件类型的plugin}
+
+与全局plugin所在的目录一样，通过查看这个plugin是否提到了某个文件类型，就可以
+知道它是全局的还是专用于某种文件类型的，在\$VIMRUNTIME/macros下的脚本是全局的，
+而在\$VIMRUNTIME/ftplugin目录下的则是专用于特定文件类型的。
+
+
+\VimSubSection{使用一个文件类型plugin} \VimToRight{\VimCommonDest{ftplugin-name}}
+
+你可以通过把一个文件类型plugin脚本放入相应的目录来完成对它的添加。路径跟
+添加全局plugin时的一样，不过最后一个目录名是\VimDQuote{ftplugin}. 假设你找到了用于
+\VimDQuote{stuff}文件类型的plugin, 目前你在Unix系统上，那么你可以这样加入该文件：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+mv thefile ~/.vim/ftplugin/stuff.vim
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+如果这个目录下已经有了一个同名文件。你就要停下来仔细检查一下两个文件是否会
+引起冲突，如果没问题，你可以把要加入的新文件更名一下：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+mv thefile ~/.vim/ftplugin/stuff_too.vim
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+下划线用于分隔用于标识文件类型的部分和其它部分，下划线其后的部分可以自由命名。
+如果你用\VimDQuote{otherstuff.vim}这样的名字，Vim可不能识别它，它只会在文件类型是
+\VimDQuote{otherstuff}时被载入。
+
+在MS-DOS上你不能使用长文件名。如果你要用一个辅助的plugin但是文件类型字符串
+已经超过了6个字符\VimMyFootnote{译注：MS-DOS文件名部分限制为小于等于8个字符，所以这里说
+文件类型字符串不能超过6个字符，因为下划线本身要占用一个字符，辅助plugin的
+其余部分至少会有一个字符}这就会有麻烦，不过你还可以通过一个额外的目录来处
+理这种情况：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+mkdir $VIM/vimfiles/ftplugin/fortran
+copy thefile $VIM/vimfiles/ftplugin/fortran/too.vim
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+文件类型plugin的文件名一般形式是：
+% 语义上下面的内容是一个List而已，但在原帮助文档中其语法是 Example
+% vim: no special highlight in verbatim
+\begin{VimVBHelpExample}[commandchars=\\\{\}]
+ftplugin/<filetype>.vim
+ftplugin/<filetype>_<name>.vim
+ftplugin/<filetype>/<name>.vim
+\end{VimVBHelpExample}
+\vspace{-1.3\parskip}
+
+这里出现的\VimDQuote{\VimSpecialChar{<name>}}可以是任何你喜欢的名字。以Unix系统下文件类型\VimDQuote{stuff}为例：
+\begin{VimVBHelpExample}[commandchars=\\\{\}]
+~/.vim/ftplugin/stuff.vim
+~/.vim/ftplugin/stuff_def.vim
+~/.vim/ftplugin/stuff/header.vim
+\end{VimVBHelpExample}
+\vspace{-1.3\parskip}
+
+\VimSpecialChar{<filetype>}部分是plugin所服务的目标文件类型。只有相应类型的
+文件才能应用到这个plugin. plugin文件中的\VimSpecialChar{<name>}部分对Vim的识别工
+作并不起使用，你可以对几种不同的plugin都使用一样的\VimSpecialChar{<name>}部分也
+没问题。注意这些文件必需以\VimDQuote{.vim}为扩展名。
+
+
+推荐阅读：
+\begin{VimVBListNoIndent}[xrightmargin=-2cm,commandchars=\\\{\}]
+\VimCommonSrc{filetype-plugins}     关于文件类型plugin的文档以及如何避免映射引起冲突的信息
+\VimCommonSrc{load-plugins}         关于Vim启动过程中何时载入全局plugin
+\VimCommonSrc{ftplugin-overrule}    如何强制改变全局plugin中的设置
+\VimCommonSrc{write-plugin}         如何写一个plugin脚本
+\VimCommonSrc{plugin-details}       关于如何使用plugin或者解决你的plugin出现的bug
+\VimCommonSrc{new-filetype}         如何检测新文件类型
+\end{VimVBListNoIndent}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimSecDest{05.5}{\ChapterFiveSectionFiveTitle}
+\VimToRight{\VimCommonDest{add-local-help matchit-install}}\\
+
+    幸运的话，你安装的plugin会附带一个帮助文件。下面我们会解释如何安装一个帮助
+文件，这样你就可以很容易找到新的plugin的帮助。
+
+   我们使用\VimDQuote{matchit.vim}这个plugin为例(这个脚本包括在Vim发行包中). 
+这个plugin使\VimDQuote{\VimTT{\%}}命令可以跳转到匹配的HTML标签，也可以在Vim脚
+本中的if/else/endif关键字中跳转，非常好用，虽然它不兼容于Vim的早期版本(这正是
+为什么没把它作为一个默认功能的原因).
+
+   这个plugin有一个附带的文件：\VimDQuote{matchit.txt}. 我们首先把这
+个plugin 复制到相应的目录。这次我们不退出Vim来演示，所以我们可以使用\$VIMRUNTIME这种形
+式的环境变量\VimMyFootnote{译注：即使是在MS-DOS或MS-Windows下}. (如果你已经有了相应的目录就
+跳过那些\VimDQuote{mkdir}命令)\VimMyFootnote{译注：MS-DOS或MS-Windows的用户可能奇怪为什么
+作者使用mkdir命令而不是md命令，答案是兼容性，mkdir可同时用于MS-DOS, MS-Windows和Unix类
+系统，甚至Mac的最新操作系统OS X(它使用一个叫Darwin的Unix类内核)}. 
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:!mkdir ~/.vim
+:!mkdir ~/.vim/plugin
+:!cp $VIMRUNTIME/macros/matchit.vim ~/.vim/plugin
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+"cp"命令是用在unix系统上的，在MS-DOS上可以用"copy".
+
+现在在\VimOption{runtimepath}选项里列出的目录列表中选一个目录，建立它的一个子目录
+\VimDQuote{doc}. 
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:!mkdir ~/.vim/doc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+把帮助文件copy到这个\VimDQuote{doc}目录下。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:!cp $VIMRUNTIME/macros/matchit.txt ~/.vim/doc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_131}{view_131}\hypertarget{view_131}{}\fbox{\textcolor{red}{Review}}\\
+\VimMyFootnote{译注：感谢\<qujianning@gmail.com>指正：\VimBS{}\$=\VimTT{>}\$}
+
+    奇迹发生了，现在你可以跳转到新的帮助文件中的帮助主题了：用
+\VimCommonSrc{:helptags}命令生成一个本地化的tags文件\VimMyFootnote{译注：tags文件发韧于
+程序员对编辑/浏览源程序的需要，比如在一个C/\VimCPP{}/Java源程序中，要跳转到某
+个名为foo的类的定义处，或是某个变量的声明，tags文件中的每一条目记录了这样一种
+程序元素在源代码中的位置，一些tags-aware的编辑器如Vim/Emacs可以根据tags文件中
+所记录的位置信息来快速跳转到目的地，tags所记录的位置信息一般以文件名\VimTT{+}
+行号或文件名\VimTT{+}搜索命令表达。关于tags的更多信息，请参考man ctags, man
+etags}. 
+\begin{comment}
+lsl: 的的=>的
+\end{comment}
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:helptags ~/.vim/doc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你就可以用帮助命令
+\begin{comment}
+lsl：可以帮助命令=>可以用帮助命令
+\end{comment}
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help g%
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+来找到名为\VimDQuote{\VimTT{g\%}}的帮助主题了。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help local-additions
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+来自本地化帮助文件的标题行自动被添加到该小节中。
+
+通过该节列出的帮助主题你可以了解有哪些本地化的帮助文件，并可以通过这些标签跳
+转到相应的帮助主题。
+\begin{comment}
+lsl：本地化的的=>的
+\end{comment}
+
+参考\VimCommonSrc{write-local-help}了解更多关于写一个本地化的帮助文件的信息
+
+%======...
+\VimSepartor
+
+\VimSecDest{05.6}{\ChapterFiveSectionSixTitle}
+
+如果你要查找一个选项，你可以在\VimCommonSrc{options}帮助主题中寻找。另外也可以使用这个
+命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:options
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令会打开一个新窗口，在该窗口的最开头的注释下面是一个选项列表，每行一个，对
+每个选项有一个对应的简短说明。这些选项根据主题分组。把光标移动到你想了解的主题
+词上按下回车键就可以跳转到对该主题的详细解释。再按下回车键或
+\VimSpecialChar{CTRL-O}就又会回到该选项列表。
+
+你还可以在此改变每个选项的设置。比如，移动到\VimDQuote{displaying text}主题上，
+然后到下面这一行：
+\begin{VimVBexcmd}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+set wrap        nowrap
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+按下回车键，该行的内容就会变为：
+\begin{VimVBexcmd}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+set nowrap      wrap
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该选项的值现在就被设置为关闭。
+
+紧挨着该行之上是一个对\VimOption{wrap}选项的简单描述。把光标置于该行按下回车键
+会带你到\VimOption{wrap}选项的详细解释去\VimMyFootnote{译注：不在当前缓冲区，
+在帮助文件options.txt中}。
+
+对于以一个数字或字符串为目标值的选项，你可以直接编辑选项的值，然后
+\VimMyFootnote{译注：在Normal模式下}按下回车键确认作出的修改并使之生效。例
+如，把光标向上移动几行到：
+\begin{VimVBexcmd}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+set so=0
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+以\VimDQuote{\$}命令将光标置于字符0上。用命令\VimDQuote{r5}把它改为5. 然后按下
+回车键。现在你再四处活动光标时就会注意到光标快达到窗口的上下边界时周边文本的变
+化。这就是\VimOption{scrolloff}选项的结果，它决定了光标离窗口上下边界的最小行
+距为多少时会引起窗口滚动。
+
+%======...
+\VimSepartor
+
+\VimSecDest{05.7}{\ChapterFiveSectionSevenTitle}
+
+Vim的选项可谓汗牛充栋。大部分的选项会被多数人冷落一旁。其中一些常用的则备受青睐。本
+节也将特别照顾这些家常选项，不过别忘了你随时可以用\VimDQuote{:help}命令来获得
+关于它们的更详细解释，记住在选项关键字的前后放上一个单引号\VimMyFootnote{译注：这并不是必需
+的，只是为了最大限度地避免跳转到关键字相近的其它帮助主题上去}，形如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help 'wrap'
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+万一你把一个选项值改到自己难以收拾残局，还可以在该选项的后面放一个\&符号使它恢
+复其默认值，如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set iskeyword&
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{不要折行}
+
+Vim通常会把超出当前显示窗口显示宽度的行折到下一行显示，这样你还是可以看到整行
+的内容。有时候让它不管多长都放到窗口最右边去会更好。这时你要看这些超出当前视野
+的部分就要左右滚动该行了。控制长行是否折到下一行显示的命令是：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set nowrap
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会自动保证你把光标移动到某字符上时它会显示给你看，必要时它自动左右滚动。要查
+看左右10个字符的上下文\VimMyFootnote{译注：也许叫左右文更合适些，但context一词
+在任一本字典里也没有这样的解释。只好随俗。}，用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set sidescroll=10
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+注意这只是改变文本的显示形式而不会影响内容本身。
+
+
+\VimSubSection{跨行移动命令}
+
+Vim中多数移动光标的命令会在遇到行首或行尾时停止不动\VimMyFootnote{译注：所谓畏
+首畏尾\Smiley}。
+\VimOption{whichwrap}选项可以用来控制这些移动光标的命令此时的行为规则。下面的
+设置是它的默认值
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set whichwrap=b,s
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这样光标位于行首时按退格键会往回移动到上一行的行尾。同时在行尾按空格键也会
+移动到下一行的行首。
+
+要让左右箭头键\VimMyFootnote{译注：对h, l命令无效，要使h, l命令也能绕到当前行
+之外，需要:set whichwrap += l,h}在遇到行的边界时也能智能地上上下下，使用命
+令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set whichwrap=b,s,<,>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这些都是只针对于Normal模式。要让左右箭头键在Insert模式下也能如此：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set whichwrap=b,s,<,>,[,]
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+此外还有几个标志可以用于该选项，参考\VimOption{whichwrap}. 
+
+
+\VimSubSection{查看制表符}
+
+文件中含有制表符时，你并不能看到它们。要让这些制表符成为可见的字符：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set list
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在每个制表符都会以\^{}I显示。同时每行行尾会有一个\$字符，以便你能一眼看出那
+些位于一行尾部的多余空格。
+
+   这样做的缺点是文件中制表符很多时整个屏幕看起来就很抱歉了。如果你的终端支持
+彩色显示，或者使用的是GUI, Vim就可以把制表符和空白字符高亮起来显示。这要配合使
+用下面的\VimOption{listchars}选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set listchars=tab:>-,trail:-
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在每个制表符会以\VimDQuote{\VimTT{>}---}显示\VimMyFootnote{译注：前提是仍然
+要:set list}，同时行尾空格以\VimDQuote{-}显示，看起来会好一点，你觉得呢？
+
+
+\VimSubSection{关键字}
+
+\VimOption{iskeyword}选项定义了一个word中可以包含哪些字符：
+% 注意原文中iskeyword前面即有两个空格，要保留
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set iskeyword
+\textcolor{VimHelpHeaderColor}{
+  iskeyword=\VimAt{},48-57,_,192-255 >}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{\VimAt{}}在这里代指所有的字母。\VimDQuote{48-57}指ASCII码从48到57的那些字
+符，即0到9. \VimDQuote{192-255}是可打印拉丁字母。
+
+   有时候你可以想把连字符也视为word的一部分，这样象\VimDQuote{w}命令就会把
+\VimDQuote{upper-case}看作是一个word了：
+% 注意原文中iskeyword前面即有两个空格，要保留
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set iskeyword+=-
+:set iskeyword
+\textcolor{VimHelpHeaderColor}{
+  iskeyword=\VimAt{},48-57,_,192-255,-}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+此时查看该选项的值的话你会发现Vim已经为新添加的成员同时配备了一个逗号以与其它
+成分分隔开来。
+
+   要把一个字符清理出去使用操作符\VimDQuote{-=}. 比如，要移走下划线：
+% 注意原文中iskeyword前面即有两个空格，要保留
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set iskeyword-=_
+:set iskeyword
+\textcolor{VimHelpHeaderColor}{
+  iskeyword=\VimAt{},48-57,192-255,-}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这次逗号又会被自动移走了。
+
+
+\VimSubSection{信息显示区}
+
+Vim启动时会在窗口最底部留下一行用于显示信息。要显示的信息太长时，Vim或者把它截
+短让你只能看到部分内容，或者多出来的信息需要你按下回车键以滚动显示。
+
+   你可以设置\VimOption{cmdheight}选项来控制拿出几行来显示这些信息
+   \VimMyFootnote{译注：设置
+以后不显示信息的时候也会占据相应的空间}。比如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set cmdheight=3
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+当然这会让你的编辑区减少相应的行数，所以...， 你自己拿主意吧。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{06}  \ChapterSixTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

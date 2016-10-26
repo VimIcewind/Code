@@ -1,0 +1,487 @@
+\VimNewChapter
+\VimBookMark{第28章　\ChapterTwentyEightTitle}{usr_28.txt}
+\VimFileNameDest{usr\VimTT{\_}28.txt}{ \VimDocVer  最后修改：2008年06月14日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{折行\\}
+
+
+结构化的内容可以划分为节，每节又可以划分小节。折行功能可以将一节浓缩为一行，
+只显示其大概。本章讲解折行的用法。
+
+\VimSecList{28.1}{\ChapterTwentyEightSectionOneTitle}
+\VimSecList{28.2}{\ChapterTwentyEightSectionTwoTitle}
+\VimSecList{28.3}{\ChapterTwentyEightSectionThreeTitle}
+\VimSecList{28.4}{\ChapterTwentyEightSectionFourTitle}
+\VimSecList{28.5}{\ChapterTwentyEightSectionFiveTitle}
+\VimSecList{28.6}{\ChapterTwentyEightSectionSixTitle}
+\VimSecList{28.7}{\ChapterTwentyEightSectionSevenTitle}
+\VimSecList{28.8}{\ChapterTwentyEightSectionEightTitle}
+\VimSecList{28.9}{\ChapterTwentyEightSectionNineTitle}
+\VimSecList{28.10}{\ChapterTwentyEightSectionTenTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{29}  \ChapterTwentyNineTitle\\
+前一章：& \VimFileName{27}  \ChapterTwentySevenTitle\\
+目　录：& \VimFileName{toc} \\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{28.1}{\ChapterTwentyEightSectionOneTitle}
+
+折行用于把缓冲区中的多行文本仅显示为一行。就象把一张纸折叠起来一样：
+\begin{VimVBDisplayNoAdjustSpace}
++------------------------+
+| line 1                 |
+| line 2                 |
+| line 3                 |
+|_______________________ |
+\                        \
+ \________________________\
+ / folded lines           /
+/________________________/
+| line 12                |
+| line 13                |
+| line 14                |
++------------------------+
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+被折起的内容还在缓冲区中，丝毫未变。折行只影响文本在屏幕上的显示。
+
+使用折行你可以得到文件的一个大纲。把一节的内容折起显示为一行，该行会标识出这里
+是一个折行。
+
+%======...
+\VimSepartor
+
+\VimSecDest{28.2}{\ChapterTwentyEightSectionTwoTitle}
+
+试一下把光标置于一段中使用下面的命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+zfap
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+你将看到整个一段的内容被一个高亮的行所取代。你已经创建了一个折行。\VimCommonSrc{zf}是一个
+操作符命令，\VimCommonSrc{ap}是一个文本对象。你可以用\VimCommonSrc{zf}来搭配任何的位移命令创建折行。\VimCommonSrc{zf}
+也可以在Visual模式使用\VimMyFootnote{译注：zf命令搭配的位移命令移动不出当前行时当然没有效果}。
+
+要再次查看折叠起来的文本，可以使用命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+zo
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+还可以用下面的命令重新折起：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+zc
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+所有与折行相关的命令都以字符\VimDQuote{z}打头。因为它看起来正象是把一张纸折叠起来的样子。
+\VimDQuote{z}之后的字符是一个易于记忆的命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+zf      创建折行
+zo      打开折行
+zc      关闭折叠
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+折行可以是嵌套的：一段包含了折行的文本还可以再折叠起来。比如你可以把本节中的
+每一段都折叠起来，然后把本章中的所有节再折叠起来。试一试。你会发现打开本章的
+折叠的同时恢复了被嵌套在内的那些折行，这些嵌套的折行将保持它们被更大的折行折叠
+起来之前的状态，或开或闭。
+
+假设你创建了几层深的折行，现在想查看所有的文本，你可以逐个用命令\VimDQuote{zo}打开它。要
+更快的办法，试一下命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+zr
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+该命令会R-educe\VimMyFootnote{译注：减少}折叠的层次。相反的命令是：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+zm
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+该命令是折叠得更多。你可以重复使用\VimDQuote{zr}和\VimDQuote{zm}来打开或关闭多层嵌套的折行。
+
+如果你嵌套了多层的折行，也可以用这个命令一次打开所有折行：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+zR
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这个命令减少折行的嵌套深度直到穷尽所有的折行。下面的命令则可以关闭所有的嵌套
+折行：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+zM
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+你可以用\VimCommonSrc{zn}命令来禁用一个折行。然后用\VimCommonSrc{zN}还可以恢复它。\VimCommonSrc{zi}命令则可以在两者
+之间切换。这是一种有效的工作方式：
+\begin{itemize}
+\item{创建折行进行大纲预览}
+\item{移动到某处进行编辑}
+\item{使用\VimCommonSrc{zi}打开文本进行编辑}
+\item{编辑完毕后再用\VimCommonSrc{zi}打开折行进行移动}
+\end{itemize}
+
+关于手工折行的详细内容请参考\VimCommonSrc{fold-manual}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{28.3}{\ChapterTwentyEightSectionThreeTitle}
+
+折行折叠起来时，象\VimDQuote{j}和\VimDQuote{k}这样的移动命令就会视之为单行一跃而过。这可以在折起的
+文本间快速移动。
+
+你可以象对待单行文本一样对它进行复制，删除和粘贴。这在你希望重新安排程序中的
+函数顺序时十分有用。首先选择正确的方法进行折叠：\VimOption{foldmethod}, 把每个
+函数定义为一个折行折叠起来。然后用\VimDQuote{dd}删除函数，移动光标至某处然后用
+\VimDQuote{p}命令粘贴。如果该函数还有一些行没有被折行包括进来，你可以
+用Visual模式进行选择：
+\begin{itemize}
+\item{将光标置于要移动文本的第一行上}
+\item{按\VimDQuote{V}进入Visual模式}
+\item{将光标移动到要移动文本的最后一行}
+\item{用\VimDQuote{d}命令删除选择的行}
+\item{移动光标到新的位置然后用\VimDQuote{p}命令粘贴文本}
+\end{itemize}
+
+有时很难记住折行的位置，这样你就不知道光标在哪里\VimCommonSrc{zo}才能打开一个折行。下面的
+选项设置可以方便你查看折行：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set foldcolumn=4
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这会在窗口左边另辟出一小列空间来标识折行。\VimDQuote{\VimTT{+}}标识一个折叠起
+来的折行。\VimDQuote{-}标识打开的折行，折叠区中的每行前面以\VimDQuote{|}标识。
+
+你可以通过鼠标单击\VimDQuote{+}来打开一个折行，单击\VimDQuote{-}或\VimDQuote{|}打开折叠。
+
+打开所有折叠请参考\VimCommonSrc{zO}. 
+
+关闭所有折叠请参考\VimCommonSrc{zC}. 
+
+删除当前行的折叠请参考\VimCommonSrc{zd}. 
+
+删除当前行的所有折叠请参考\VimCommonSrc{zD}. 
+
+在Insert模式下，当前行的折行总是打开的，这样你可以看清输入的内容！
+
+在折行上左右移动光标时折行会自动打开。例如\VimDQuote{0}命令会打开当前行的折行(
+如果\VimOption{foldopen}选项包含\VimDQuote{hor}的话，这也是默认值).
+\VimOption{foldopen}选项可以定义什么命令会打开折行。如果你想让当前行下的折叠总
+是打开的，请这样设置：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set foldopen=all
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+警告：这样你将无法将光标定位到一个关闭的折行上去。一般来说你只会临时这样做，
+回到默认的设置可以用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set foldopen&
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你也可以这样设置来让光标离开时折行就会自动关闭：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set foldclose=all
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这会使当前行之外的所有折行都重设\VimOption{foldlevel}.最好使用
+\VimCommonSrc{zm}和\VimCommonSrc{zr}来增减折行。
+
+折行是局部于窗口的。这样就可以对同一个缓冲区打开两个窗口，一个用折行一个不用
+折行。或者一个关闭所有折行，一个打开所有折行。
+
+%======...
+\VimSepartor
+
+\VimSecDest{28.4}{\ChapterTwentyEightSectionFourTitle}
+
+你放弃一个文件时(比如转而去编辑另一个文件), 折行的状态会丢失。下面的命令可以
+保存折行的定义：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:mkview
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这将会保存所有折行的定义以及其它一些影响该文件外观显示的选项。你可以通过设置
+\VimOption{viewoptions}来控制将哪些信息保存在视图文件中。稍后回到该文件时，你可以这样
+找回刚才的感觉：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:loadview
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你最多可以为一个文件保存10个视图。比如把当前的设置存为第3个视图，然后载入
+第2个视图：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:mkview 3
+:loadview 2
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+注意你增删一些文字时视图可能会被破坏掉。同时请参考\VimOption{viewdir}的设置，它控制
+视图文件存储的路径。你可能需要不时删除一些老旧的视图。
+
+%======...
+\VimSepartor
+
+\VimSecDest{28.5}{\ChapterTwentyEightSectionFiveTitle}
+
+通过\VimCommonSrc{zf}手工定义折行太费事了。如果你的文件结构使更细节化的内容总
+是有更多的缩进，你就可以让Vim根据缩进量来自动决定折行。它会把具有相同缩进量的
+行作为一个折行。缩进量更大的行会被作为嵌套的折行。这对很多编程语言都适用。
+
+试一下这样设置\VimOption{foldmethod}的效果：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set foldmethod=indent
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+然后你可以用\VimCommonSrc{zm}和\VimCommonSrc{zr}命令来增减折行的层次。从下面的
+样例文件中就很容易看出效果：
+\begin{VimVBDisplayNoAdjustSpace}
+This line is not indented
+        This line is indented once
+                This line is indented twice
+                This line is indented twice
+        This line is indented once
+This line is not indented
+        This line is indented once
+        This line is indented once
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+注意缩进量与折行嵌套深度的关系由\VimOption{shiftwidth}来控制。每一个
+\VimOption{shiftwidth}的缩进量都会增加一级折行深度。这叫折行的层级。
+
+使用\VimCommonSrc{zr}和\VimCommonSrc{zm}命令实质上只是增减了
+\VimOption{foldlevel}选项的值。该选项也可以直接设置：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set foldlevel=3
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这样所有3次及3次以上\VimOption{shiftwidth}缩进量的折行都会被关闭。折叠的层级设
+得越低。就有越多的折行被关闭。\VimOption{foldlevel}为0时，所有的折行都会被关闭。\VimCommonSrc{zM}命令将\VimOption{foldlevel}选项设为0. 相反的
+\VimCommonSrc{zR}命令则把\VimOption{foldlevel}选项设为当前文件中的最大有效值。
+
+这样就有两种方法可以打开和关闭折行：
+\begin{enumerate}
+\renewcommand{\labelenumi}{(\Alph{enumi})}
+\item{通过设置折叠层级。
+
+    这使你可以快速的抽取文件的骨架以了解其结构，或者迅速移动光标，又可以方便地
+    打开文本。}
+
+\item{通过使用\VimCommonSrc{zo}和\VimCommonSrc{zc}命令来关闭某个折行。
+
+    这两个命令将只针对当前的折行，对其它的折行没有影响。}
+\end{enumerate}
+
+两者也可以结合使用：首先用\VimCommonSrc{zm}命令来关闭所有折行，然后用
+\VimCommonSrc{zo}打开个别的折行。或者反过来，以\VimCommonSrc{zR}来打开所有折行。
+再以\VimCommonSrc{zm}命令叠起某个特定的折行。
+
+但是\VimOption{foldmethod}被设为\VimDQuote{indent}时手工的折叠操作将被禁用，因
+为这样的话会弄乱缩进量与折叠层级的关系。
+
+关于根据缩进量的折叠更多的内容请参考\VimCommonSrc{fold-indent}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{28.6}{\ChapterTwentyEightSectionSixTitle}
+
+在文本中使用特定记号可以精确标识折行的起止范围。不过缺点是这会影响文本本身的
+内容。
+
+试一下命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set foldmethod=marker
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+示例文本如下，这是一段C程序：
+\begin{VimVBCodeSippetNoAdjustSpace}
+/* foobar () {{{ */
+int foobar()
+{
+        /* return a value {{{ */
+        return 42;
+        /* }}} */
+}
+/* }}} */
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+注意折起后的行会显示标记之前的文本。这样可以清楚地显示当前的折行包含了什么内容。
+
+如果在编辑过程中因为删除了折行的结束标记可就不妙了。好在这个问题可以通过加了
+标号的标记来解决，如：
+\begin{VimVBCodeSippetNoAdjustSpace}
+/* global variables {{{1 */
+int varA, varB;
+
+/* functions {{{1 */
+/* funcA() {{{2 */
+void funcA() {}
+
+/* funcB() {{{2 */
+void funcB() {}
+/* }}}1 */
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+每一个加了标号的标记都表明这是指定深度的折行的起始处。这会自动结束前面一个更高
+层级的折行。通过这种办法只用起始标记就可以定义所有的折行。只有你想明确定义一个
+折行在何处结束时才去加上一个结束标记。
+
+关于使用标记进行折行的更多内容请参考：\VimCommonSrc{fold-marker}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{28.7}{\ChapterTwentyEightSectionSevenTitle}
+
+对每种不同的计算机语言Vim都分别有一个语法文件与之对应。该文件定义了文件中不同
+语法项的颜色。如果你是在Vim中阅读本文。所用的终端支持彩色显示的话，你现在看到
+的颜色正是由\VimDQuote{help}这个语法文件定义的。
+
+   在语法文件中也可以为语法项的定义加入\VimDQuote{fold}参数。这样可以定义一个折行的区域。
+这需要写一个语法文件，把这些相关的定义加进去。做起来当然有一点难度，不过一旦
+搞定，所有的折行就可以由Vim自行决定了！
+
+   本文中我们假设你正在使用一个现成的语法文件。这样就不用过多解释了。你可以
+直接用上面介绍的命令来打开或关闭折行。编辑文件的过程中折行也会随着内容的变化
+自生自灭。
+
+关于根据语法的折行更多内容请参考：\VimCommonSrc{fold-syntax}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{28.8}{\ChapterTwentyEightSectionEightTitle}
+
+这个类似于根据缩进量的折行，但是它决定折行的依据不是缩进量，而是用一个函数来
+计算某行的折行层深。你可以用这种办法来决定文本中哪些行属于同一类内容。这里的
+例子来自一段e-mail的下文，被引用的文本以行首的\VimDQuote{\VimTT{>}}来标识。下
+面的命令根据引用的层次来进行缩进：
+\begin{VimVBexcmd}[xleftmargin=-2.5cm,xrightmargin=-2.5cm,commandchars=\\\{\}]
+:set foldmethod=expr
+:set foldexpr=strlen(substitute(substitute(getline(v:lnum),'\VimBS{}\VimBS{}s','',\VimBS{}"g\VimBS{}"),'[^>].*','',''))
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+可以在下面的文本上试一试：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+> quoted text he wrote
+> quoted text he wrote
+> > double quoted text I wrote
+> > double quoted text I wrote
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+下面对上例中\VimOption{foldexpr}的用法逐一解释：
+\begin{VimVBList}[xrightmargin=-2cm,commandchars=\\\{\}]
+getline(v:lnum)                      得到当前行
+substitute(...,'\VimBS{}\VimBS{}s','','g')         删除所有的空白字符
+substitute(...,'[^>].*','',''))      删除打头的'>'后面的所有东西
+strlen(...)                          计算字符串的长度，即'>'出现的次数
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_160}{view_160}\hypertarget{view_160}{}\fbox{\textcolor{red}{Review}}\\
+% 上面''中的连续两个反斜线 并非多余， 因为作为foldexpr值的表达式，会被evaluate一次， 消耗掉一个反斜线
+注意在\VimDQuote{:set}命令中，每个空格。双引号或反斜杠的前面都必需有一个反斜杠。如果你
+迷惑不解的话，用命令
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set foldexpr
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_161}{view_161}\hypertarget{view_161}{}\fbox{\textcolor{red}{Review}}\\
+检查一下这样设置的结果是什么。要修改一个复杂的表达式，最好用下面的命令行补齐功能：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set foldexpr=<Tab>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+其中的\VimSpecialChar{<Tab>}表示此处要你真正输出一个制表符。Vim会填补foldexpr的当前值，然后你
+可以在此基础上进行修改。
+
+表达式太过复杂时你应该用一个函数把它包裹起来，
+然后设置\VimOption{foldexpr}来调用这个函数。
+
+关于根据表达式的折行更多的内容可以参考：\VimCommonSrc{fold-expr}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{28.9}{\ChapterTwentyEightSectionNineTitle}
+
+这对在同一窗口中设置了\VimOption{diff}选项时非常有用。\VimCommonSrc{vimdiff}命令会把一切都准备
+就绪，如下：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:setlocal diff foldmethod=diff scrollbind nowrap foldlevel=1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+对显示了不同版本的各窗口都以此命令进行设置，你会很清楚地看出不同版本的差异，
+相同的部分都会被折起。
+
+更多细节请参考\VimCommonSrc{fold-diff}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{28.10}{\ChapterTwentyEightSectionTenTitle}
+
+太多的选择反而让人无所适从。世上也没有绝对的真理。这里仅提供一些提示。
+
+如果你正在编辑的源文件有一个语法文件，那往往就是最佳选择。如果没有，你也可以
+自己写一个。这需要你熟练掌握正则表达式。不容易！但是想想它的好处，一旦弄好了
+你就再也不需要手工去定义折行了。
+
+对于非结构化的内容可以手工定义折叠区域。然后用\VimCommonSrc{:mkview}命令来保存和恢复定义
+的折行。
+
+使用标记来决定折行需要你改变文本的内容。如果你要跟别人共享文件或者要遵循公司
+的文档规范，可能你就不能那样做。
+
+   标记折行法的最大好处就是你可以精确地定义你要的折行区域。即使你增删了折叠
+区域中的某些行。另外你还可以添加一段注释来说明当前折行中的内容是什么。
+
+缩进折行法适用于很多文件，但是效果并不总是最好的。没有更好的办法时也只能退而求
+其次了。而且，它对于归纳文件的大纲很有用。你可以对每一个\VimOption{shiftwidth}
+的缩进设置一级折叠。表达式折行法几乎适用于所有结构化的文件。使用起来也很简单，
+尤其是折行的起止行很容易识别时。
+
+   如果你用\VimDQuote{expr}来定义折行规则，但是效果并不如你所愿\VimMyFootnote{译注：很可能是因为你的
+正则表达式不过关}，那么你可以切换到手工折行来。原来的折行定义并不会因此消失。这样
+你可以手工调整折行。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{29}  \ChapterTwentyNineTitle\\
+版　权：请参考\VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

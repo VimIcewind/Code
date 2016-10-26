@@ -1,0 +1,338 @@
+\VimNewChapter
+\VimBookMark{第31章　\ChapterThirtyOneTitle}{usr_31.txt}
+\VimFileNameDest{usr\VimTT{\_}31.txt}{ \VimDocVer  最后修改：2007年05月08日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{探索GUI\\}
+
+
+Vim在它的传统阵地终端上表现良好，但是一些GUI特性更使其锦上添花。文件浏览器
+可用于所有需要文件名的命令。对话框则可方便用户进行选择。另外，快捷键也大大加快
+了访问菜单的速度。
+
+\VimSecList{31.1}{\ChapterThirtyOneSectionOneTitle}
+\VimSecList{31.2}{\ChapterThirtyOneSectionTwoTitle}
+\VimSecList{31.3}{\ChapterThirtyOneSectionThreeTitle}
+\VimSecList{31.4}{\ChapterThirtyOneSectionFourTitle}
+\VimSecList{31.5}{\ChapterThirtyOneSectionFiveTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{32}  \ChapterThirtyTwoTitle\\
+前一章：& \VimFileName{30}  \ChapterThirtyTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{31.1}{\ChapterThirtyOneSectionOneTitle}
+
+使用File/Open...菜单命令你会得到一个文件浏览器，你可以在熟悉的界面中选择要编辑
+的文件。但如果你想将在一个分隔窗口中打开该文件呢？菜单里并没有这个命令。当然
+你可以先用Window/Split命令再用File/Open...命令，但这毕竟太繁琐了。
+
+   既然我们已经习惯于在Vim中使用手工键入的命令，何不通过一个命令来打开一个文件
+对话框呢。要让分隔命令从文件浏览器中选择文件，只需在该命令前加上\VimDQuote{browse}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:browse split
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:split}命令会另辟窗口打开选择的文件。如果你撤消了选择文件的操作，整个命令都
+会被中止，窗口并不分隔。
+
+   也可以在此命令后面指定一个文件/目录名作为参数。这使得文件浏览器以此作为被默认
+选取的文件/目录。如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:browse split /etc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+文件浏览器弹出后，以\VimDQuote{/etc}目录作为起始目录。
+
+\VimDQuote{:browse}命令可以作为任何打开文件的命令的前辍\VimMyFootnote{译注：类似
+于vertical、hide}。这样你用\VimDQuote{:browse split}命令选取
+\VimDQuote{/usr/local/share}下的文件后，下一次的文件选取对话框就将以
+\VimDQuote{/usr/local/share}目录作为起始目录。
+
+   \VimOption{browsedir}选项可以控制Vim如何选择起始目录。它可以取下面的几个值：
+\begin{VimVBList}[commandchars=\\\{\}]
+last            用上次访问过的目录(默认)
+buffer          用当前文件所在的目录
+current         用当前工作目录
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+假设你的工作目录是\VimDQuote{/usr}, 编辑的文件是
+\VimDQuote{/usr/local/share/readme}, 则下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set browsedir=buffer
+:browse edit
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+将打开一个以\VimDQuote{/usr/local/share}为起始目录的文件选取对话框。而命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set browsedir=current
+:browse edit
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+则以\VimDQuote{/usr}作为起始目录。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        为了避免用户对鼠标的依赖，多数文件浏览器都可以用键盘进行操作。不过各
+        个系统上的操作方法不尽相同，这里就不做详细介绍了。Vim会尽可能使用标准
+        的文件浏览器，你的系统文档里应该会解释它对应的键盘操作。
+} %end VimCaution
+
+不用GUI版本时，你还可以通过文件浏览窗口来选择文件。不过，这跟\VimDQuote{:browse}命令就
+无关了。请参考\VimCommonSrc{netrw-browse}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{31.2}{\ChapterThirtyOneSectionTwoTitle}
+
+Vim会对诸如覆盖同名文件或其它可能的损失提供保护。如果你的行为具有明显的错误征兆。
+Vim会发出一个错误信息，同时告诉你要真想这样做的话在命令后加一个!, 表明你愿意后
+果自负。
+
+为避免再次输入带一个!后辍的命令，你也可以让Vim给你一个对话框进行确认。
+你可以通过对\VimDQuote{OK}或\VimDQuote{Cancel}的选择告诉Vim你想做什么。
+
+   例如，你对一个文件作出了一个改动。此时转而去编辑另一个文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:confirm edit foo.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会弹出一个这样的对话框：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++-----------------------------------+
+|                                   |
+|   ?   Save changes to "bar.txt"?  |
+|                                   |
+|   YES   NO             CANCEL     |
++-----------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+在这里你可以进行几种选择。如果你想保存这些改动，选\VimDQuote{YES}. 不想就选
+\VimDQuote{NO}. 如果你已经忘了刚才做了什么想回头再看一下那就用
+\VimDQuote{CANCEL}, 这时你会回到原来的文件，作出的改动仍然保留。
+
+正如\VimDQuote{:browse}命令一样，\VimDQuote{:confirm}命令可以作为任何编辑另一
+个文件的命令的前辍\VimMyFootnote{译注：确切说，\VimDQuote{:confirm}命令可以作为
+任何命令的前辍，不过只有在Vim需要用户确认时才弹出相应的对话框，试一下命令
+\VimDQuote{:confirm echo \VimSQ{}asdf\VimSQ{}}和\VimDQuote{:confirm q}}, 两者
+还可以组合使用：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:confirm browse edit
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果当前缓冲区有所改动的话就会弹出一个确认对话框。然后再给用户一个文件浏览器
+选择要编辑的文件。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        在确认对话框中你可以用键盘进行操作。通常情况下制表符\VimSpecialChar{<Tab>}键和光标
+        键都可以用来作出选择。按下回车键作出最终的选择。不过不同的系统还是
+        可能有所不同。
+} %end VimCaution
+
+即使不用GUI版本，\VimDQuote{:confirm}命令也可以照常工作。不过此时它不是弹出一个对话框。
+而是在窗口底部显示一条信息，同时等待你按下一个键来作出选择。
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:confirm edit main.c}
+Save changes to "Untitled"?
+[Y]es, (N)o, (C)ancel: 
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在你可以按下一个键来作出选择。这不象其它在命令行上的命令，不需再按回车。
+按下对应的选择键就马上生效。
+
+%======...
+\VimSepartor
+
+\VimSecDest{31.3}{\ChapterThirtyOneSectionThreeTitle}
+
+通过键盘可以使用所有的Vim命令。菜单则是一种简单一些的方法，你无需记住命令的
+名字。不过你就必需把手从键盘上移开去抓住鼠标。
+
+   不过菜单也可以通过键盘访问。具体方法因系统而异，但通常情况下用法是这样的：
+用\VimSpecialChar{<Alt>}键盘加上菜单中带下划线的字母。比
+如\VimSpecialChar{<A-w>}(\VimSpecialChar{<Alt>}和w)键就可弹出Window菜单
+
+   在Window菜单中，\VimDQuote{split}命令中p带有下划线。要选择该命令，只需松开\VimSpecialChar{<Alt>}键盘
+按下p.
+
+用\VimSpecialChar{<Alt>}键激活一个菜单后，你可以用箭头键来访问各个菜单命令。
+\VimSpecialChar{<Right>}是打开一个子菜单，\VimSpecialChar{<Left>}则可关闭它。
+\VimSpecialChar{<Esc>}也可关闭一个菜单\VimMyFootnote{译注：可关闭当前菜单，如子菜
+单或主菜单}。\VimSpecialChar{<Enter>}也可打开一个子菜单，按下回车键最终选取菜单
+命令。
+
+\VimSpecialChar{<Alt>}键既然可以用于选择菜单，又可以用作键盘映射的组合键。这就存
+在着冲突的可能性。 \VimOption{winaltkeys}选项专用于控制Vim对
+\VimSpecialChar{<Alt>}键的处理。
+
+   它的默认值是\VimDQuote{menu}, 这是个不错的折衷：如果键盘映射中包含的字符代
+表了某个菜单那它就不能再进行键盘映射。其它字符则可一如既往地进行键盘映射。
+
+   将该选项设为\VimDQuote{no}则禁用了通过\VimSpecialChar{<Alt>}与字符键的组合进
+行菜单访问。此时你就必需使用鼠标了，键盘映射则无所不能。
+
+   取值为\VimDQuote{yes}意为可以用任何字符跟\VimSpecialChar{<Alt>}组合来访问菜单
+。有些组合可能就不止是选取菜单而是代表了其它的操作\VimMyFootnote{译注：如
+\VimSpecialChar{<A-F4>}关闭当前Vim程序}。
+
+%======...
+\VimSepartor
+
+\VimSecDest{31.4}{\ChapterThirtyOneSectionFourTitle}
+
+下面的命令可以得到当前Vim窗口的坐标位置：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:winpos
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令只对GUI版本有效。输出的结果大致是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Window position: X 272, Y 103
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+给出的位置信息是以屏幕象素为单位的。你可以据此控制Vim窗口的位置。比如下面的
+命令可以把窗口左移100象素：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:winpos 172 103
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        报告出来的位置跟实际位置可能会有少许偏差，这是由于窗口管理器处理窗口
+        的边界造成的。
+} %end VimCaution
+
+你也可以把该命令放入你的初始化脚本中控制窗口的初始位置。
+
+Vim窗口的大小则是以字符为单位的。所以它的实际大小还有赖于所用的字体大小。
+下面的命令可以看出目前的窗口大小：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set lines columns
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+通过设置\VimOption{lines}和/或\VimOption{columns}选项的值可以改变窗口的大小：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set lines=50
+:set columns=80
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+获取窗口大小对终端版本的Vim和GUI版本一样。不过并不是任何终端都可以改变窗口的
+大小。
+
+启动X-Windows上的gvim时可以在命令行上指定窗口的大小和位置：
+\begin{VimVBshcmdNoAdjustSpace}
+gvim -geometry {width}x{height}+{x_offset}+{y_offset}
+\end{VimVBshcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\{width\}和\{height\}以字符为单位，\{x\VimTT{\_}offset\}和
+\{y\VimTT{\_}offset\}则以屏幕象素作为度量单位。如：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+gvim -geometry 80x25+100+300
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_165}{view_165}\hypertarget{view_165}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{31.5}{\ChapterThirtyOneSectionFiveTitle}
+
+你可以在gvim里写email. 你需要在你的e-mail程序里把gvim设为默认的编辑器。不过
+即使这样你还是会发现这样不行：你的mail程序会认为已经完成的编辑，而你
+的gvim还正在运行！
+
+   问题在于gvim启动后就断绝了它和shell的联系。你从终端上启动gvim时这倒是不错，
+如此一来你还可以在该终端里做其它的事。但如果你想让当前的终端等待gvim的结束，就
+必需阻止它和启动它的shell断绝关系。\VimDQuote{-f}选项正是这个用途：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+gvim -f file.txt
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{-f}意为foreground(前台). 现在Vim会挂起启动它的shell直到它退出。
+
+
+\VimSubSection{在Vim中启动GUI}
+
+在Unix上可以先在终端中启动Vim. 一旦你编辑哪个文件时决定要用GUI版本，可以用命令
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:gui
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+随时进入。
+
+Vim会丢弃当前的终端窗口转而打开一个GUI窗口。这样你可以继续使用你的终端。
+\VimDQuote{-f}参数还是可以用在这里来保持GUI作为一个前台运行的命令。即\VimDQuote{:gui -f}. 
+
+
+\VimSubSection{GVIM的初始化文件}
+
+gvim启动时，它会读取gvimrc这个初始化文件。类似于启动Vim时的vimrc. gvimrc可以
+用来配置一些只用在GUI版本中的命令。比如，你可以用\VimOption{lines}选项来控制窗口的大小：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set lines=55
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+一般来说你不会想在一个终端窗口中这样做，因为它的大小是固定的(除非象xterm那样
+的终端也支持调整窗口大小).
+
+   gvimrc初始化文件跟vimrc在同一目录。通常是Unix上是\VimDQuote{\~{}/.gvimrc}, MS-Windows上
+则是\VimDQuote{\$VIM/\VimTT{\_}{}gvimrc}. 环境变量\$MYGVIMRC被设置为该文件，如
+果文件存在的话你可以这样来编辑它：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit $MYGVIMRC
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+   如果因为某种原因你想使用通常的gvimrc文件之外的某个文件作为初始化文件，还
+可以在启动时用\VimDQuote{-U}来指派另一个文件：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+gvim -U thisrc ...
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+这可以让gvim以不同的面貌出现。比如你可以设定它的窗口以不同的大小。
+
+   如果只是想避免读取来自gvimrc文件中的配置，只需用命令\VimMyFootnote{译注：不过
+注意还是会读取vimrc配置文件，避免读取vimrc的是-u NONE}:
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+gvim -U NONE ...
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{32}  \ChapterThirtyTwoTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

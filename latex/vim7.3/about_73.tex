@@ -1,0 +1,187 @@
+\VimNewChapter
+\VimBookMarkLevelTwo{关于7.3版}{about_73.tex}
+\begin{center}
+{\CJKfamily{kai}\LARGE{关于7.3版}}
+\end{center}
+{\setlength{\parindent}{0mm}
+7.3版推出了，就软件本身来说，这个版本主要是对7.2的一个bugfix版，软件本身
+的bugfix反映到该手册里影响几乎为零，有影响的是文档改进和新增特性，但并非
+所有的新增特性都会在这份用户手册里留墨，比如持久化撤消的特性，在这份手册
+中就没有。
+
+下面我简单把本文档较之7.2版不同之处集中起来，主要是为希望看到新内容的朋
+友们免去逐页翻对的苦劳。
+
+\begin{enumerate}
+% \renewcommand{\labelenumi}{(\Alph{enumi})}
+
+\item{
+我的错别字：时侯->时候(6处:\hyperlink{v73_bugfix_misspell_1}{[a]},
+\hyperlink{v73_bugfix_misspell_2}{[b]},
+\hyperlink{v73_bugfix_misspell_3}{[c]},
+\hyperlink{v73_bugfix_misspell_4}{[d]},
+\hyperlink{v73_bugfix_misspell_5}{[e]},
+\hyperlink{v73_bugfix_misspell_6}{[f]}
+). 
+
+\hyperlink{v73_bugfix_vi_improved}{Vim Improved -> Vi IMproved}
+
+\hyperlink{v73_bugfix_capitalize_1}{bram -> Bram}
+
+\hyperlink{v73_bugfix_capitalize_2}{kissi -> Kissi}
+
+\hyperlink{v73_bugfix_copyright}{(c)换成\copyright}
+
+这个条目中所列出的修改虽然细小琐碎，但它源自一位非常专业细心的读者Wang
+Zhiyong(\<owtgnaw@gmail.com>), 不但指
+出错误，而且提了很多建设性的建议，尤其是\VimTeX排版方面。放在这里一来向这
+位读者特别地致谢。二者提醒自己文责自负，谨记慎行。
+}
+
+\item{
+\hyperlink{v73_bugfix_05_ex_cmd_1}{\VimCommonSrc{05.2}} 节中一处作为例子的命令
+。
+}
+
+\item{
+\hyperlink{v73_bugfix_06_txt_improve_1}{\VimCommonSrc{06.5}}节中提到浏览器
+时原来的例子Netscape被去掉了，眼下再把Netscape说成浏览器的典型代表的确说不过去
+了。作者一劳永逸地不再提具体的浏览器，以免树错典型时光流转后又成昨日黄花。
+
+\hyperlink{v73_bugfix_06_ex_cmd_1}{\VimCommonSrc{06.5}}同样是该节中举例对文
+档作Html格式化时，新增优先使用的:TOhtml命令。TOhtml早已是Vim标准发布的一
+部分。
+}
+
+\item{
+\hyperlink{v73_bugfix_11_txt_improve_1}{\VimCommonSrc{11.1}} 节中修改了对文件
+进行恢复时的屏幕输出和相应描述，软件的输出有所修改，所以文档中作了相应改变。
+}
+
+\item{
+\hyperlink{v73_new_feature_21_oldfiles}{\VimCommonSrc{21.3 - 回到某个文件}} 新增了一个小节
+介绍7.3版新引入的命令:oldfiles. 
+}
+
+\item{
+\hyperlink{v73_bugfix_22_buf_file_name}{\VimCommonSrc{22.4}}节中修改了原来的译
+文中把缓冲区名译为文件名的错误。
+}
+
+\item{
+\hyperlink{v73_bugfix_45_txt_change_1}{\VimCommonSrc{45.4}}原来的
+\VimDQuote{ucs-2le}改为\VimDQuote{utf-16le}, Vim7.3版中fileencoding用
+\VimDQuote{utf-16le}代替原来的\VimDQuote{ucs-2le}.
+}
+
+\item{
+新增了\VimSecSrc{32.1}一节介绍7.3版中新增以文件保存为单位进行撤消的特性。第
+\VimSecSrc{32.4}节的最后有少量修改以包含\VimSecSrc{32.1}中新增的特性。
+}
+
+\item{
+\hyperlink{v73_bugfix_41_txt_improve_1}{\VimCommonSrc{41.1}}一节根据网友
+\<yangshuai@gmail.com>的意见新增了注解，解释了从PDF中复制内容到Vim中
+执行时可能引起的问题。
+
+\hyperlink{v73_bugfix_41_txt_improve_2}{\VimCommonSrc{41.6}}增加了每一类函数
+的分类信息，如*string functions*. 
+
+\hyperlink{v73_bugfix_41_new_function_1}{\VimCommonSrc{41.6}}新增了函
+数gettabvar()和settabvar()来操作局部于指定标签页的变量。
+
+\hyperlink{v73_bugfix_41_new_function_2}{\VimCommonSrc{41.6}}新增了函
+数mzeval()求值\VimCommonSrc{MzScheme}的表达式。
+
+\hyperlink{v73_bugfix_41_ex_cmd_1}{\VimCommonSrc{41.12}}修改了ex命令的例子。变量名
+前加了\VimDQuote{g:}. 
+}
+
+\item{
+改进了第24章关于Digraphs的例子的显示，尽力再现各种不同Digraph字符的字形
+及常用的语意：
+\hyperlink{v73_bugfix_improve_digraph}{\VimSecSrc{24.9}}
+}
+
+\item{
+排版方面，由于不止一次看到中英文排版的建议是在中文后面用中文标点，在
+英文后面用英文标点且标点后面有一个空格，我决定择其善者而从之：
+\begin{VimVBexcmd}[label=查找英文后面跟中文标点的情况,commandchars=\\\{\}]
+:vimgrep /[^A-?]\VimBS{}_s*[，。、！]/ *.tex
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_7}{view_7}\hypertarget{view_7}{}\fbox{\textcolor{red}{Review}}\\
+显示共1148处非英文后面跟有中文标点，当然其中有一些(145处)是特殊情况不需
+修改的。
+
+%   :%s#[^A-?]\zs\_s*\([，。！]\)#\=a[submatch(1)]#gc
+\begin{VimVBexcmd}[label=替换英文后面的中文标点为相应的英文标点,commandchars=\\\{\}]
+:let a=\{"，" : ", ",     "。" : ". ",     "！" : "! "\}
+:%s#[^A-?]\VimBS{}zs\VimBS{}_s*\VimBS{}([，。！]\VimBS{})#\VimBS{}=a[submatch(1)]#gc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+对等地：
+
+\begin{VimVBexcmd}[label=查找中文后面跟英文标点,commandchars=\\\{\}]
+:vimgrep /[^^A-?]\VimBS{}_s*[,.!]/ *.tex
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\begin{VimVBexcmd}[label=替换中文后面的英文的标点为相应的中文标点,commandchars=\\\{\}]
+:let a=\{"," : "，",     "." : "。",     "!" : "！"\}
+:%s#[^^A-?]\VimBS{}zs\VimBS{}_s*\VimBS{}([,.!]\VimBS{})\VimBS{}s*#\VimBS{}=a[submatch(1)]#gc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+上面命令中\VimTT{\^}A代表输入的ASCII值为1的字符，?代表ASCII值为127的字符
+(这两个命令无法通过复制直接使用)，以这个范围来表示非汉字。
+}
+
+\item{
+使用了CJKpunct宏包，经实验对排版结果有影响，主要是处理中文标点后的空白
+距离和句尾标点的对齐。貌似有利无害的改进，\VimTeX源码本身不需要作修
+改。
+}
+
+\item{
+% 为了不受自动替换的影响，这里出现的常规的带点偏移的句号和不带偏移的句号
+% 都是为了描述这个问题本身，所以使用了固定的命令代替.
+即使用了上述的CJKpunct宏包，中文的句号\VimDQuote{\AlwaysFixedJ}字符在最终排版后的输出中
+总是看上去向右上方有点偏移\OriginJ{}该版中解决了这一问题\AlwaysFixedJ{}
+}
+
+\item{
+% 此处需要保证 [下面到...的效果]在最终的PDF输出中位于同一行
+排版上在英文和汉字，数字和汉字之间引入一个小的空白间距，效果更好一些。比如下
+面~hello~和\VimTT{}world\VimTT{}的效果。如果直接把这么多的\~{}写在代码里会极大地
+加剧\VimLaTeX源码的复杂度并且降低可维护性。连明昌
+博士(gosman)的cjkspace工具可以自动为\VimTeX源码插入这些字符，这是一
+个python脚本，我对它稍作修改使之可以保留verbatim环境内的空格，多谢
+\<owtgnaw@gmail.com>的介绍，多谢连明昌博士！由于没收到回复，
+文档附件中的源码暂不包括cjkspace.
+}
+
+\item{
+新增的附录四记录了我对一个Vim问题的答复：
+\hyperlink{inline_goto_column_by_percent.tex}{附录四　Vim中文本行内跳转到指定百
+分比的列}。收录\hyperlink{vimers_brain.tex}{附录五：〖VIM使用者大脑的形态〗}和
+\hyperlink{both_vim_emacs.tex}{附录六：〖钗黛双收：若你也同Vim难割舍
+，却又看Emacs情切切〗}两篇佳作。
+}
+
+\item{
+已经看过本手册以前版本的朋友可能会疑惑：新版本内容应该只增不减，为何页
+数更少了？是的，内容有增无减，但由于重新调整了一些排版元素，把原来一些不
+必要的空白去掉了，比如每个文字框与它下面的段落之间空白就显得过大。所以
+该版页数上反而更少。从上一版以来，从内容和排版上都进行了诸多检查和改进。
+具体细节这里就不一一赘述了。
+}
+
+\item{
+为PDF文件制作了内嵌的索引，搜索时速度会有指数级的提升。
+}
+\end{enumerate}
+
+}

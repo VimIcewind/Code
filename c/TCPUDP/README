@@ -1,0 +1,55 @@
+函数原型：
+
+1、htons();//将short类型的值从主机字节序转换为网络字节序
+
+2、inet_addr();//将IP地址字符串转换为long类型的网络字节序
+
+3、gethostbyname();//获得与该域名对应的IP地址
+
+4、inet_ntoa();//将long类型的网络字节序转换成IP地址字符串
+
+5、int socket(int domain,int type,int protocol);
+　　domain指明所使用的协议族，通常为AF_INET，表示互联网协议族（TCP/IP协议族）；
+　　type参数指定socket的类型；
+　　protocol通常赋值“0”，表示默认为TCP/IP协议
+　　socket()调用返回一个整型socket描述符，在以后的调用中使用。
+
+6、int bind(int sockfd, struct sockaddr *my_addr, int addrlen);
+　　sockfd：是调用socket函数返回的socket描述符
+　　my_addr：是一个指向包含有本机IP地址及端口号等信息的sockaddr类型的指针
+　　addrlen：代表my_addr指向的地址结构的长度，可设置为 sizeof(struct sockaddr)
+
+7、int listen(int sockfd, int backlog);
+　　sockfd：Socket系统调用返回的socket 描述符
+　　backlog：指定在请求队列中允许的最大请求数，进入的连接请求将在队列中等待accept()它们。Backlog对队列中等待服务的请求的数目进行了限制，大多数系统缺省值为20。如果一个服务请求到来时，输入队列已满，该socket将拒绝连接请求，客户将收到一个出错信息.
+
+8、int accept(int sockfd, void *addr, int *addrlen);
+　　sockfd：被监听的socket描述符
+　　addr：一个指向sockaddr_in变量的指针，该变量用来存放提出连接请求服务的主机的信息（某台主机从某个端口发出该请求）
+　　addrlen：一个指向值为sizeof(struct sockaddr_in)的整型指针变量.
+
+9、int sendto(int sockfd, const void *msg,int len,unsigned int flags,const struct sockaddr *to, int tolen);
+　　flags：调用方式标志，通常取0
+　　to：目地机的IP地址和端口号信息
+　　tolen：赋值为sizeof (struct sockaddr)
+　　返回值：返回实际发送的数据字节长度或在出现发送错误时返回-1
+
+10、int recvfrom( int sockfd,   void *buf,  int len,  unsigned int flags,   struct sockaddr *from,int *fromlen);
+　　flags：调用操作方式，通常取0
+　　from是一个struct sockaddr类型的变量，该变量保存源机的IP地址及端口号
+　　fromlen常置为sizeof (struct sockaddr)。当recvfrom()返回时，
+　　fromlen包含实际存入from中的数据字节数
+　　返回值：返回接收到的字节数或当出现错误时返回-1，并置相应的errno
+
+11、int send( SOCKET s, const char FAR *buf, int len, int flags );
+　　不论是客户还是服务器应用程序都用send函数来向TCP连接的另一端发送数据。客户程序一般用send函数向服务器发送请求，而服务器则通常用send函数来向客户程序发送应答。
+　　该函数的第一个参数指定发送端套接字描述符；
+　　第二个参数指明一个存放应用程序要发送数据的缓冲区；
+　　第三个参数指明实际要发送的数据的字节数；
+　　第四个参数一般置0。
+
+12、int recv( SOCKET s, char FAR *buf, int len, int flags);
+　　不论是客户还是服务器应用程序都用recv函数从TCP连接的另一端接收数据。该函数的第一个参数指定接收端套接字描述符；
+　　第二个参数指明一个缓冲区，该缓冲区用来存放recv函数接收到的数据；
+　　第三个参数指明buf的长度；
+　　第四个参数一般置0。

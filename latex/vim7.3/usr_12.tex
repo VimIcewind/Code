@@ -1,0 +1,455 @@
+\VimNewChapter
+\VimBookMark{第12章　\ChapterTwelveTitle}{usr_12.txt}
+\VimFileNameDest{usr\VimTT{\_}12.txt}{ \VimDocVer  最后修改：2007年05月11日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{奇技淫巧\\}
+
+将这些看似散兵游勇的命令组合在一起，你将使Vim获得近乎无所不能的威力。本章将对
+这些技巧进行一番小小的展示。其中用到的正是前面章节中介绍的一些命令。
+
+\VimSecList{12.1}{\ChapterTwelveSectionOneTitle}
+\VimSecList{12.2}{\ChapterTwelveSectionTwoTitle}
+\VimSecList{12.3}{\ChapterTwelveSectionThreeTitle}
+\VimSecList{12.4}{\ChapterTwelveSectionFourTitle}
+\VimSecList{12.5}{\ChapterTwelveSectionFiveTitle}
+\VimSecList{12.6}{\ChapterTwelveSectionSixTitle}\VimMyFootnote{译注：仅对Unix类系统有意义}
+\VimSecList{12.7}{\ChapterTwelveSectionSevenTitle}
+\VimSecList{12.8}{\ChapterTwelveSectionEightTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{20}  \ChapterTwentyTitle\\
+前一章：& \VimFileName{11}  \ChapterElevenTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{12.1}{\ChapterTwelveSectionOneTitle}
+
+下面的替换命令将把所有出现的word替换为指定的内容：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:%s/four/4/g
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{\VimTT{\%}}这个范围意为对所有行执行该命令。\VimDQuote{g}标志则指示替换操作将一行中所有出现的目标
+字串都进行替换。
+
+   不过如果你的文件里面有\VimDQuote{thirtyfour}这样的词，结果就不是你想要的了，它将会被
+替换为\VimDQuote{thirty4}. 要避免这种例外。可以在要替换的目标字前面加上
+\VimDQuote{\VimTT{\VimBS{}<}}, 它匹配一个word的起始位置：
+\begin{VimVBexcmdNoAdjustSpace}
+:%s/\<four/4/g
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+不过显然，碰到\hypertarget{v71_bugfix_fourty}{}\VimDQuote{fourteen}这样的词还是会弄错。
+\begin{comment}
+不知道什么原因，7.1中这个词从fourty改成了fourteen
+原来fourty是拼写错误的单词。
+\end{comment}
+\VimDQuote{\VimTT{\VimBS{}>}}可以用来指示一个word的结束位置：
+\begin{VimVBexcmdNoAdjustSpace}
+:%s/\<four\>/4/g
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+如果你是在写程序，你可能只想替换那些出现在注释中的\VimDQuote{four}, 代码中的留下。这可有
+点为难，\VimDQuote{c}标志可以让每个目标被替换之前询问你的意见：
+\begin{VimVBexcmdNoAdjustSpace}
+:%s/\<four\>/4/gc
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimSubSection{替换多个文件中的目标}
+
+要对多个文件进行同样的替换操作。显而易见的办法是逐个编辑每个文件，
+敲入替换命令。不过用宏记录和回放功能就快多了。
+
+   假设你有一个目录下有很多\VimCPP{}文件，都以\VimDQuote{.cpp}为扩展名。现欲将所有名为
+\VimDQuote{GetResp}的函数更名为\VimDQuote{GetAnswer}. 
+
+{\setlength{\parindent}{0pt}
+\begin{tabular}{l|p{.7\textwidth}{l}}
+vim *.cpp & 启动Vim, 同时指定了要编辑的文件列表：所有的\VimCPP{}文件。现在你正在编辑的将是第一个文件。\\ \hline
+qq & 开始宏记录，将后续的操作记录在名为q的宏中。\\ \hline
+\verb|:%s/\<GetResp\>/GetAnswer/g| & 在第一个文件中执行替换操作。\\ \hline
+:wnext & 保存该文件并转到下一个文件进行编辑 \\ \hline
+q & 停止宏记录 \\ \hline
+@q & 执行名为q的宏。它将执行前面记录的替换操作和":wnext". 你可以看看整个过程有没有什么错误。\\ \hline
+999\VimAt{}q & 对其余文件执行同样的操作\VimMyFootnote{译注：这里的999只是一个粗略的估计，即你的*.cpp文件不会超过999\VimTT{+}2=1001个，如果你真的有更多的源文件，只需要增大这个数字} \\ \hline
+\end{tabular}
+}
+%% 冯亮 指正：脚本丢失，目前没有办法
+
+执行到最后一个文件时你会得到一个错误消息，因为\VimDQuote{:wnext}命令没有文件可
+以\VimDQuote{next}了。错误会让命令停下来，不过有用的操作已经完成了
+\VimMyFootnote{译注：对错误的这种处理可以看作是Vim中一个别有用心的设计，它使得一
+个粗略指定循环次数的操作得以在所有操作对象都被遍历后正确地结束}。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        回放一个宏记录时，任何错误都会导致整个宏记录停止执行。所以你要确保
+        你在记录宏的过程中没有错误消息。
+} %end VimCaution
+
+还有一种例外：如果其中一个.cpp文件中连一个\VimDQuote{GetResp}都没有，替换操作会引起一个
+错误，整个宏的执行也会被停下来。标志\VimDQuote{e}正是致力于消除这一副作用：
+\begin{VimVBexcmdNoAdjustSpace}
+:%s/\<GetResp\>/GetAnswer/ge
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{e}标志告诉\VimDQuote{:substitute}命令就算没找到一个匹配的目标你也不要报错。
+
+%======...
+\VimSepartor
+
+\VimSecDest{12.2}{\ChapterTwelveSectionTwoTitle}
+
+如果你有如下一个名字列表：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Doe, John
+Smith, Peter
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现想把它替换为：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+John Doe
+Peter Smith
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+这样的形式。这样的操作在Vim中只需一个命令：
+\begin{VimVBexcmdNoAdjustSpace}
+:%s/\([^,]*\), \(.*\)/\2 \1/
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+我们来肢解这个命令。显然它是一个替换命令。\VimDQuote{\VimTT{\%}}指定了它的作用范围：每一行。
+
+   替换操作的命令参数形如\VimDQuote{/from/to/}. 斜杠是用来分隔\VimDQuote{from}和\VimDQuote{to}的。下面是
+本例中\VimDQuote{from}部分对应的内容：
+% vim: replace_backslash
+\begin{VimVBDisplay}[commandchars=\\\{\},xrightmargin=-1cm,formatcom=\color{black}]
+\makebox[\InsideBoxTenCmColumn][l]{}\Void{                                      } \textcolor{VimHelpHeaderColor}{\([^,]*\), \(.*\)}
+\makebox[\InsideBoxTenCmColumn][l]{第一个部分位于\( \)之间，对应 "Last"}\Void{  } \(     \)
+\makebox[\InsideBoxTenCmColumn][l]{匹配除逗号外的任何东西}\Void{                }   [^,]
+\makebox[\InsideBoxTenCmColumn][l]{任意次重复}\Void{                            }       *
+\makebox[\InsideBoxTenCmColumn][l]{匹配 ", "}\Void{                             }          ,
+\makebox[\InsideBoxTenCmColumn][l]{第二个部分位于\( \)之间，对应 "First"}\Void{ }            \(  \)
+\makebox[\InsideBoxTenCmColumn][l]{任意字符}\Void{                              }              .
+\makebox[\InsideBoxTenCmColumn][l]{任意次重复}\Void{                            }               *
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+在对应\VimDQuote{to}的部分我们指定了\VimDQuote{\VimBS{}2}和
+\VimDQuote{\VimBS{}1}. 这在Vim中被称作反向引用。它们可以用来指代此前在
+\VimBS{}( \VimBS{})中匹配的内容。\VimDQuote{\VimBS{}2}指代在第二个
+\VimDQuote{\VimBS{}( \VimBS{})}中匹配的内容，也就是\VimDQuote{First}部分，
+\VimDQuote{\VimBS{}1}则指第一个\VimBS{}( \VimBS{})中的内容，即\VimDQuote{Last}
+部分。
+
+   你可以使用多达9个的反向引用。\VimDQuote{\VimBS{}0}特指整个匹配到内容。除此
+外在替换命令中还有更多特殊的注意事项。请参考
+\VimCommonSrc{sub-replace-special}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{12.3}{\ChapterTwelveSectionThreeTitle}
+
+在一个Makefile中通常会有一长串的文件列表，形如：
+\begin{VimVBDisplayNoAdjustSpace}[formatcom=\color{VimHelpHeaderColor}]
+OBJS =  \
+        version.o \
+        pch.o \
+        getopt.o \
+        util.o \
+        getopt1.o \
+        inp.o \
+        patch.o \
+        backup.o
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+通过一个外部的排序程序sort可以对这一文件列表进行排序：
+\begin{VimVBexcmdNoAdjustSpace}
+/^OBJS
+j
+:.,/^$/-1!sort
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+上面的命令首先会跳转到第一行，即开头是\VimDQuote{OBJS}的行，然后再下移一行，用sort程序
+过滤自该行直至下一个空行。也可以在Visual模式下选择要排序的行然后用\VimDQuote{!sort}命
+令。这样看起来也更容易，不过要排序的行很多时就费劲了。
+
+   排序后的结果如下：
+\begin{VimVBDisplayNoAdjustSpace}[formatcom=\color{VimHelpHeaderColor}]
+OBJS = \
+        backup.o
+        getopt.o \
+        getopt1.o \
+        inp.o \
+        patch.o \
+        pch.o \
+        util.o \
+        version.o \
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+注意每行最后的反斜杠是用来表明该行的内容将在下行延续。但排序后问题出来了！
+本来是最后一行的\VimDQuote{backup.o}排序后被置于其它的位置，它缺少一个结尾的反斜杠
+\VimMyFootnote{译注：这是Makefile文件规则的要求}
+
+   最简单的办法是用\VimDQuote{A \VimBS{}\VimSpecialChar{<Esc>}}命令来为它追加一
+个反斜杠。排序后最后一行的反斜杠倒是可以保留，不过这样它的下一行必需是一个空行
+才行。
+
+%======...
+\VimSepartor
+
+\VimSecDest{12.4}{\ChapterTwelveSectionFourTitle}
+
+\VimCommonSrc{:global}命令可以与\VimCommonSrc{:move}命令结合起来将所有行移到第
+一行的前面，这样的结果将是得到一个各行反序排列的文件。该命令如下：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:global/^/m 0
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+也可简写为：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:g/^/m 0
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{\^{}}这个正则表达式匹配一行的开头(即使该行是空行也可匹配到).
+\VimCommonSrc{:move}命令则将匹配的行移到神秘的第0行之后，所以该行会变成第一行。
+\VimCommonSrc{:global}命令并不会因这种行号的易序而发生错乱。它将继续处理剩余的
+行，并将每一行逐个放到文件的第一行去\VimMyFootnote{译注：少数一些命令的执行会改
+变命令本身的处理，如Join一行}
+
+这对一串连续的行也同样可行。首先移到目标范围起始行的上一行并以\VimDQuote{mt}命
+令标记该行。然后移到目标范围的最末一行执行命令
+\VimMyFootnote{译注：借助标记并不是必需的，如：:10,20g/\^{}/m0将第10至20行移
+至文件首。}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:'t+1,.g/^/m 't
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimSecDest{12.5}{\ChapterTwelveSectionFiveTitle}
+
+
+有时你会被要求写一篇限定最大字数的文章--- Vim可以自动统计字数。
+
+   写到某一阶段时，你可以用：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+g CTRL-G
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+来统计一下目前已经写了多少字。
+记住不要在\VimDQuote{g}命令之后键入空格，这里用空格只是为了命令本身的可读性。
+
+   输出结果的形式如下：
+\begin{VimVBDisplay}[xrightmargin=-1cm,commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Col 1 of 0; Line 141 of 157; Word 748 of 774; Byte 4489 of 4976
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+你可以看到当前光标所在的word在整个文章中是第几个(748), 全部的word又有多少个
+(774).
+
+如果你要统计整个文件的其中一部分内容，你可以将光标移到要统计部分的开头处执行
+\VimDQuote{g \VimSpecialChar{CTRL-G}}命令，然后移到要统计部分的末尾再用一次
+\VimDQuote{g \VimSpecialChar{CTRL-G}}. 计算两次命令得到的当前word位置之差，就
+得到这部分内容的字数统计。这倒是个不错的练习，不过还有另一种更简单的办法。使
+用Visual模式，选择要统计的部分。然后用\VimDQuote{g\VimSpecialChar{CTRL-G}}. 结
+果会是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Selected 5 of 293 Lines; 70 of 1884 Words; 359 of 10928 Bytes
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+欲知统计字数，行数等其它的统计项，请参考\VimCommonSrc{count-items}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{12.6}{\ChapterTwelveSectionSixTitle}
+
+当你在Vim中编缉一个shell脚本或C程序时，你可能会为一个命令或函数需要查找它的帮助
+页(假设在Unix系统). 首先我们用最简单的方法：将光标移到要查找帮助的关键字上按下：
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+K
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+Vim会对光标所在的词执行\VimDQuote{man}程序。找到就显示。用的是默认的分页程序来处理上下
+滚动(通常是\VimDQuote{more}程序). 到达帮助内容的底部时按\VimSpecialChar{<Enter>}会让你回到Vim.
+
+不过这种办法的缺点是你不能在编辑的同时看到它。下面的小技巧会让man页同时显示在
+一个Vim窗口中，首先运行man对应的文件类型plugin:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:source $VIMRUNTIME/ftplugin/man.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你经常光顾的话就把它放到vimrc文件里。
+现在你可以用\VimDQuote{:Man}\VimMyFootnote{译注：此处用的Man是一个Vim的命令，
+不是unix中的man命令，大小写没错}命令来打开一个窗口
+显示man页了：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:Man csh
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你可以在新打开的窗口中任意滚动，其中的文本被进行语法高亮。这样你可以方便地
+找到你要的帮助信息。\VimDQuote{\VimSpecialChar{CTRL-W} w}会跳转到你正在编辑的
+内容窗口中。
+
+   要查找一个指定小节中的帮助页，可以把节号放要命令前面，如下面的命令查找
+第3节中的\VimDQuote{echo}帮助：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:Man 3 echo
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要跳转到另一个man页，这种标识一个关键字有一个man页的典型的形式是
+\VimDQuote{word(1)},在该关键字上使用\VimSpecialChar{CTRL-]}命令。下次使用
+\VimDQuote{:Man}命令时它会在已打开的窗口中显示
+% workaround: 下面译注段中加入\newline，完全是因为不这样做会导致正文与译注重叠
+% ，这样做了之后把正文与译注错开了。
+\VimMyFootnote{
+译注：(1)可以在打开的man窗口的任意字上使用\VimSpecialChar{CTRL-]}命令，而不仅仅是那些以\VimDQuote{word(1)}
+的形式明确标示为一个man页的关键字，如果光标所在的字并没有一个对应的man页。
+Vim会显示找不到对应的man页，但这一功能只有在位于man窗口中有效，在另外的窗口中
+就不行了。\newline(2) 显示man页的缓冲区会被命名为\VimDQuote{word.\~{}} 这样的形式。该缓冲区并不会
+被写回磁盘，除非你自己使用了存盘命令。\newline(3) 使用:vertical Man ls并不能打开一个
+垂直分隔的窗口，这是一个例外}
+
+要显示当前光标所在字对应的man页，可以用命令：
+\begin{VimVBnormalcmdNoAdjustSpace}
+\K
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+(如果你重定义了\VimSpecialChar{<Leader>}, 就用你指定的字符来代替反斜杠).
+比如，你在写下面一行程序时想知道\VimDQuote{strstr()}函数的返回值是何类型：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+if ( strstr (input, "aap") == )
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+将光标置于\VimDQuote{strstr}的某个字符上，按下\VimDQuote{\VimBS{}K}. Vim将会打开一个新窗口显示strstr()
+对应的man页\VimMyFootnote{译注：前提是你已经运行了man.vim, 否则这与使用\VimDQuote{K}命令效果一样}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{12.7}{\ChapterTwelveSectionSevenTitle}
+
+很多人都发现行尾的那些空格跳格键又没用又浪费，而且放在文件里显得很不优雅。下面
+的命令可以移除所有此类的行尾空白：
+\begin{VimVBexcmdNoAdjustSpace}
+:%s/\s\+$//
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+命令中指定的行号范围是\VimDQuote{\VimTT{\%}}, 即应用于每一行中。
+\VimDQuote{:substitute}命令要查找的字串是
+\VimDQuote{\VimBS{}s\VimBS{}\VimTT{+\$}}.这会查找位于行尾的一个或多个
+空白字符，稍后我们会解释怎样写这些魔咒般的正则表达式
+\VimFileName{27}. 
+
+   \VimDQuote{:substitute}命令的\VimDQuote{to}部分是空内容：\VimDQuote{//}. 即
+把此类的空白都替换为空，在效果上也就等价于删除了这些空白。
+
+另一种无用的空白是位于制表符前面的空白。通常删除它们并不影响缩进量。但也并不
+绝对！所以你最好是手工处理，使用下面的搜索命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/       
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+当然这是皇帝的新衣，你什么也没看到，实际上该命令以一个空格和一个制表符作为要搜
+索的目标。即\VimDQuote{/\VimSpecialChar{<Space>}\VimSpecialChar{<Tab>}}. 现在用
+\VimDQuote{x}命令来删除该空格同时检查一下空白部分有没有改变。如果缩进量改变了
+的话，你需要再插入一个制表符。\VimDQuote{n}命令可以查找下一个此类情况。如此重
+复直到处理完整个文件。
+
+%======...
+\VimSepartor
+
+\VimSecDest{12.8}{\ChapterTwelveSectionEightTitle}
+
+如果你是一个UNIX用户，你就可以将Vim与强大的grep命令结合起来编辑那些包含了某个
+词的所有文件。如果你在编辑一个程序，希望编辑或浏览所有使用了某个变量的文件。这
+一功能对此十分有用。
+
+   比如，你希望编辑所有包含了\VimDQuote{frame\VimTT{\_}counter}的C文件：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim \VimBacktick{}grep -l frame_counter *.c\VimBacktick{}
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_139}{view_139}\hypertarget{view_139}{}\fbox{\textcolor{red}{Review}}\\
+%% 冯亮指正：\VimBacktick应该是 `
+
+我们来细看一下这个命令。grep命令查找一个指定的词。由于命令中指定了\VimDQuote{-l}参数，
+所以该命令将只是列出包含了该词的文件名而不显示匹配的行。被查找的目标字符串是
+\VimDQuote{frame\VimTT{\_}counter}. 实际上，此处也可以是任何合法的正则表达式(注意：grep程序的正
+则表达式并不跟Vim所用的完全相同\VimMyFootnote{译注：《Mastering the Regular
+Expression》一书中列出了不同工具中正则表达式的差别}.)
+
+   整个命令被反引号\VimMyFootnote{译注：不要与\VimDQuote{:substitute}命令中
+的\VimBS{}1混淆}包围起来。这个特殊符号告诉UNIX的shell：运行其中的命令，并将命
+令执行的结果作为当前命令的一部分，就好象是你把这些结果手工在此键入一样。所以整
+个命令的结果就是grep命令生成一个文件列表，该文件列表又作为Vim的编辑命令的参数。
+你可以用\VimDQuote{:next}和\VimDQuote{:first}命令来遍历整个文件列表
+\VimMyFootnote{译注：MS-DOS的命令行不能使用该命令的原因并不是它没有grep程序。
+Cygwin提供有这样功能的grep. 关键是它command.com或cmd.exe不支持对\VimBacktick{}字符类似的解释
+功能。如果从cygwin的bash或其它类UNIX的shell执行该命令，同样可以使用工作，感谢
+\<MYShao@lbl.gov>指出7.2版译注可能造成的误解}。
+
+\VimSubSection{查找每一行}
+
+前面讲述的命令只会找到其中包含了指定word的文件。通常你也需要知道这些词在文件
+中的具体位置。
+
+   Vim中有一个内置的命令可以用来在一个文件列表中查找一个指定的字符串。如果你
+想查找所有C程序中的\VimDQuote{error\VimTT{\_}string}, 就可以用下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:grep error_string *.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这会使Vim在所有指定的文件(*.c)中查找字符串\VimDQuote{error\VimTT{\_}string}. 
+编辑器也打开匹配的第一个文件并将光标置于第一个包含了
+\VimDQuote{error\VimTT{\_}string}的行上。要跳转到下一个匹配的行(不论当前光标位
+于何处), 使用\VimDQuote{:cnext}命令即可。同样，跳转到前一个匹配的行可以用
+\VimDQuote{:cprev}命令，\VimDQuote{:clist}命令则可以一次列出所有的匹配。
+
+   内置的\VimDQuote{:grep}命令用到了外部命令grep(Unix)或findstr(Windows). 你也可以通过
+\VimOption{grepprg}选项来指定一个执行同样功能的第三方亲信。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{20} \ChapterTwentyTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

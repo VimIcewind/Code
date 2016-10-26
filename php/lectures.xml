@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<lectures>
+    <lecture number="0">
+        <title>HTTP</title>
+        <dates>Monday, 30 August 2010</dates>
+        <resources>
+            <resource name="Slides">
+                <format path="lecture0.pdf" label="PDF"/>
+            </resource>
+            <resource name="Syllabus">
+                <format path="/syllabus/syllabus.pdf" label="PDF"/>
+            </resource>
+            <resource name="Video">
+                <format path="http://cm.dce.harvard.edu/2011/01/13394/l01" label="Flash (SD)"/>
+                <format path="http://cs75.tv/2010/fall/lectures/0/lecture0.mp4" label="MP4 (HD)"/>
+            </resource>
+        </resource>
+    </lecture>
+    <lecture number="1">
+        <title>HTTP</title>
+        <dates>Monday, 30 August 2010</dates>
+        <resources>
+            <resource name="Slides">
+                <format path="lecture0.pdf" label="PDF"/>
+            </resource>
+            <resource name="Syllabus">
+                <format path="/syllabus/syllabus.pdf" label="PDF"/>
+            </resource>
+            <resource name="Video">
+                <format path="http://cm.dce.harvard.edu/2011/01/13394/l01" label="Flash (SD)"/>
+                <format path="http://cs75.tv/2010/fall/lectures/0/lecture0.mp4" label="MP4 (HD)"/>
+            </resource>
+        </resource>
+    </lecture>
+</lectures>

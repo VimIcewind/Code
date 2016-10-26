@@ -1,0 +1,103 @@
+\VimNewChapter
+\VimBookMarkLevelTwo{反馈与改进}{feedback.tex}
+\begin{center}
+{\CJKfamily{kai}\LARGE{反馈与改进}}
+\end{center}
+{\setlength{\parindent}{0mm}
+0.  \<002424@fudan.edu.cn>这位朋友在尝试把这份手册打印出来时，发现
+因为背景色的原因黑白打印机的输出结果没办法看。有没有办法在PDF中加入按钮
+可以方便地控制显示的背景色呢？另一个办法是把文档的背景色仍置为白色，喜欢
+以前的米黄色背景的朋友可以在Acrobat Reader中自行配置，对于Acrobat 7来说
+，是在其"编辑->首选项(其快捷键为CTRL-K)"弹出的对话框左侧选择"辅助工
+具"，右边会有一个"替换文档颜色"的check box, 勾上它，然后点击下面的"页
+面背景"，在弹出的颜色对话框中选择你喜欢的颜色，以前的米黄色背景其RGB值为
+(255,255,242).
+
+1. \<laneast@hotmail.com>这位朋友喜欢HTML或Txt格式，希望我把这份
+手册做成HTML格式，抱歉目前没有这种格式。我在一开始决定用{\VimLaTeX}作它的源码
+或许的确不是一个很好的主意。如果采用docbook或其它形式或许会更好。
+
+2. 值得一提的是\<chunmin.yang@gmail.com>这位朋友在给我的信中提到
+他用了两个月的时间仔细学习Vim, 这份手册在此过程对他也有所助益，另外还有
+一些报告页次很靠后的错误的朋友，他们让我觉得在这份手册上花费的时间是值得
+的，也是应该的。在收到那么多你们的感谢的话之后，我也衷心地说：谢谢你们。
+这份手册卑微的价值并不由我的付出决定，而在于它能真正对你们大家有所助益。
+
+3. \<chenbo.liu@gmail.com>甚至开玩笑地提到了可惜不能在阅读PDF文件
+时用j, k来进行移动，这也许可以通过Acrobat Reader的功能来实现。
+
+4. 关于未来的版本，有不少朋友(\<taker2001@gmail.com>,
+\<chunlinyao@gmail.com>,
+\<chunmin.yang@gmail.com>等
+)以高度的灵敏度在Vim有新版本发布的第一时间提
+醒我要同步更新手册了。谢谢你们的热心关注。在这里我要一并答复这些将来还可
+能会有的类似请求。目前这份手册是Vim文档中的用户手册，它另有一份技术手册。
+用户手册着墨最多的是90\%的用户会用到的90\%的功能，它在不同版本之间往往很
+少有变更。关于这方面的最新动态，我也尽力保持狗仔队一样的专业精神，在第一
+时间抢到头条。但不同的是我却不一定马上更新这份手册。原因是不同版本之间这
+份手册本身却往往改动极小，出现最频繁的不同就是版本号和最后更新时间。另一
+种是属于遣词造句及拼写上的小问题，我在翻译时就已经弃其糟粕了。熟悉bash命
+令的朋友看看下面就知道我不是乱盖的:\\
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+for i in usr*; do diff ../../vim70c/doc/$i $i; done > tmp.txt
+gvim tmp.txt &
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_11}{view_11}\hypertarget{view_11}{}\fbox{\textcolor{red}{Review}}\\
+当然，有些版本比如马上要正式推出的7.0版，在功能上有较大的动作。这种情况
+我是会更新文档的。
+
+5. 尤其感谢下面这些提出修改意见的朋友，大家看到的负面内容的减少，或正面
+内容的增加，可能是来自于他们抽时间发MAIL给我的指正:\\
+\<002424@fudan.edu.cn>\\
+\<ankyhe@gmail.com>\\
+\<baikaishiuc@hotmail.com>\\
+\<baodong.yu@gmail.com>\\
+\<benogy@gmail.com>\\
+\<burwoad@gmail.com>\\
+\<chenbo.liu@gmail.com>\\
+\<chunlinyao@gmail.com>\\
+\<chunmin.yang@gmail.com>\\
+\<fengkai.fpga@gmail.com>\\
+\<huanlf@gmail.com>\\
+\<jerry.chou.cn@gmail.com>\\
+\<jianzhou@gmail.com>\\
+\<jnbo.wang@gmail.com>\\
+\<KDV367@motorola.com>\\
+\<laneast@hotmail.com>\\
+\<livahu@gmail.com>\\
+\<lsl635@sina.com>\\
+\<maintainer@vim.org>\\
+\<maruilong.8888@gmail.com>\\
+\<mkluuuu@gmail.com>\\
+\<MYShao@lbl.gov>\\
+\<owtgnaw@gmail.com>\\
+\<phoward@live.com>\\
+\<rice\_maxwell@163.com>\\
+\<ringken@gmail.com>\\
+\<rustingsword@gmail.com>\\
+\<step\_by\_step@263.net>\\
+\<taker2001@gmail.com>\\
+\<unicell@gmail.com>\\
+\<wenhuabi@gmail.com>\\
+\<xyzguy@126.com>\\
+\<yangshuai@gmail.com>\\
+\<yangxcmail-linux@yahoo.com.cn>\\
+\<zhaoxg@asiainfo.com>\\
+\<zhasm64@gmail.com>\\
+
+按照不得罪人的国际惯例，排名不分先后，是字母顺序，或者更准确地说
+是sort -f| uniq -i产生的(在现如今的Vim中也可以用:\VimSQ<,\VimSQ>sort ui来
+达到同样目的). 另外还有很多朋友，发mail给我表示从中受益或感谢的，也同样
+谢谢你们带来我的鼓励和安慰。
+
+6. 有一些朋友不希望在这个感谢列表中提到他们，我尊重你们的含蓄低调，但后
+续版本的改善同样受益于你们提出的改进建议，这其中一位朋友更是把整份文档打
+印出来作为地铁读物，他提出的改进精详准确，而且所涉范围很广。得知他把这份
+文档打印出来时，我顿觉花在\VimTeX排版上的时间除了让计算机屏幕前的读者更
+觉悦目(抑或是更难看，你知道的，我无法让每个人都满意，而且我个人的排版审
+美观甚至都算不上是主流)之外，又有了新的意义。同样谢谢你们！
+
+我无法维护自己全部MAIL的历史记录，有任何遗漏请大家原谅。
+}

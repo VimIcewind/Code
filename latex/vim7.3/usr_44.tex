@@ -1,0 +1,827 @@
+\VimNewChapter
+\VimBookMark{第44章　\ChapterFortyFourTitle}{usr_44.txt}
+\VimFileNameDest{usr\VimTT{\_}44.txt}{ \VimDocVer  最后修改：2008年12月28日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{自定义语法高亮\\}
+\begin{flushright}
+\small\CJKfamily{kai}
+君子好色，取之有道
+\end{flushright}
+
+
+Vim拥有对数百种文件类型进行语法高亮的功能。如果你要编辑的文件仍不在其中，本章
+将会带你发现如何为你的新文件类型定制语法高亮。建议参考\VimCommonSrc{syn-define}. 
+
+\VimSecList{44.1}{\ChapterFortyFourSectionOneTitle}
+\VimSecList{44.2}{\ChapterFortyFourSectionTwoTitle}
+\VimSecList{44.3}{\ChapterFortyFourSectionThreeTitle}
+\VimSecList{44.4}{\ChapterFortyFourSectionFourTitle}
+\VimSecList{44.5}{\ChapterFortyFourSectionFiveTitle}
+\VimSecList{44.6}{\ChapterFortyFourSectionSixTitle}
+\VimSecList{44.7}{\ChapterFortyFourSectionSevenTitle}
+\VimSecList{44.8}{\ChapterFortyFourSectionEightTitle}
+\VimSecList{44.9}{\ChapterFortyFourSectionNineTitle}
+\VimSecList{44.10}{\ChapterFortyFourSectionTenTitle}
+\VimSecList{44.11}{\ChapterFortyFourSectionElevenTitle}
+\VimSecList{44.12}{\ChapterFortyFourSectionTwelveTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{45}  \ChapterFortyFiveTitle\\
+前一章：& \VimFileName{43}  \ChapterFortyThreeTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{44.1}{\ChapterFortyFourSectionOneTitle}
+
+从一个已有的语法文件开始会节省你大量时间。你可以在\$VIMRUNTIME/syntax目录下找到
+一个近似于你的新语言的语法文件。这些文件同时也向你揭示了一个语法文件的通常架构。
+不过你还需要继续下面的内容来理解它。
+
+从基本的开始，在我们定义一种新的语法规则之前，首先要做是就是清除已定义的旧规则：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax clear
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这对于最终的语法文件来说并不是必需的，但在实验这些功能时还是十分有用。
+
+本章内容已经是大大简化。如果你要写一个为他人使用的语法文件，那可要从头到尾
+好好通读所有与此相关的细节了。
+
+
+\VimSubSection{列出已定义的语法项}
+
+要巡视一下当前已经定义了哪些语法项，使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个命令会为你检查当前实际定义了哪些语法项。对于正在尝试定制一个新语法文件的你
+是十分有用的。该命令也会显示每个语法项的颜色定义，让你分清楚当前文件中的以各种
+颜色显示的文本都对应到哪些语法项。
+
+   要列出一个指定的语法组中的语法项，使用命令：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax list {group-name}
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+在前面加上一个\VimAt{}号，该命令也可用于列出聚簇中的语法定义(在\VimSecSrc{44.8}节中有解释)
+
+
+\VimSubSection{大小写敏感性}
+
+    一些语言是大小写不敏感的，比如Pascal. 而其它语言如C则是大小写敏感的。下面
+的命令决定了语法规则的匹配是否是大小写敏感的：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax case match
+:syntax case ignore
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+参数\VimDQuote{match}意味着Vim在匹配语法元素时是大小写敏感的。如此一来，\VimDQuote{int}跟\VimDQuote{Int}和
+\VimDQuote{INT}就都是不同的东西了。如果用的参数是\VimDQuote{ignore}, \VimDQuote{Procedure}, \VimDQuote{PROCEDURE}, 以
+及\VimDQuote{procedure}就都被视为相同的语法元素了。
+
+   \VimDQuote{:syntax case}命令可以出现在一个语法文件的任意位置并影响该位置以后的语法定义。多数
+情况下，一个语法文件中只需要一个\VimDQuote{:syntax case}命令；不过如果你使用一种有时大小写
+敏感有时又不敏感的非常规语言，也可以在整个文件中使用多个\VimDQuote{:syntax case}命令。
+
+%======...
+\VimSepartor
+
+\VimSecDest{44.2}{\ChapterFortyFourSectionTwoTitle}
+
+最基本的语法元素就是关键字。下面的命令定义一个关键字：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax keyword {group} {keyword} ...
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\{group\}是语法组的名字。使用\VimDQuote{:highlight}命令你可以将一组颜色方案应用到该\{group\}
+语法组上。\{keyword\}参数指定了实际的关键字，下面是一个例子：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax keyword xType int long char
+:syntax keyword xStatement if then else endif
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+本例中使用了名为\VimDQuote{xType}和\VimDQuote{xStatement}的语法组。根据约定，每个组名都前辍以该
+语言的filetype. 本例中定义了x语言(无趣的eXample语言). 在\VimDQuote{csh}脚本的语言文件中
+组名应该是\VimDQuote{cshType}. 即组名的前辍就是\VimOption{filetype}选项的值。
+
+    这些命令将使\VimDQuote{int}, \VimDQuote{long}和\VimDQuote{char}以同一种方式高亮显示，而\VimDQuote{then}, \VimDQuote{else}
+和\VimDQuote{endif}以另一种方式。现在可以把定义好的x组名与标准的Vim组名联系起来：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:highlight link xType Type
+:highlight link xStatement Statement
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令使Vim对组\VimDQuote{xType}应用与\VimDQuote{Type}相同的语法高亮，对\VimDQuote{xStatement}应用与
+\VimDQuote{Statement}相同的语法高亮。\VimCommonSrc{group-name}主题中有标准组名的信息。
+
+
+\VimSubSection{生僻的关键字}
+
+定义的关键字必需是\VimOption{iskeyword}选项的定义。如果你用到了额外的字符，该关键字将
+不会被匹配到，Vim也不会就此给出错误信息。
+
+   若x语言要在关键字中使用\VimDQuote{-}字符，可以这样做：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:setlocal iskeyword+=-
+:syntax keyword xStatement when-not
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:setlocal}命令将使对\VimDQuote{iskeyword}的改变只对当前缓冲区有效。
+同时它也改变了\VimDQuote{w}和\VimDQuote{*}命令的行为。如果你不希望这样，那就不
+要用关键字，用match命令(见下一节).
+
+假设x语言允许缩写。比如\VimDQuote{next}可以被缩写为\VimDQuote{n},
+\VimDQuote{ne}或\VimDQuote{nex}. 这样的规则可以用下面的命令定义：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax keyword xStatement n[ext]
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+放心，\VimDQuote{nextone}不会被匹配，关键字只适用于一个完整的词。
+
+%======...
+\VimSepartor
+
+\VimSecDest{44.3}{\ChapterFortyFourSectionThreeTitle}
+
+考虑一下如何定义一个复杂一点的语法项。比如要匹配一个标识符。要做到这一点，需要
+使用match语法。下面的命令将匹配所有以小写字母组成的词：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax match xIdentifier /\<\l\+\>/
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        关键字会凌驾于任何其它的语法项定义。所以\VimDQuote{if},
+        \VimDQuote{then}等等将被认为是关键字，即使它们同时也符合上例中的xIdentifier.
+} %end VimCaution
+
+上例中命令的最后一部分是一个模式，正如在搜索文本时的用法。//用于界定一个模式
+(就象在:substitute命令中那样). 也可以用/之外的其它字符，如\VimTT{+}号或"号。
+
+现在来定义一个注释。在x语言中假设注释是自\#至行尾的内容：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax match xComment /#.*/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+因为这里可以使用模式匹配，所以可以以此匹配非常复杂的语法项。参见\VimCommonSrc{pattern}可以
+了解更多关于查找模式的问题。
+
+%======...
+\VimSepartor
+
+\VimSecDest{44.4}{\ChapterFortyFourSectionFourTitle}
+
+在x语言中，字符串定义为由两个双引号包围起来的字符序列。要高亮一个字符串需要
+定义一个区域。该区域以双引号开始，同样以双引号结尾。定义如下：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax region xString start=/"/ end=/"/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{start}和\VimDQuote{end}分别定义了该区域的开始和结尾。考虑下面这句将被如何匹配：
+% vim: replace_backslash
+\begin{VimVBexcmdNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+"A string with a double quote (\") in it"
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这引出了一个问题：在一个字符串中间的双引号将结束整个字符串的识别。所以还需要
+告诉Vim跳过这些以\VimBS{}"形式表达的脱字符。这要在命令中用到skip关键字：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax region xString start=/"/ skip=/\\"/ end=/"/
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+两个反斜杠\VimBS{}\VimBS{}匹配到一个真正的反斜杠\VimBS{}字符，因为反斜杠
+\VimBS{}在模式中是一个特殊字符。
+
+何时用region而不用match呢？两者的主要不同在于match是一个完整的模式，一次匹配一
+整个字符序列。而一个区域以\VimDQuote{start}指定的模式为开始，以\VimDQuote{end}
+指定的模式为结束。区域中的\VimDQuote{end}模式可能被匹配也可能不被匹配。所以如
+果你要定义一个一定以某个模式为结束的语法项。那就不能用region来定义。另外，区域
+定义看起来更简单。而且方便定义嵌套的语法项。嵌套语法项在下节讲述。
+
+%======...
+\VimSepartor
+
+\VimSecDest{44.5}{\ChapterFortyFourSectionFiveTitle}
+
+看一下下面的注释：
+\begin{VimVBDisplay}[formatcom=\color{VimHelpHeaderColor}]
+%Get input  TODO: Skip white space
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在假设要让TODO以黄色来高亮显示，尽管它已经包含在一个定义为蓝色高亮的注释中。
+要让Vim识别这种情况，可以定义下面的语法组：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax keyword xTodo TODO contained
+:syntax match xComment /%.*/ contains=xTodo
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+第一行中\VimDQuote{contained}参数告诉Vim该关键字只能存在于另一个语法项中。下一行的
+\VimDQuote{contains=xTodo}则说明允许一个组名xTodo的语法元素嵌套在其中。结果是整个注释
+行匹配到\VimDQuote{xComment}组被显示为蓝色。而其中的TODO匹配到xTodo组而被显示为黄色。
+
+
+\VimSubSection{递归嵌套}
+
+x语言定义了以花括号\{\}括起来的部分为一个代码块。当然一个代码可以包含另一
+个代码块。这样就需要下面的定义：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax region xBlock start=/{/ end=/}/ contains=xBlock
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+假设有这样的x代码：
+\begin{VimVBCodeSippetNoAdjustSpace}[formatcom=\color{VimHelpHeaderColor}]
+while i < b {
+        if a {
+                b = c;
+        }
+}
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+首先一个xBlock组匹配到第一行的\{. 第二行又发现了一个\{. 因为这此处已经位于外围
+的xBlock内。所以\VimDQuote{b = c}这一行就位于第二级的xBlock区域里，接下来的一行里又发现了
+\}字符。它符合xBlock区域的结束符定义。因此它结束了嵌套的内层xBlock. 由于\}匹配的
+是内层的xBlock, 所以外层的xBlock区域将视之为普通文本。而下一行的\}才匹配到第一
+个xBlock区域的结束。
+
+
+\VimSubSection{保留行尾}
+
+考虑下面的语法项定义：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax region xComment start=/%/ end=/$/ contained
+:syntax region xPreProc start=/#/ end=/$/ contains=xComment
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这里定义了一个注释：以\%开始直到行尾。一个预处理指示符，以\#开始直到行尾。因为
+一个注释也可以出现在一个预处理定义中。所以预处理项的定义包含了一个
+\VimDQuote{contains=xComment}参数。现在来看看将它应用于下面的文本会发生什么：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+#define X = Y  % Comment text
+int foo = 1;
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+你会看到第二行也被以xPreProc被高亮。预处理项应该在行尾就结束了。要不干吗要定义
+\VimDQuote{end=/\$/}, 到底哪出了问题？
+
+        问题在于被包含的注释。注释项以\%开始直到行尾。所以注释项的匹配结束后，预
+处理项的语法还没有结束。而仅有的一个行尾已经因为符合注释项的定义而被吃掉了。
+所以预处理项的匹配结束于下一行的行尾，这就是为什么第二行被识别为预处理项的
+一部分。
+
+    为避免一个被包含的语法项吃掉行尾，要在命令中加一个额外的\VimDQuote{keepend}参数。这
+个参数可以使Vim正确处理需要匹配到行尾两次的语法项。
+
+\begin{VimVBexcmd}[xrightmargin=-2cm,commandchars=\\\{\}]
+:syntax region xComment start=/%/ end=/$/ contained
+:syntax region xPreProc start=/#/ end=/$/ contains=xComment keepend
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{嵌套多个语法项}
+
+contains参数还可以指定一个语法项可以包含其它任何的语法项，如：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax region xList start=/\[/ end=/\]/ contains=ALL
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这使xList可以包含任何语法项，包括它自己，但是不是原位置的同一个xList(这样会
+引起死循环).
+
+    你还可以指定某个语法项被排除在外。这样可以定义除某个语法项之外的所有语法项：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax region xList start=/\[/ end=/\]/ contains=ALLBUT,xString
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+如果用了\VimDQuote{contains=TOP}, 该语法项就可以包含所有没有
+\VimDQuote{contained}参数的其它语法项。 \VimDQuote{contains=CONTAINED}则用于定
+义该语法项只包含那些有\VimDQuote{contained}参数的语法项。参见
+\VimCommonSrc{:syn-contains}了解更多的细节。
+
+%======...
+\VimSepartor
+
+\VimSecDest{44.6}{\ChapterFortyFourSectionSixTitle}
+
+x语言有如下形式的语句：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+if (condition) then
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+假设你要以不同的规则来高亮这三项。但是\VimDQuote{(condition)}和\VimDQuote{then}也可能在别处出现，
+而在那里它们又以不同的规则来高亮。看下面的命令：
+\begin{VimVBexcmd}[xleftmargin=-1cm,xrightmargin=-1cm,commandchars=\\\{\}]
+:syntax match xIf /if/ nextgroup=xIfCondition skipwhite
+:syntax match xIfCondition /([^)]*)/ contained nextgroup=xThen skipwhite
+:syntax match xThen /then/ contained
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{nextgroup}参数指定哪些组可以跟在该组后面。这个参数并不是必需的。如果由它指
+定的任何一个组都不符合匹配。Vim什么也不做。比如下面的代码：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+if not (condition) then
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+\VimDQuote{if}是匹配到了xIf组。但\VimDQuote{not}却不符合由nextgroup指定的
+组xIfCondition, 所以这样一来只有\VimDQuote{if}被正确高亮。
+
+\VimDQuote{skipwhite}参数告诉Vim空白字符(空格和跳格键)可以出现在语法项之间。另
+一个与类类似的参数是\VimDQuote{skipnl}, 它允许在语法项之间出现断行，
+\VimDQuote{skipempty}参数，允许出现空行，注意\VimDQuote{skipnl}并不会跳过任何
+空行，它要求断行之后必需有东西被匹配到才行。
+
+%======...
+\VimSepartor
+
+\VimSecDest{44.7}{\ChapterFortyFourSectionSevenTitle}
+
+\VimSubSection{匹配一个区域}
+
+一旦定义一个区域，整个区域就会应用由组名指定的高亮规则。比如，要高亮括号()里面
+的名为xInside的语法项，使用下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax region xInside start=/(/ end=/)/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你想以不同的规则来高亮括号。当然可以写一个复杂的区域定义语句来完成它，但
+\VimDQuote{matchgroup} 参数带来一种更简单的办法。它告诉Vim以另外一种高亮组来处理区域的
+首尾部分。(本例中，用xParen组):
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax region xInside matchgroup=xParen start=/(/ end=/)/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{matchgroup}参数应用于其后的start或end模式。 上例中区域的首尾都以xParen组来高亮。
+也可以分别为它们指定不同的组：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax region xInside matchgroup=xParen start=/(/
+        \ matchgroup=xParenEnd end=/)/
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{matchgroup}的副作用是位于区域首尾的嵌套的语法项不能被正确识别了。
+\VimDQuote{transparent}相关的例子涉及到了这个问题。
+
+\VimSubSection{透明语法}
+
+你可能希望C程序中\VimDQuote{while}之后的()和\VimDQuote{for}之后的()以不同的颜
+色来显示。这两种类型的循环语句中的()中都可以包含嵌套的()语法项，这些语法项也应
+该以同样的方法进行高亮。所以必需确保配对的()进行适当的高亮。下面是一种方案：
+\begin{VimVBexcmdNoAdjustSpace}[xleftmargin=-1cm,xrightmargin=-1cm]
+:syntax region cWhile matchgroup=cWhile start=/while\s*(/ end=/)/
+        \ contains=cCondNest
+:syntax region cFor matchgroup=cFor start=/for\s*(/ end=/)/
+        \ contains=cCondNest
+:syntax region cCondNest start=/(/ end=/)/ contained transparent
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+现在你可以让cWhile和cFor拥有不同的语法高亮了。cCondNest可以嵌套出现在其中，但
+是它所应用的高亮规则将是包含它的语法项，这是\VimDQuote{transparent}的作用。
+
+    注意例子中的\VimDQuote{matchgroup}的名字与定义的语法项名字相同。为何这样定
+义？这样使用matchgroup的一个副作用是被包含的语法项不能是第一个语法项。这就避免
+了cCondNest组匹配到\VimDQuote{while}或\VimDQuote{for}之后的第一个(, 否则的话
+，cCondNest就会一直匹配到与第一个\VimDQuote{(对应的})\VimDQuote{. 现
+在cCondNest只可能匹配第一个}("之后的语法项。
+
+
+\VimSubSection{偏移}
+
+如果你想定义一个区域匹配\VimDQuote{if}之后的\VimDQuote{()}之间的内容。但是却不
+包含\VimDQuote{if}和\VimDQuote{(}, \VimDQuote{)}本身。这可以通过指定匹配模式中
+的偏移来实现。例如：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax region xCond start=/if\s*(/ms=e+1 end=/)/me=s-1
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+起始模式的偏移是\VimDQuote{ms=e\VimTT{+}1}. \VimDQuote{ms}代表\VimDQuote{Match
+Start}. 它定义了一个自目标字符串起始位置的偏移。通常匹配的起始位置就是模式目标
+的起始位置。\VimDQuote{e\VimTT{+}1}则告诉Vim匹配的起始位置始自模式目标的结束处
+再向前偏移一个字符
+\VimMyFootnote{译注：对于if( foo == bar ) 这样的语法，上面的例子就不够用了。可以
+改为：\\
+:syntax region xCond start=/if\VimBS{}s*(s*/ms=e+1 end=/\VimBS{}s*)/me=s-1 \\
+毕竟空白字符不应该应用高亮颜色}
+
+   结束模式的偏移是\VimDQuote{me=s-1}. \VimDQuote{me}指\VimDQuote{Match End}. 
+\VimDQuote{s-1}意为模式目标的起始处的上一个\VimMyFootnote{译注：上下前后，似乎
+都会有歧义，文档中规定\VimDQuote{1234}中，2是1的下一个字符/之后的一个字符，1是2的
+上一个字符/之前的一个字符。}字符。结果是对于下面的程序语句只有\VimDQuote{foo == bar}会被
+应用xCond语法高亮：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+if (foo == bar)
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+关于偏移的更多详情请参考：\VimCommonSrc{:syn-pattern-offset}. 
+
+
+\VimSubSection{单行}
+
+\VimDQuote{online}参数告诉Vim要匹配的区域不能跨越多行。比如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax region xIfThen start=/if/ end=/then/ oneline
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+定义的是这样一个区域，它以\VimDQuote{if}开始，以\VimDQuote{then}结束。但是如果
+同一行上\VimDQuote{if}之后没有\VimDQuote{then}, 那就不会匹配到。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        在区域定义中用了\VimDQuote{oneline}之后如果同一行中没有找到结束模式。那匹配
+        就不会发生。如果没有\VimDQuote{oneline}关键字Vim就不会检查结束模式是否匹配。
+        所以即使没有找到其结束模式，区域匹配也会成功。
+} %end VimCaution
+
+
+\VimSubSection{后续行}
+
+现在问题稍复杂一点。我们来定义一个预处理语法。预处理行以第一列的\#开始，直到
+该行结束。同时以\VimBS{}结束的行又指示到下一行将延续未竟的预处理定义。要应付这种
+情况就需要在语法项中包含一个指示后续行的模式：
+\begin{VimVBexcmdNoAdjustSpace}[xleftmargin=-1cm,xrightmargin=-1cm]
+:syntax region xPreProc start=/^#/ end=/$/ contains=xLineContinue
+:syntax match xLineContinue "\\$" contained
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+上例中，虽然xPreProc匹配一个单行，但它所包含的匹配组(即xLineContinue)却使
+其可以继续匹配多行，比如，匹配下面的行：
+% vim: replace_backslash
+\begin{VimVBCodeSippetNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+#define SPAM  spam spam spam \
+                bacon and spam
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这正是我们要的效果。如果还有差强，你可以定义一个区域，通过在它所包含的子模式中
+指定\VimDQuote{excludenl}关键字来限制只在行尾匹配一个模式。比如，要在xPreProc中高亮\VimDQuote{end},
+但只是针对于行尾。为避免xPreProc象xLineContinue一样在下一行延续，可以这样使用
+\VimDQuote{excludenl}:
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax region xPreProc start=/^#/ end=/$/
+        \ contains=xLineContinue,xPreProcEnd
+:syntax match xPreProcEnd excludenl /end$/ contained
+:syntax match xLineContinue "\\$" contained
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{excludenl}必需出现在匹配模式之前。这样\VimDQuote{xLineContinue}才不致受\VimDQuote{excludenl}的
+影响，它还可以象以前一样把xPreProc延续到后续行去。
+
+%======...
+\VimSepartor
+
+\VimSecDest{44.8}{\ChapterFortyFourSectionEightTitle}
+
+开始写大批Vim语法文件时你需要记住一件事。Vim中可以定义一些语法组为一个簇。
+   假设你有一种语言包含了诸如循环，if语句，while循环和函数定义这样的语法项。
+其中每个又包含了一些共同的语法元素：数字和标识符。你可以这样来定义：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax match xFor /^for.*/ contains=xNumber,xIdent
+:syntax match xIf /^if.*/ contains=xNumber,xIdent
+:syntax match xWhile /^while.*/ contains=xNumber,xIdent
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+每次定义一个语法项都需不胜繁琐地用\VimDQuote{contains=}来罗列它所包含的语法元素。
+如果你想增加另一个语法元素，又得在3个地方都加上。语法簇可以以一个簇名代替
+这些众多的语法元素。
+   下面的例子定义了一个包含了两个语法元素的语法簇：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax cluster xState contains=xNumber,xIdent
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+簇被用在其它以syntax语法定义语句中。就象语法组一样。它们的名字以\VimAt{}开始。这样
+，你可以这样简化上面的例子：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax match xFor /^for.*/ contains=\VimAt{}xState
+:syntax match xIf /^if.*/ contains=\VimAt{}xState
+:syntax match xWhile /^while.*/ contains=\VimAt{}xState
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+下面语句使用\VimDQuote{add}把新的语法元素加到一个簇中：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax cluster xState add=xString
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+类似地，下面是从簇中移除一个语法项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax cluster xState remove=xNumber
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_230}{view_230}\hypertarget{view_230}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{44.9}{\ChapterFortyFourSectionNineTitle}
+
+\VimCPP{}的语法是C语言的一个超集。毕竟人们都不希望把相同的东西写上两遍，所以Vim提供
+了在一个语法中读取另一个语法文件的功能：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:runtime! syntax/c.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:runtime!}会在由\VimOption{runtimepath}指定的目录中寻找
+\VimDQuote{syntax/c.vim}文件。这样可以借用所有为C文件定义的C语言语法。如果你替
+换了c.vim语法文件或以另一个文件来
+补充它，它们也会如影随形地对\VimCPP{}发生同样的影响。
+
+   载入了所有的C语言项后就可以这样\VimCPP{}的特有部分了，比如增加C里面没有的关键
+字：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax keyword cppStatement    new delete this friend using
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_231}{view_231}\hypertarget{view_231}{}\fbox{\textcolor{red}{Review}}\\
+\iffalse
+This works just like in any other syntax file.
+\fi
+
+现在我们来关注一下Perl语言。Perl脚本允许同时存在两个部分：一个POD格式的
+文档节，一个是程序本身。其中POD节以\VimDQuote{=head}开始，以\VimDQuote{=cut}结束
+\VimMyFootnote{译注：POD: Plain Old Documentation}
+
+   你可以在一个文件中定义POD的语法，然后从Perl本身的语法文件中引用它。
+\VimDQuote{:syntax include}命令从另一个文件中读取语法定义，并把其中定义的语法元素组织
+为一个簇保存起来。如：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[xrightmargin=-2cm,commandchars=\\\{\}]
+:syntax include \VimAt{}Pod <sfile>:p:h/pod.vim
+:syntax region perlPOD start=/^=head/ end=/^=cut/ contains=\VimAt{}Pod
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+一旦在Perl文件里发现了\VimDQuote{=head}, perlPOD语法项所定义的区域开始。该语法项的定义
+包含了一个名为\VimAt{}Pod的簇。所有在pod.vim中定义的顶级元素都是该簇的一部分。找到
+\VimDQuote{=cut}后，区域匹配结束，继续处理Perl中定义的其它语法项。
+
+   \VimDQuote{:syntax include}命令会聪明地忽略掉被包含文件中的\VimDQuote{:syntax clear}. 
+同时象\VimDQuote{contain=ALL}这样
+的参数也只会包含在当前文件中的语法项，而不会包含在include当前文件的父文件中
+所定义的语法项。
+
+   \VimDQuote{\VimSpecialChar{<sfile>}:p:h/}中用到了代表当前文件的(\VimSpecialChar{<sfile>}), 并且扩展到该文件的绝对路径
+(:p)然后又取该绝对路径的目录部分(:h). 结果是将同一个目录下的pod.vim文件包含
+进来。
+
+%======...
+\VimSepartor
+
+\VimSecDest{44.10}{\ChapterFortyFourSectionTenTitle}
+
+编译器处理起语言的语法易如反掌，毕竟这是它的本职工作。只需将文件从头至尾进行
+解析。Vim却要为此犯难。它必需能断章取义，程序写到哪里，它就要跟到哪里。它又是
+怎么确定何处要回承转合，何处要适可而止呢？
+
+   答案是\VimDQuote{:syntax sync}命令。它告诉Vim如何确定当前的境况。比
+如，下面的命令告诉Vim回溯查找C风格的注释，并从注释的起始处开始对该语法项进行着
+色：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax sync ccomment
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+此外还可以以一些参数调整该命令的处理细节。\VimDQuote{minlines}参数告诉Vim最少要往回
+查找多少行，\VimDQuote{maxlines}告诉编辑器最多检查多少行。
+
+   比如，下面的命令告诉Vim至少要往回看10行：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax sync ccomment minlines=10 maxlines=500
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果往回查看还未能找到期望的语法模式，那就继续回溯直到找到目标模式。但是它最
+多也不会回溯超过500行。(大的\VimDQuote{maxlines}会让Vim处理语法高亮速度减慢。值太小又
+可能导致着色有误)
+
+   为了使Vim同步着色更快一些，可以让它跳过一些语法项。那些实际要显示文本时
+才用到匹配可以加上\VimDQuote{display}参数。
+
+   默认情况下，注释项会以Comment语法组的颜色设定进行着色。如果你想使用另外的
+颜色方案，可以为它指定一个不同的语法组：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax sync ccomment xAltComment
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你要定义的编程语言中的注释还是C风格的，可以用另一种方法进行显色同步。
+最简单的莫过于告诉Vim回溯一些行然后从那里开始解析。如下面的命令告
+诉Vim从前150行处开始进行解析：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax sync minlines=150
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{minlines}设置太大会让Vim变慢，尤其是你在浏览文件过程中需要频频往回滚动时。
+
+   最后，你还可以指定在回溯解析时要定位的目标语法组，如：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax sync match {sync-group-name}
+        \ grouphere {group-name} {pattern}
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这告诉Vim以匹配\{pattern\}的位置为语法组的开始。\{sync-group-name\}用来为该项
+语法同步指定一个名字。例如，下面的shell脚本中定义了一个if语句，以
+\VimDQuote{if}开始，以\VimDQuote{fi}结束：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+if [ -f file.txt ] ; then
+        echo "File exists"
+fi
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+下面的命令为该语法指定了\VimDQuote{grouphere}指示符：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax sync match shIfSync grouphere shIf "\<if\>"
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{groupthere}参数则告诉Vim什么情况下一个语法组结束。如，if/fi组的结束
+可以这样定义：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax sync match shIfSync groupthere NONE "\<fi\>"
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+此例中的NONE告诉Vim当前位置不属于任何的语法区域。特别是不属于if块
+
+同样也可以定义没有\VimDQuote{grouphere}和\VimDQuote{groupthere}的模式和区域。
+这些组将在语法同步时被简单地跳过去。例如，下面的定义跳过了任何\{\}中的内容，即
+使它可能会符合其它的语法同步定义：
+\begin{VimVBexcmdNoAdjustSpace}
+:syntax sync match xSpecial /{.*}/
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+关于语法同步的更多内容在参考手册中，请参阅：\VimCommonSrc{syn-sync}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{44.11}{\ChapterFortyFourSectionElevenTitle}
+
+当你有一个新的语法文件时，把它放在\VimOption{runtimepath}指定的路径下名为
+\VimDQuote{syntax}的目录。在Unix系统上典型的是\VimDQuote{\~{}/.vim/syntax}. 
+
+    语法文件的名字必需与文件类型名一致，以\VimDQuote{.vim}为扩展名。对于x语言，其完整的
+路径应该是：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+~/.vim/syntax/x.vim
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+同时你必需让Vim能正确识别该文件类型。请参考\VimSecSrc{43.2}. 
+
+如果你的语法文件用起来感觉不错，你可能还想造福其它的Vim用户。请先读完下一小节
+确保你的文件对别人也能正常工作。然后把它email给Vim的当前维护者：
+\<maintainer@vim.org>. 同时在信中解释一下该文件类型是如何被检测的。幸运的话你
+写的文件也可能出现在Vim的下一个版本中！
+
+
+\VimSubSection{向已有的语法文件中添加内容}
+
+上面我们都是假设你加的是一个全新的文件。如果已有一个语法文件可用，只是稍有欠缺
+时，你可以在另外一个文件中添加一些定义。这样可以避免修改那些已经发布的语法文件，
+因为这些文件在安装一个新版Vim时便会被覆盖掉。
+
+   你可以在文件中直接使用语法命令，很可能还要引用已有语法文件中的语法组。比如，
+下面的例子向C语法文件添加新的变量类型：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:syntax keyword cType off_t uint
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+新添加的语法文件要与原来的语法文件同名。上例中就应该是\VimDQuote{c.vim}. 然后把它放在
+\VimOption{runtimepath}指定的靠后的某个目录。这样可以保证它的载入顺序是在原语法文件之后。
+对Unix系统可能是：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+~/.vim/after/syntax/c.vim
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_232}{view_232}\hypertarget{view_232}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{44.12}{\ChapterFortyFourSectionTwelveTitle}
+
+如果所有的Vim用户都可以交互他们的语法文件该有多好？要做到这一点，语法文件就
+必需遵循下面的规则。
+
+首先在文件头加一段注释说明该文件的用途，它的维护人以及最后更新时间。不要在
+这里放入太多的修订列表，没人会看这些。下面是一个样板：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+" Vim syntax file
+" Language:     C
+" Maintainer:   Bram Moolenaar <Bram\VimAt{}vim.org>
+" Last Change:  2001 Jun 18
+" Remark:       Included by the C++ syntax.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+写其它语法文件时也请使用上面的模板。利用一个已经存在的文件会节省大量时间。
+
+为你的语法文件选一些描述性强的好名字。在名字中可以用小写字母和数字。不要太长，
+这个名字会在多处使用：语法文件名\VimDQuote{name.vim}, \VimOption{filetype}, b:current\VimTT{\_}syntax以及
+每个语法组的开始(如nameType, nameStatement, nameString等等).
+
+记得在文件里检查\VimDQuote{b:current\VimTT{\_}syntax}. 如果该变量已经定义，那说明\VimOption{runtimepath}
+里更靠前的某个目录里已经载入过了该语法文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+if exists("b:current_syntax")
+  finish
+endif
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要与Vim5.8版本兼容，可以用下面的样例：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+if version < 600
+  syntax clear
+elseif exists("b:current_syntax")
+  finish
+endif
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_233}{view_233}\hypertarget{view_233}{}\fbox{\textcolor{red}{Review}}\\
+在文件尾可以设置\VimDQuote{b:current\VimTT{\_}syntax}变量为当前文件所定义的语法的名字。别忘了在
+被包含的文件里也会设置该变量，如果你包含了两个文件那就要重置
+\VimDQuote{b:current\VimTT{\_}syntax}. 
+
+如果你想让你的语法文件兼容于Vim5.x版本，那就要另外检查v:version变量。请参考yacc.vim.
+
+不要包含属于用户个人偏好的设置。不要设置\VimOption{tabstop}, \VimOption{expandtab}等等诸如此类的
+选项。它们应该出现在文件类型plugin里。
+
+也不要设置映射和缩写。必要的话可以设置\VimOption{iskeyword}来识别关键字。
+
+为了方便用户选择他们喜好的颜色，可以为每种不同的高亮条目各起一个组名。然后把
+它们链接到标准颜色组。这样任何一种配色方案都可以如法炮制。如果你选了某种特别的
+颜色，要注意跟特定的颜色方案搭配起来时可能很件。另外别忘了有些人喜欢用另类的背
+景色，或者他只能用8种颜色。
+
+连接颜色的定义可以通过\VimDQuote{hi def link}命令，这样用户可以在你的语法文件
+被载入前选择不同的语法高亮。例如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+hi def link nameString  String
+hi def link nameNumber  Number
+hi def link nameCommand Statement
+... etc ...
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+记着为那些不需要语法同步的语法项加上\VimDQuote{display}参数，这样可以加快往回滚动和按下
+\VimSpecialChar{CTRL-L}时的处理速度。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{45}  \ChapterFortyFiveTitle\\
+版　权：请参考\VimCommonSrc{manual-copyright}  vim:tw=78:ts=4:ft=help:norl:
+}

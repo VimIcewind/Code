@@ -1,0 +1,626 @@
+\VimNewChapter
+\VimBookMark{第21章　\ChapterTwentyOneTitle}{usr_21.txt}
+\VimFileNameDest{usr\VimTT{\_}21.txt}{ \VimDocVer  最后修改：2008年11月09日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{进退之间\\}
+
+\begin{flushright}
+\small\CJKfamily{kai}
+彼节者有间而刀刃者无厚，以无厚入有间，恢恢乎其于游刃必有余地矣。
+
+---庄子《养生主》
+\end{flushright}
+本章的内容是关于如何使Vim和其它程序的结合运用。比如在Vim中执行一个外部程序，
+然后再回到Vim. 另外，还有关于如何记下Vim的当前状态，稍后再恢复到该状态。
+
+\VimSecList{21.1}{\ChapterTwentyOneSectionOneTitle}
+\VimSecList{21.2}{\ChapterTwentyOneSectionTwoTitle}
+\VimSecList{21.3}{\ChapterTwentyOneSectionThreeTitle}
+\VimSecList{21.4}{\ChapterTwentyOneSectionFourTitle}\VimMyFootnote{译注：会话可以看作是信息更为丰富的viminfo高保真版本}
+\VimSecList{21.5}{\ChapterTwentyOneSectionFiveTitle}
+\VimSecList{21.6}{\ChapterTwentyOneSectionSixTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{22}  \ChapterTwentyTwoTitle\\
+前一章：& \VimFileName{20}  \ChapterTwentyTitle\\
+目　录：& \VimFileName{toc} \\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+\VimSecDest{21.1}{\ChapterTwentyOneSectionOneTitle}
+
+象其它的Unix程序一样Vim也可以用\VimSpecialChar{CTRL-Z}来挂起。该命令停止Vim的
+执行使你回到启动Vim的shell中去。你可以做些别的事。完了再用\VimDQuote{fg}命令回
+到Vim.
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+CTRL-Z
+\{执行任何shell命令\}
+fg
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+此时你会准确地回到你离开时的状态，所有东西都还是原封不动。
+
+   如果\VimSpecialChar{CTRL-Z}不行，你还可以用\VimDQuote{:suspend}命令。别忘
+了等会再让回到Vim, 否则你会丢失所有的改动。
+
+只有Unix系统支持该操作。其它系统上Vim会启动一个新的shell. 这同样可以让你在其中
+执行别的shell命令，不过它是一个新的shell, 不是你启动Vim的那个\VimMyFootnote{译注：这在有些
+情况下还是略有区别，每个shell还是有一些不同之处的，比如变量}。
+
+   运行GUI版本的Vim时你不会回到启动Vim的shell去。\VimSpecialChar{CTRL-Z}等效
+   于将窗口最小化\VimMyFootnote{译注：在windows下的gvim中，
+   \VimSpecialChar{CTRL-Z}通常被映射为撤消命令u, 要看到它的窗口最小化效果，先执
+   行命令:unmap <CTRL-Z>删除这个映射，然后再按\VimSpecialChar{CTRL-Z}}
+
+%======...
+\VimSepartor
+\VimSecDest{21.2}{\ChapterTwentyOneSectionTwoTitle}
+
+如果只执行一个shell命令的话可以在Vim中用\VimDQuote{:!\VimTT{\{}command\VimTT{\}}}命令。比如，要查看当前
+目录的内容：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:!ls
+:!dir
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+第一个命令用于Unix, 第二个用于MS-Windows.
+
+   Vim会执行指定的程序。程序结束时它会提示你按回车键继续。这样可以让你有机会看
+一下程序的输出是什么。
+
+   \VimDQuote{!}也被用在其它几个需要运行程序的地方。我们来巡视一下此类命令：
+
+\begin{VimVBexcmdNoAdjustSpace}[xrightmargin=-2cm]
+:!{program}         执行 {program}
+:r !{program}       执行 {program} 并读取它的输出
+:w !{program}       执行 {program} 并把当前缓冲区的内容作为它的输入
+:[range]!{program}  以 {program} 过滤指定的行
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimMyFootnote{译注：如何向外部程序传递某些行，同时又不伤及这些行的内容，还要
+读取该程序的输出？}注意在\VimDQuote{!\VimTT{\{}program\VimTT{\}}}前面指定一个行
+的范围可就大不相同了。没有的话就是象通常一样执行该程序，带上范围则会把指定的行
+送入该程序进行过滤。
+
+以这种方式执行一组程序也可以，不过另开一个shell是最好的选择。你可以这样打开
+一个新的shell:
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:shell
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这类似于用\VimSpecialChar{CTRL-Z}挂起Vim. 不同之处在于这是一个新的shell.
+
+使用GUI版本的Vim时shell会作为Vim窗口的输入和输出。因为Vim不是一个终端仿真程序。
+这样的配合并非十全十美。如果你碰到什么问题，试一下切换\VimOption{guipty}选项的效果。如
+果这样还不行，可以新开一个终端来运行shell. 比如这样：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:!xterm&
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+\VimSecDest{21.3}{\ChapterTwentyOneSectionThreeTitle}
+
+一番辛苦之后你的寄存器里已经放入了要交换的内容，也标记了文件中的一些位置，
+命令历史列表中都是你精心锤炼过的命令。可是一旦你退出了Vim这些东西就会杳
+然无踪。好在我们有下面的对策！
+
+viminfo正是被用来存储这些信息的：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+命令行历史记录和搜索命令历史记录
+寄存器中的内容
+文件中的标记
+缓冲区列表
+全局变量
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+每次你退出Vim时这些信息都会被存储在viminfo文件中。下次启动时Vim会读取该文件
+的内容并据此恢复这些信息。
+
+\VimOption{viminfo}选项的默认设置可以存储有限的几类信息。你可能想让它保存更多的东西。
+该命令的使用是这样的：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set viminfo=string
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+其中的string指代你要保存的东西。其语法是一个选项字符跟一个参数。一对对的选项/参数
+以逗号分隔。
+
+   看看下面的例子中是如何定义一个viminfo的string的。首先\VimSQ{}选项指你要为多
+少文件保存标记信息(a-z). 你可以为它先一个适当的偶数作为参数(比如1000). 命令如
+下：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set viminfo='1000
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+选项字符f控制是否保存全局的标记(A-Z和0-9). 如果以0为参数则不会存储这些
+全局标记。如果参数是1或没有指定f选项，则会保存。需要的话你可以这样定制：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set viminfo='1000,f1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+选项字符\VimTT{<}控制每个寄存器保存多少行。默认情况下保存所有行。如果是0, 则不保存。
+为了避免你的viminfo有成千行的内容(很可能根本不会用上，又让你的Vim启动变慢)你
+可以指定一个行数如500:
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set viminfo='1000,f1,<500
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+其它几个可用的选项字符是：
+\begin{VimVBList}[commandchars=\\\{\}]
+:   要保存的冒号命令历史记录数
+\VimAt{}   要保存的输入历史记录数
+/   要保存的搜索命令历史记录数
+r   可移动介质，对此不会保存其标记信息(可以多次使用)
+!   以大写字母开始并且不含有任何小写字母的全局变量
+h   开始时禁用\VimOption{hlsearch}选项
+%   缓冲区列表(只有没指定文件参数启动Vim时才会恢复这些信息)
+c   使用\VimOption{encoding}选项中的方法进行字符编码转换
+n   viminfo文件的名字(必需是最后一个选项)
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+请参考\VimOption{viminfo}选项的帮助和\VimCommonSrc{viminfo-file}了解更多信息。
+
+多次使用Vim后，只有最后一次退出的Vim会保存这些信息。这可能会引起前面保存的
+信息的丢失，每个对应的项只能保存一次。
+
+\VimSubSection{回到你上次退出时的位置}
+
+如果你的文件只写了一半但节假日到了。尽管退出Vim, 把工作放在一边，放松自己尽情
+享受吧，几个星期后再次启动Vim, 只需键入命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+'0
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+你就会准确地回到你上次退出时的位置，继续干吧。
+
+   每次退出Vim时它都会创建一个特殊的标记。最后的一个是\VimSQ{}0. 上次的
+\VimSQ{}0现在会变成\VimSQ{}1, 原来的\VimSQ{}1成了\VimSQ{}2, 如此类推，原来的
+\VimSQ{}9就丢掉了。
+
+   \VimCommonSrc{:marks}命令可用来找出这些从\VimSQ{}0到\VimSQ{}9的标记都指向哪里。
+
+\hypertarget{v73_new_feature_21_oldfiles}{}
+\VimSubSection{回到某个文件}
+
+%% vim7.3 fix 此处加入了一大段
+如果你只是想回到最近编辑的某个文件，而不是你上次退出Vim之前编辑的文件，有一个
+稍嫌麻烦的办法，你可以通过下面的命令查看这样的文件列表：
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:oldfiles}
+1: ~/.viminfo
+2: ~/text/resume.txt
+3: /tmp/draft
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果你想编辑第二个文件，也就是上面列表中前辍以\VimDQuote{2:}的那个，可以键入下面的命令：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:e #<2
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+除了命令\VimDQuote{:e}你还可以在任何以文件名作为参数的命令后面使用这种格式
+的参数，
+\VimDQuote{\VimTT{\#<2}}正如\VimDQuote{\VimPercent}(当前文件名)和\VimDQuote{\VimSharp}(准当前文件名)
+一样可以代替一个普通的文件名。比如可以用下面的命令来分割出一个窗口编缉3号文
+件：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:split #<3
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+诸如\VimTT{\#<123}的这些火星文对于仅仅想编辑一个文件的情况来说显得有些不必要的复
+杂，下面方法会简单一些：
+
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:browse oldfiles}
+1: ~/.viminfo
+2: ~/text/resume.txt
+3: /tmp/draft
+\textcolor{black}{
+-- More --}
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+列出的文件与命令:oldfiles一样。要编辑\VimDQuote{resume.txt}文件，请首先按下
+\VimDQuote{q}来中断要继续显示的文件列表。然后会有一个提示：
+
+% 下面的 <Enter>原文中没有显示特殊颜色
+% vim: no special highlight in verbatim
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Type number and <Enter> (empty cancels):
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+此时按下\VimDQuote{2}再按下回车就可以编辑第2个文件啦。
+
+更多内容请参考\VimCommonSrc{:oldfiles}, \VimCommonSrc{v:oldfiles}和
+\VimCommonSrc{c\_\#<}. 
+
+\VimSubSection{让VIM共享viminfo}
+
+你可以在Vim中用\VimDQuote{:wviminfo}和\VimDQuote{:rviminfo}命令来保存和恢复这
+些信息。需要在不同的Vim实例中交换信息时这两个命令用处就大了，比如，在第一
+个Vim保存：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:wviminfo! ~/tmp/viminfo
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+在另一个中读取：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:rviminfo! ~/tmp/viminfo
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+显而易见，\VimDQuote{w}是指\VimDQuote{write}, \VimDQuote{r}指\VimDQuote{read}. 
+
+   \VimDQuote{:wviminfo}命令中的!字符可以覆盖原来的viminfo文件。如果没有这个字符的话目
+前的信息会追加到原来的viminfo文件后面。
+
+   \VimDQuote{:rviminfo}命令中的!则是说以指定的viminfo中的内容覆盖当前的所有信息，否则的
+话只有尚未设置的内容会被追加\VimMyFootnote{译注：背反律：注意这里缺少!并不会给出警告信息
+说已经有一个同名文件存在了}。
+
+   这些命令也可以用来保存一个info以备后用。你甚至可以建一个专门存放viminfo文件的
+目录，每个文件一个用途。
+
+%======...
+\VimSepartor
+\VimSecDest{21.4}{\ChapterTwentyOneSectionFourTitle} 
+
+假设你已在Vim中干了一整天了。现在想退出来第二天接着干。这时可以把目前的状态以
+一个会话保存起来，第二天可以据此恢复原样。
+
+   一个Vim的会话含有你编辑活动的\VimMyFootnote{译注：几乎所有，并非任何一个编
+辑状态都会记录}所有信息。包括文件列表，窗口布局，全局变量，选项和其它信息。(确
+切说到底包括什么要看\VimOption{sessionoptions}选项怎么设置，见下文)
+
+   下面的命令可以创建一个会话文件：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:mksession vimbook.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+稍后如果你想恢复到此前的会话状态，可以执行命令：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:source vimbook.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你想启动Vim时恢复某个会话，可以直接使用命令行：
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -S vimbook.vim
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+这告诉Vim启动时读取一个特殊文件。\VimSQ{}S\VimSQ{}代表session(实际上，你可以用-S选项来
+执行任何一个Vim脚本。从这个意义上说它代表\VimDQuote{source}).
+
+上次的窗口被恢复，同样的位置，同样的大小。连映射和各选项的设置也完全一样。
+
+   具体会恢复哪些东西要看\VimOption{sessionoptions}选项的设置。
+默认值是\\
+\VimDQuote{blank,buffers,curdir,folds,help,options,winsize}. 
+
+\begin{VimVBList}[commandchars=\\\{\}]
+blank           空窗口
+buffers         所有的缓冲区，而不仅是当前窗口中的
+curdir          当前目录
+folds           folds, 包括手工创建的
+help            帮助窗口
+options         所以的选项和键映射
+winsize         窗口大小
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+你可以根据自己的喜好进行定制。比如恢复Vim窗口的大小，可以这样：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set sessionoptions+=resize
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{此会话，彼会话}
+
+会话最显见的用途是工作于不同的项目的情形。
+假设你把你的会话文件都保存在\VimDQuote{\VimTT{\~}/.vim}
+目录下。当前在\VimDQuote{secret}项目，要切换到\VimDQuote{boring}项目：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:wall
+:mksession! ~/.vim/secret.vim
+:source ~/.vim/boring.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+首先用\VimDQuote{:wall}命令保存所有被改动的文件。然后用\VimDQuote{:mksession!}
+保存当前的会话。这会覆盖掉前面的会话文件。下次你再进入\VimDQuote{secret}会话时
+就可以从目前的位置继续。最后切换到新的\VimDQuote{boring}会话。
+
+如果你打开了帮助窗口，分隔了一个，再关闭一些窗口，三番五次后屏幕上可能看起来
+已经乱七八糟，此时还可以用上次保存的会话文件来恢复：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:source ~/.vim/boring.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+借此你可以控制下次进入该项目时的起始位置，是两次保存目前的改动，还是继续把
+原来的会话文件作为一个起点。
+
+   会话的另一个用法是把你喜好的窗口布局保存为一个会话，下次用会话文件恢复。
+比如，下面的窗口布局：
+
+\begin{VimVBDisplayNoAdjustSpace}
++----------------------------------------+
+|                  VIM - main help file  |
+|                                        |
+|Move around:  Use the cursor keys, or "h|
+|help.txt================================|
+|explorer   |                            |
+|dir        |~                           |
+|dir        |~                           |
+|file       |~                           |
+|file       |~                           |
+|file       |~                           |
+|file       |~                           |
+|~/=========|[No File]===================|
+|                                        |
++----------------------------------------+
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这个布局中顶部是一个帮助窗口，你可以查看帮助。左边窄窄的垂直窗口是一个文件浏览
+窗口。这是一个列出当前目录内容的plugin. 你可以选择要编辑的文件。下一章还会详细
+讲述这部分内容。
+
+   可以从一个刚启动的Vim中建立布局：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help
+CTRL-W w
+:vertical split ~/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+根据个人喜好调整窗口大小。然后保存该会话：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:mksession ~/.vim/mine.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你可以这样来启动Vim:
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+vim -S ~/.vim/mine.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+提示：要打开文件浏览窗中的某文件，只需将光标移到文件名上按\VimDQuote{O}, 或用鼠标双击该
+文件。
+
+
+\VimSubSection{UNIX和MS-WINDOWS}
+
+有些人同时使用MS-Windows和Unix. 如果你正是这种情况，你可以考虑把
+\VimDQuote{slash}和\VimDQuote{unix}加到\VimOption{sessionoptions}选项中。这样会话文件会以兼容于两类系统的形式
+保存。命令如下：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set sessionoptions+=unix,slash
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会用Unix格式保存，因为MS-Windows下的Vim能读写Unix文件。但Unix下的Vim就
+不能读取MS-Windows格式的会话文件了。同样地，MS-Windows的Vim能理解以/分隔的
+文件路径名，Unix下的Vim则不能理解反斜杠\VimBS{}. 
+
+
+\VimSubSection{会话和VIMINFO}
+
+会话能保存很多信息，但是不包括标记，寄存器和命令历史记录。要用这些东西你还是
+得靠viminfo.
+
+   多数情况下都是独立使用会话和viminfo. 尤其是切换到另一会话但是要保存命令行
+的历史记录。这样你可以在一个会话中复制文件，在另一个会话中进行粘贴。
+
+   你也可以同时使用会话和viminfo. 不过要自己动手。如：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:mksession! ~/.vim/secret.vim
+:wviminfo! ~/.vim/secret.viminfo
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+恢复时是这样：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:source ~/.vim/secret.vim
+:rviminfo! ~/.vim/secret.viminfo
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+\VimSecDest{21.5}{\ChapterTwentyOneSectionFiveTitle}
+
+会话保存了整个Vim的外观。但如果你只想保持一个窗口的属性的话，用视图就行了。
+
+   视图用于这样的情况：你想以一种特殊的方式编辑该文件。比如打开\VimOption{number}选项，
+定义一些folds. 就象会话一样，你可以保存视图稍后再恢复它。事实上，保存一个会话
+时它也的确保存了每个窗口的视图。
+
+   视图有两个基本用法。第一个是让Vim决定视图文件。你可以在后来编辑该文件时
+恢复该视图。要保存当前窗口的视图：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:mkview
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会决定如何保存视图。下次你再编辑该文件时你可以用下面的命令让它自己载入上次
+保存的视图\VimMyFootnote{译注：实际上Vim会将一个VIM脚本保存在选项
+\VimOption{viewdir}所指定的目录下。该脚本的名字以一种特定方式编码，如对于
+编缉E:\VimBS{}work\VimBS{}tips\VimBS{}vim.tip文件时执行的:mkview, 保存的文件名
+是\VimDQuote{E=-=+work=+tips=+vim.tip=}, 这样执行:loadview时Vim就可以根据这种
+约定的编码来查看当前被编辑的文件是否有对应的view脚本文件}:
+
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:loadview
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+很简单，是不是？
+
+   如果你想在浏览文件时关闭\VimOption{number}选项，或者打开所有的folds, 你可以改变这些
+选项的设置来调整你的观感。然后这样保存该视图：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:mkview 1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+当然，你可以这样恢复它：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:loadview 1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你可以通过\VimDQuote{:loadview}带不带参数来切换两个不同的视图了。
+
+   用这种办法一共可以保存10个视图，从1到9再加上一个不带数字的视图。
+
+
+\VimSubSection{指定文件名的视图}
+
+第二种方式是保存视图时指定一个文件名。这个视图也可以在编辑别的文件时载
+入。Vim会自动切换到该视图中指定的文件去。这样你可以方便地切换到另一个
+文件进行编辑，同时相应的选项设置也可随身携带。
+
+   比如你保存了当前文件的视图：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:mkview ~/.vim/main.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+可以这样恢复它：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:source ~/.vim/main.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+\VimSecDest{21.6}{\ChapterTwentyOneSectionSixTitle}
+
+编辑某个特殊文件时，你可能希望为该文件特别一些选项。每次输入这些命令实在是太
+折磨人了。使用会话或视图的话又不便于让每个人都去共享这些设置。
+
+   解决之道是为每个文件添加一个模式行。这是一行让Vim设置指定选项的文本，只对
+当前文件有效。
+
+   典型的例子是C程序中，你想把缩进量设为4个空格。这需要把\VimOption{shiftwidth}选项
+设置为4. 相应的模式行是：
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+/* vim:set shiftwidth=4: */
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+把这行文本放到文件的前5行中或最后5行中。编辑该文件时，你看看\VimOption{shiftwidth}选项是
+不是已经设置为了4. 编辑其它文件时，它又会回到默认的设置：8.
+
+   对一些文件来说把模式行作为文件头挺好，这样模式行就可以放在文件开头。对于可能
+打乱正文的情况来说，可以把它放在文件尾。
+
+\VimOption{modelines}选项控制Vim前后检查多少行来找出模式行。比如检查10行：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set modelines=10
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimOption{modeline}选项可以关闭这项功能。如果你是以Unix系统
+的root或MS-Windows上的管理员身份在系统里工作，或者你就是信不过这些文件，可
+以这样来关闭它：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set nomodeline
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+模式行的格式是这样的：
+
+\begin{VimVBCodeSippetNoAdjustSpace}[formatcom=\color{VimHelpHeaderColor}]
+any-text vim:set {option}={value} ... : any-text
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+其中的\VimDQuote{any-text}是说你可以在对Vim有用的部分文本之前或之后放入任何东西。这使得
+模式行可以以一个注释的形式出现，比如上例中的/*和*/.
+
+   Vim根据\VimDQuote{ vim:}来识别模式行。\VimDQuote{vim}之前必需有一个空格，或者\VimDQuote{vim}位于行首。这样
+你用\VimDQuote{gvim:}的话就不行。
+
+   冒号之间的是":set"命令。除了你需要在作为选项内容的冒号前面放一个反斜杠之外。
+它跟直接用":set"命令没有两样，
+
+看另一个例子：
+
+\begin{VimVBCodeSippetNoAdjustSpace}[formatcom=\color{VimHelpHeaderColor}]
+// vim:set textwidth=72 dir=c\:\tmp:  use c:\tmp here
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+第一个冒号之前有一个反斜杠，这样它才可以作为\VimDQuote{:set}命令的内容。第二个冒号的内容
+会被忽略，这样在此加上一段注释也不错。
+
+关于模式行的更多内容请参考\VimCommonSrc{modeline}. 
+
+%======...
+\VimChapterEnd{
+下一章：\VimFileName{22}  \ChapterTwentyTwoTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

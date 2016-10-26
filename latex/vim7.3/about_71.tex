@@ -1,0 +1,117 @@
+\VimNewChapter
+\VimBookMarkLevelTwo{关于7.1版}{about_71.tex}
+\begin{center}
+{\CJKfamily{kai}\LARGE{关于7.1版}}
+\end{center}
+{\setlength{\parindent}{0mm}
+7.1版推出了，但是，就软件本身来说，这个版本主要是对7.0的一个bugfix版，就
+用户手册而言，也基本上是一个bugfix版，改动也很小，哦，永远是多远，很小有
+多小？好吧，我来报告：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+cd $VIM/vim71/doc
+for i in usr*; do diff ../../vim70/doc/$i $i; done > tmp.txt
+wc tmp.txt
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_3}{view_3}\hypertarget{view_3}{}\fbox{\textcolor{red}{Review}}\\
+结果只有366行，其中仅仅因为文件的最后修改时间改动的
+{
+\begin{VimVBDisplay}[frame=single,xrightmargin=-1cm,commandchars=\\\{\}]
+1c1
+< *usr_01.txt*	For Vim version 7.1.  Last change: 2006 Oct 08
+---
+> *usr_01.txt*	For Vim version 7.0.  Last change: 2006 Apr 24
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_4}{view_4}\hypertarget{view_4}{}\fbox{\textcolor{red}{Review}}\\
+}
+这样的非实质内容就占去了132行，剩下的多属单词拼写错误，句法调整，这些问
+题中的多数我在翻译旧版本时就已经"吃的是草，挤的却是奶"了，不含三聚氰氨
+，大家放心饮用，真正内容上的改动主要是下面几处，这里列出来方便大家直奔主题：
+\begin{enumerate}
+\renewcommand{\labelenumi}{(\Alph{enumi})}
+\item{
+\hyperlink{v71_newadd_helpsummary}{\VimCommonSrc{02.8}} (在这一章
+的最后)添加了一段对使用帮助的小结，这些提示十分有用，推荐！
+}
+\item{
+\hyperlink{v71_bugfix_sp}{\VimCommonSrc{10.2}} 节中
+有一处说\VimDQuote{:substitute}命令的p标志会在替换后列出所
+有被替换的行，这是旧版本原文的一处技术错误，我在当初翻译时用的是以讹传讹
+的无耻笔法，吃的是草，拉出来的还是草。这版有纠正：p标志只能列出最后被修
+改的那一行
+}
+\item{
+\hyperlink{v71_bugfix_fourty}{\VimCommonSrc{12.1}} 节中替换单词小节的例子中
+使用的单词\VimDQuote{fourty}换成了\VimDQuote{fourteen}, 原来fourty是个错
+误的拼写。惭愧同上。
+}
+\item{
+\hyperlink{v71_newadd_omni}{\VimCommonSrc{24.3}} 节中添加了一段关于Omni在
+源代码中补齐的文字。
+}
+\item{
+\hyperlink{v71_newadd_unix_comment}{\VimCommonSrc{41.10}} 的Comments小
+节：添加了一段在Unix系统上注释Vim脚本的特殊方法，可以允许Vim脚本作为一般
+的可执行脚本直接被shell载入执行
+}
+\end{enumerate}
+
+其它的改动：
+\begin{enumerate}
+\item{行间距 现在的行间距相当于1.25倍行距(感谢\<owtgnaw@gmail.com>指出行间
+距的正常计算方法)，我个人评估会看起来更舒服一些，
+但也造成整个文件页数更多一些，不要误会，内容本身并没有猛增。文本框内部的字体略
+小一些，行间距也相应地小一些}
+\item{\VimLaTeX排版的难题，基本上全部解决了，终于可以结束我前面关于\VimLaTeX排
+版的满腹牢骚，具体改进可以参考\hyperlink{latex}{\VimLaTeX难题。}
+}
+\item{用词、造句 关于这方面给出我指正的朋友超出我的预期，从未谋面的热心
+读者们做起咬文嚼字的工作一点也不输给专业的文字编辑：
+\begin{VimVBDisplay}[label=给我的Mail,commandchars=\\\{\}]
+\VimDQuote{象...一样}    应该为    \VimDQuote{像...一样}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_5}{view_5}\hypertarget{view_5}{}\fbox{\textcolor{red}{Review}}\\
+\begin{VimVBDisplay}[xrightmargin=-2cm,label=我的回复,commandchars=\\\{\}]
+约有11,300,000项符合象 一样
+约有23,600,000项符合像 一样
+
+google支持你的意见\Smiley{}
+
+"像"和"象"。据国家语委1986年重新发表《简化字总表》的说明，"像"不再作为
+"象"的繁体字处理，《现代汉语词典》据此规定："象...一样"，现在应写作"像
+...一样"。
+
+"像"指用模仿、比照等方法制成的人或物的形象，如"画像"、"录像"、"偶
+像" "人像"、"神像"、"塑像"、"图像"、"肖像"、"绣像"、"遗像
+"、"影像" "摄像"等，都是人工做成的；"象"指自然界、人或物的形态、
+样子，如"表象"、"病象"、"形象"、"脉象"、"气象"、"景象"、"天
+象"等，都是自然表现出来的。
+
+"像"、"象"、"相"。这方面的用字，由于历史形成的原因，比较乱。"照相
+机"用"相"；照出的东西用"像片"。"摄像机"、"录像机"用"像"。"假
+象"、"真相"所用的字均不同。 
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_6}{view_6}\hypertarget{view_6}{}\fbox{\textcolor{red}{Review}}\\
+\begin{comment}
+汉字的……在PL字体中不能正确显示
+\end{comment}
+
+}
+\end{enumerate}
+
+格式越来越漂亮、错误越来越少那是肯定的。这主要是因为有很多热心的读者把错
+误和指正发给我。这里我特别要感谢冯亮\<step\_by\_step@263.net>, 他
+在Mail中说前后花了大概一个月的业余时间，仔细地读完并实践了一遍这本电
+子书，并且提供了一份所涉内容贯穿全文的纠错列表给我，指出的错误细致准
+确，而且提了很多建设性的好建议，谢谢你！当然，内举不避亲，我的努力自然是
+功不可没的\Smiley, 每当我被\VimLaTeX{}排版折磨得心力交瘁时，总会萌生类似老罗
+的感慨：我真羡慕你们，能碰到这么好的一位译者。哦！忍住，别往键盘上吐。
+
+}

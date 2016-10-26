@@ -1,0 +1,3 @@
+<?
+    echo "Hai Icewind\n";
+?>

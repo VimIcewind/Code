@@ -1,0 +1,849 @@
+\VimNewChapter
+\VimBookMark{第40章　\ChapterFortyTitle}{usr_40.txt}
+\VimFileNameDest{usr\VimTT{\_}40.txt}{ \VimDocVer  最后修改：2006年06月21日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{定义新命令\\}
+\begin{flushright}
+\small\CJKfamily{kai}
+授人以鱼不如授人以渔\newline
+如果没人授你以渔，也要记得：\newline
+临渊羡鱼，不如退而结网
+\end{flushright}
+
+
+Vim是一个可扩展的编辑器。你可以把自己常用的命令序列定义为一个新的命令。或者
+对已有的命令进行重新定义。自动执行的命令可以让命令在特定情形下被自动执行。
+
+\VimSecList{40.1}{\ChapterFortySectionOneTitle}
+\VimSecList{40.2}{\ChapterFortySectionTwoTitle}
+\VimSecList{40.3}{\ChapterFortySectionThreeTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{41}  \ChapterFortyOneTitle\\
+前一章：& \VimFileName{32}  \ChapterThirtyTwoTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{40.1}{\ChapterFortySectionOneTitle}
+
+在\VimSecSrc{05.3}节中对简单的映射已经有了一些介绍。基本思想是把一系列击键解释为另外的
+按键序列。这是一种简单而强大的机制。
+
+   最简单的形式莫过于把一个单个的键映射为一系列其它键了。因为除
+\VimSpecialChar{<F1>}之外的功能键在Vim中并没有预定义内容，所以映射这些键是最理想
+不过了。如：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map <F2> GoDate: <Esc>:read !date<CR>kJ
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个例子展示了如何在映射命令中使用3种不同的模式。在用\VimDQuote{G}命令定位到文
+件尾之后，\VimDQuote{o}命令开始一个新行进行编辑。接下来的\VimDQuote{Date: }
+被插入到该行中，然后一个\VimSpecialChar{<Esc>}又让你退出了Insert模式。
+
+   注意此例中<>里的特殊表示。这叫做尖括号表示法。用这种记法，特殊键不需要你真
+正按下这些键来表示，而只需在尖括号里键入他们的名字描述\VimMyFootnote{译注：但
+这种描述是由Vim定义的，当然不能任意来描述}。这样可以使整个命令的可读性更强，同
+时也避免了你在copy \& paste这些命令时引起一些问题。
+
+   \VimDQuote{:}字符会让Vim工作于冒号命令行模式。":read !date\VimDQuote{命令读
+取}date\VimDQuote{命令的输出并把它追加到当前行之后。\VimSpecialChar{<CR>}对于
+}:read"命令的执行是必需的。
+
+   命令执行到这里看起来会是这样：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Date: 
+Fri Jun 15 12:54:34 CEST 2001
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在\VimDQuote{kJ}将会把光标向上移一行并把两行的内容粘连为一行。
+
+   要知道已经有哪些键被映射了，请参考\VimCommonSrc{map-which-keys}. 
+
+
+\VimSubSection{键映射和模式}
+
+\VimDQuote{:map}命令定义了在Normal模式下对键序的重新映射。你同样可以定义工作于其它模式
+的键序。如\VimDQuote{:imap}可以定义Insert模式下的键序映射。下面的键映射可以在Insert模式下
+在当前光标下插入当前日期\VimMyFootnote{译注：对于MS-Windows用户来说，插入日期
+要这样：:read !date<NUL. 因为date命令默认要求输入一个新日期。所以用<NUL重定向
+来打发它，缺点是命令返回值是1, 你需要按一下\VimSpecialChar{<Enter>}来继续；另一
+个平台无关的方法是使用vim的内置函数strftime, 仿上例我们可以定义这样的映射：
+:imap \VimTT{<F2> <C-R>=strftime("\%c")<CR>}. 请参考\VimCommonSrc{strftime()}}:
+
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:imap <F2> <CR>Date: <Esc>:read !date<CR>kJ
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+它看起来很象我们刚才在Normal模式下为\VimSpecialChar{<F2>}所作的映射，只是开头不同。
+为Normal模式所做的\VimSpecialChar{<F2>}映射仍然不受影响。所以可以对同一个键序在
+不同模式下映射不同的内容。
+
+   注意上例中，虽然该映射的工作始于Insert模式，它结束时却是在Normal模式。如果
+你想在映射工作结束时仍处于Insert模式，可以在上面的映射命令最后放一个\VimDQuote{a}. 
+
+下面是一个各工作模式下对应的映射命令的列表：
+\begin{VimVBList}[commandchars=\\\{\}]
+:map            Normal, Visual and Operator-pending
+:vmap           Visual
+:nmap           Normal
+:omap           Operator-pending
+:map!           Insert and Command-line
+:imap           Insert
+:cmap           Command-line
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+Operator-pending模式指这样一种情况：你已经键入了一个作为命令的操作符，比如
+\VimDQuote{d}或者\VimDQuote{y}, 接下来Vim希望继续键入一个移动命令或是一个文本
+对象。就是这种Vim希望继续接收命令而你又尚未键入的悬而未决的状态，Vim术语
+里叫Operator-pending模式。比如对于命令\VimDQuote{dw}, 其中的\VimDQuote{w}就是你
+在Operator-pending模式下键入的。
+
+假设你想这样来映射\VimSpecialChar{<F7>}：使用d\VimSpecialChar{<F7>}可以删除一个C语
+言的程序块(包括在花括号\{\}中的文本内容). 而y\VimSpecialChar{<F7>}又可以yank这样
+一个程序块到无名寄存器中。所以，你需要做的就是让\VimSpecialChar{<F7>}来选择这样
+一个程序块：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmdNoAdjustSpace}
+:omap <F7> a{
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这会让\VimSpecialChar{<F7>}在Operator-pending模式下执行一个执行程序块的动作
+\VimDQuote{a\{}, 就象你手工键入一样。但对于键入\{符号困难的键盘
+\VimMyFootnote{译注：我没有见过键入\{困难的键盘，只见过输入困难的人\Smiley}来说这
+已经是不错的交易了。
+
+
+\VimSubSection{列出映射}
+
+使用\VimDQuote{:map}(不带任何参数)可以让你查看当前就定义了哪些映射，或者，使用
+它的几种变体只列出指定模式下的映射。输出看起来大致是这样的\VimMyFootnote{译注：
+本文中作为示例的输出往往依赖于你具体的环境，不要期望你自己的Vim执行起来总是跟
+这里的一样，本文中的其它部分不再对此作出说明}:
+% vim: no special highlight in verbatim
+\begin{VimVBList}[commandchars=\\\{\}]
+\textcolor{VimHelpHeaderColor}{
+   _g            :call MyGrep(1)<CR>}
+\textcolor{VimHelpHeaderColor}{
+v  <F2>          :s/^/> /<CR>:noh<CR>\VimBacktick{}\VimBacktick{}}
+\textcolor{VimHelpHeaderColor}{
+n  <F2>          :.,$s/^/> /<CR>:noh<CR>\VimBacktick{}\VimBacktick{}}
+\VimSpecialChar{
+   <xHome>       <Home>}
+\VimSpecialChar{
+   <xEnd>        <End>}
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+列表的第一栏位指示出该映射工作于何种模式。\VimDQuote{n}代表Normal模式，
+\VimDQuote{i}代表Insert模式，诸如此类。此栏空白的话是说这个映射是用
+\VimDQuote{:map}定义的，所以可以同时工作于Normal模式和Visual模式
+\VimMyFootnote{译注：这里说Visual模式泛指由命令\VimDQuote{v}、\VimDQuote{V}
+和CTR-V进入的各种Visual子模式。}
+
+   查看当前映射列表有一个额外的收益：它可以让你据此判断一些在<>中的字符是否
+能被Vim以特殊字符来对待(当然你的Vim要支持颜色高亮显示功能才行). 比如说
+\VimSpecialChar{<Esc>}以特殊颜色显示时，它表示ASCII为27的ESC键，如果以与普通文本
+相同的颜色显示，那它就只是5个普通字符的简单集合。
+
+
+\VimSubSection{重映射}\VimMyFootnote{译注：英文是remapping, 这里的re前辍并不表
+示重复做同一件事情，或覆盖上次做的结果，我个人更喜欢nest-mapping这样的表达，举
+个简单的例子:map <C-K> j<C-K>这个映射之后你按下<C-K>光标会一遛跑到最后一行去，
+因为<C-K>执行完j之后又触发了一个<C-K>. 而用:noremap <C-K> j<C-K>则只会使光标下
+移一行，因为虽然它也在j之后触发了<C-K>, 但这个<C-K>只会做它在VIM中的本职工作，
+而不会考虑它是否是一个映射。<C-K>在Vim的normal模式并不是一个命令，所以它实际上
+什么也不做。}
+
+Vim会检查一个映射的内容，看它是否包含了其它的映射。比如上面对
+\VimSpecialChar{<F2>}的映射也可以这样做：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map <F2> G<F3>
+:imap <F2> <Esc><F3>
+:map <F3>  oDate: <Esc>:read !date<CR>kJ
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Normal模式下的\VimSpecialChar{<F2>}被映射为到最后一行，然后按下
+\VimSpecialChar{<F3>}. Insert模式下的\VimSpecialChar{<F2>}则退出Insert模式然后按下
+\VimSpecialChar{<F3>}. 然后\VimSpecialChar{<F3>}被映射为做这些具体的工作。
+
+如果你几乎不怎么用Ex模式的话，你可以用
+\VimDQuote{Q}命令来格式化文本(在Vim的老版本里它确实就是这个功能):
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map Q gq
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+但是，偶尔你还是要进入Ex模式。我们可以把\VimDQuote{gQ}映射为Q, 这样还是可以通过它来
+进入Ex模式：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map gQ Q
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+实际效果呢？你把\VimDQuote{gQ}映射为\VimDQuote{Q}. 这没什么错，但接下来你又把
+\VimDQuote{Q}映射为了\VimDQuote{gq}, 所以\VimDQuote{gQ}最终的结果还是
+\VimDQuote{gq}, 你还是不能进入Ex模式。
+
+   要避免这种映射的内容又被映射的情况，用命令\VimDQuote{:noremap}命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:noremap gQ Q
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在Vim就知道说不要去检查\VimDQuote{Q}是不是又被映射为了其它东西，其它模式下该命令的各
+种变体形式如下：
+\begin{VimVBList}[commandchars=\\\{\}]
+:noremap        Normal, Visual and Operator-pending
+:vnoremap       Visual
+:nnoremap       Normal
+:onoremap       Operator-pending
+:noremap!       Insert and Command-line
+:inoremap       Insert
+:cnoremap       Command-line
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+
+当一个映射触发了它本身的执行，这个映射就会没完没了地映射下去。这可用于无限次
+地重复一个操作。
+
+   比如说，你正在编辑一个文件列表，其中每个文件的每一行都含有一个版本号。以命令
+\VimDQuote{vim *.txt}进入Vim编辑器。现在你正在编辑的是第一个文件。定义下面的映射：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map ,, :s/5.1/5.2/<CR>:wnext<CR>,,
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在按下\VimDQuote{,,}便会触发这个映射。它把第一行中的\VimDQuote{5.1}替换为
+\VimDQuote{5.2}. 然后在\VimDQuote{:wnext}保存文件并开始编辑下一个文件。但因为
+这个映射的最后是\VimDQuote{,,}. 这使得该映射象多米诺骨牌一样一路触发下去。
+
+   映射链会一直持续下去，直到碰到一个错误。错误可能是文件中找不到\VimDQuote{5.1}. 如果
+是这样你可以稍事修改一下映射让它可以插入一个\VimDQuote{5.1}并继续它的连锁反应。或者，
+错误的起因是\VimDQuote{:wnext}命令失败了，因为它已经达到文件列表的最后一个。
+
+   当一个映射在运行过程中发生了一个错误，那么映射的剩余动作就会被撤消掉。
+也可以按下\VimSpecialChar{CTRL-C}来中断正在运行的映射(在MS-Windows上按\VimSpecialChar{CTRL-Break}).
+
+
+\VimSubSection{删除一个映射}
+
+\VimDQuote{:unmap}命令可用于删除一个映射。同样，对于各个不同的模式，这一命令有其相应的
+变体\VimMyFootnote{译注：规律：对于mapping簇的命令，一般来说都有其各个不同模式下的变体}:
+
+\begin{VimVBList}[commandchars=\\\{\}]
+:unmap          Normal, Visual and Operator-pending
+:vunmap         Visual
+:nunmap         Normal
+:ounmap         Operator-pending
+:unmap!         Insert and Command-line
+:iunmap         Insert
+:cunmap         Command-line
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+有一个小技巧可以定义一个映射同时在Normal模式和Operator-pending模式生效，但却
+对Visual模式无效。首先定义它对三种模式都生效\VimMyFootnote{译
+注：Operator-pending可看作是Normal模式的一个特例}，然后删除它在Visual模式下的
+映射。
+
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map <C-A> /---><CR>
+:vunmap <C-A>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+注意\VimDQuote{\VimSpecialChar{<C-A>}}代表的是单个的按键\VimSpecialChar{CTRL-A}. 
+
+\VimCommonSrc{:mapclear}命令可用于删除所有的映射\VimMyFootnote{译注：各个模式下的映射}。可以想象，对不同的
+模式该命令又有类似的变体。但是使用此类命令时可要小心，因为你无法撤消错误的操作。
+
+
+\VimSubSection{特殊字符}
+
+\VimDQuote{:map}命令后面可以跟其它的命令。$\mid$字符是命令之间的分隔符。同时这也暗示在一个映射
+的内容中不能出现$\mid$字符。真要包括$\mid$字符的话，用\VimSpecialChar{<Bar>}来代替它。如：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map <F8> :write <Bar> !checkin %<CR>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+同样的问题也存在于\VimDQuote{:unamp}命令中，此外\VimDQuote{:unmap}命令还有一个特殊的问题：映射键
+的尾部空格。下面是两个不同的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:unmap a | unmap b
+:unmap a| unmap b
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+第一个命令试图删除一个名为\VimDQuote{a }的映射，这个映射以一个空格结束。
+
+要在映射中使用空格的话，用\VimSpecialChar{<Space>}来代替它：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map <Space> W
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个命令使得空格键能让光标向前以word\VimMyFootnote{译注：在Vim中术语中应该是大
+写的WORD, 因为W不是根据\VimBS{}w来判断什么是一个word, 而是依据\VimBS{}S, 即非
+空白字符}为单位移动。
+
+映射之后无法再加上注释，因为注释符号"也会被视为是映射内容的一部分。你
+可以使用\VimTT{$\mid$}符号来串起一个只带注释的空命令：
+
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map <Space> W|     " Use spacebar to move forward a word
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{映射与缩写}
+
+缩写很象Insert模式下的映射。两个命令定义的形式也一样。主要的区别在于两种功能
+发生作用的时机。缩写功能在Vim识别出你已结束一个word时被触发。而一个映射在你
+输入映射键时就会被触发。
+
+   两者的另一个区别是对于缩写，你在键入缩写字符的同时它就被插入在当前文本中。一
+旦缩写被触发，缩写本身就会被它所对应的更长的\VimMyFootnote{译注：冯亮严谨地指出，不
+一定是更长。考虑到现今广泛使用的键盘布局是设计者想借此减慢打字人员的击键速度而
+定，有理由相信，vim用户由于编缉效率太高，而可能设置一些以长代短的"扩写"
+来输入较短的内容。借以打发因工作效率太高而产生的空闲时间，比如输入"天鹅飞去鸟
+不归"然后让"缩写"机制替换为"我", "良字无头双人配"得到"很", 双木非林心相连，单
+身贵族尔相随。后两句是什么猜猜看吧}内容所替换。而对于映射来说，你在键入的过程
+中，映射本身不会被插入到当前文本中，如果你打开了\VimOption{showcmd}选项，键入
+的映射字符就会显示在Vim窗口的最后一行上。
+
+   下面是一个映射引起的具有歧义的情况。假如你有下面两个映射：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:imap aa foo
+:imap aaa bar
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你按下\VimDQuote{aa}, Vim就无从得知你是要使用第一个映射还是第二个。所以此时
+它还不能决定就此使用第一个映射，直到你键入第3个字符。如果是\VimDQuote{a}, 那它
+就会触发第二个映射，插入\VimDQuote{bar}. 如果它是一个空格，那就使用第一个映射，
+插入的是\VimDQuote{foo}, 然后再加上你键入的空格\VimMyFootnote{译注：事实上不仅
+是空格，只要键入的第3个字符不是a, Vim都会判断使用第一个映射；另外，如果同时有
+缩写和映射，则Vim会优先使用映射，如现在同时\VimDQuote{:abbr aa tee}, 则键入第
+一个a时Vim会等待一段时间看是否用户企图键入一个映射，超时后它会插入a, 然后键入
+下一个a, 此时Vim又会等待一段时间，如果超过了Vim对一个映射键的等待时间，则认为它
+不再可能是一个映射，接下来判断是不是一个缩写，对于缩写，Vim没有对键入每个字符
+的延迟进行监控，关于Vim对映射键的等待时间，请参考
+\VimCommonSrc{mapping-typing}}. 
+
+
+\VimSubSection{更多...}
+
+\VimSpecialChar{<script>}关键字可以让一个映射的作用范围局部于当前脚本。
+请参考\VimCommonSrc{:map-script}
+
+\VimSpecialChar{<buffer>}关键字可以让一个映射的作用范围局部于指定缓冲区，
+请参考\VimCommonSrc{:map-buffer}
+
+\VimSpecialChar{<unique>}关键字可以避免覆盖一个已定义的映射。没有这个关键字时默
+认的情况是新定义的映射会覆盖旧的定义。请参考\VimCommonSrc{:map-unique}. 
+
+要使一个映射什么事都不干，可以把它映射到\VimSpecialChar{<Nop>}上去。
+下面的命令使得\VimSpecialChar{<F7>}什么都
+不做：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map <F7> <Nop>| map! <F7> <Nop>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSpecialChar{<Nop>}后面必需没有任何空格。
+
+%======...
+\VimSepartor
+
+\VimSecDest{40.2}{\ChapterFortySectionTwoTitle}
+
+Vim编辑器允许你定义自己的冒号命令。然后你就可以象执行Vim固有的冒号命令一样
+使用它。
+
+   要定义这样的命令，使用\VimDQuote{:command}命令\VimMyFootnote{译注：\VimDQuote{:command}可
+以看作是生产命令的超级命令}，如下例：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:command DeleteFirst 1delete
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你使用\VimDQuote{:DeleteFirst}的话Vim就会实际执行\VimDQuote{:1delete}--删除第一行。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        自定义的冒号命令必需以一个大写字母开头。但你不能使用\VimDQuote{:X}, \VimDQuote{:Next}和
+        \VimDQuote{:Print}这些名字，也不能使用下划线！数字是允许的，但是不鼓励
+        你使用。
+} %end VimCaution
+
+下面的命令可列出所有使用自定义的冒号命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:command
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+自定义的冒号与Vim的内置冒号命令一样享有一等公民的权利：只需键入足以
+区分不同命令的字符即可，此外也可以对其进行命令补齐。
+
+\VimSubSection{参数的个数}
+
+用户自定义的冒号命令可以跟一系列的参数。要指定它所能使用的参数，必需在定义时
+使用-nargs选项。例如，上例中的:DeleteFirst命令没有参数，所以可以定义如下：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:command -nargs=0 DeleteFirst 1delete
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+不过，因为不跟参数是\VimDQuote{command}命令默认的行为，所以并不必需用\VimDQuote{-nargs=0}. 
+-nargs选项的其它可用形式如下：
+\begin{VimVBList}[commandchars=\\\{\}]
+-nargs=0        没有参数
+-nargs=1        1个参数
+-nargs=*        任意个数的参数
+-nargs=?        0个或1个参数
+-nargs=+        1个或多个参数
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimSubSection{使用参数}
+
+在定义自己的冒号命令时，用关键字\VimSpecialChar{<args>}来代表
+用户可能输入的参数：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:command -nargs=+ Say :echo "<args>"
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在使用如下命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:Say Hello World
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim就会显示\VimDQuote{Hello World}. 不过你要是在参数中使用了双引号就会出问题，如下：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:Say he said "hello"
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要把命令行上可能出现的特殊字符在字符串中被正确地转义处理，可以使用
+\VimSpecialChar{<q-args>}关键字：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:command -nargs=+ Say :echo <q-args>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在再执行前面的\VimDQuote{:Say}命令就可以得到正确的结果了：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:echo "he said \VimBS{}"hello\VimBS{}""
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_166}{view_166}\hypertarget{view_166}{}\fbox{\textcolor{red}{Review}}\\
+%%
+%% 冯亮指出：原来没有加转义
+%%
+
+\VimSpecialChar{<f-args>}关键字包含的内容与\VimSpecialChar{<args>}一样，不过它适用于把这些参数传递给一个函数
+调用，如下：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:command -nargs=* DoIt :call AFunction(<f-args>)
+:DoIt a b c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+上面两个命令等同于下面的命令行：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:call AFunction("a", "b", "c")
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{行号范围}
+
+一些命令以一个指定的范围使用它的参数。要在Vim中定义这样的冒号命令，需要在定义时
+使用-range选项。该选项的可能取值如下：
+\begin{VimVBListNoAdjustSpace}[commandchars=\\\{\}]
+-range          允许使用行号范围，默认是当前行
+-range=%        允许使用行号范围，默认是所有行
+-range=\VimSpecialChar{\{count\}}  允许使用行号范围，
+                行号范围中的最后一行作为最后生效的单个数字，
+                默认值是\VimSpecialChar{\{count\}}
+\end{VimVBListNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+在定义命令时指定的-range选项的话，
+可以在被定义的命令实体中以\VimSpecialChar{<line1>}和\VimSpecialChar{<line2>}
+这两个关键字来代表这个范围中的起始行和结束行。例如，下面的定义的SaveIt命令，
+将把指定范围的行写入文件\VimDQuote{save\VimTT{\_}file}中：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:command -range=% SaveIt :<line1>,<line2>write! save_file
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{其它选项}
+
+自定义命令时还有其它可用的选项和关键字，列表如下：
+\begin{description}
+\item[-count=\{number\}]{使命令可以接受一个命令计数作为参数，默认值是
+                     \{number\}. 在定义时可用\VimSpecialChar{<count>}关键字来引用该数字
+                     }
+\item[-bang]{允许在定义的命令体中使用\VimSpecialChar{<bang>}关键字来代替!}
+\item[-register]{允许把一个寄存器作为参数传递给该命令，命令体中
+                     对该寄存器的引用使用关键字\VimSpecialChar{<reg>}或\VimSpecialChar{<register>}
+                     }
+\item[-complete=\{type\}]{定义该命令使用命令补齐的方式，
+                     请参考\VimCommonSrc{:command-completion}了解该选项的可能取值}
+\item[-bar]{使该命令可以与其它命令共存于同一个命令行上，
+                     以$\mid$分隔，并且可以以一个"号进行注释}
+\item[-buffer]{使命令只对当前缓冲区生效。}
+\end{description}
+
+
+最后要介绍的一个关键字是\VimSpecialChar{<lt>}. 它代表字符\VimTT{<}. 
+使用这个字符得以避免与关键字中使用的\VimTT{<}符号相混淆。
+
+
+\VimSubSection{重定义和删除命令}
+
+要重新定义一个命令只需要在command后面加一个!:
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:command -nargs=+ Say :echo "<args>"
+:command! -nargs=+ Say :echo <q-args>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要删除一个自定义冒号命令使用\VimDQuote{:delcommand}. 它接受一个单一参数，作为要被删除的
+命令名。例如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:delcommand SaveIt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+下面的命令删除所有的用户自定义命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:comclear
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+慎用！这样的误操作可是不能恢复的！
+
+关于自定义命令的详细内容请参考\VimCommonSrc{user-commands}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{40.3}{\ChapterFortySectionThreeTitle}
+
+一个自动命令是在某个事件发生时会自动执行的命令，
+可以引发一个自动命令被执行的事件包括读写文件或缓冲区内容被改变等等。通过对自动
+命令的运用，你可以用Vim来编辑一个压缩过的文件，比如在\VimCommonSrc{gzip}这
+个plugin中就用到了自动命令。
+
+   自动命令的功能非常强大，善用它们可以为你省去很多手工键入命令的麻烦。同时也
+要小心，误用也可能给你带来极大的损失。
+
+假如你希望每次保存文件时都会自动更新位于文件尾的时间戳。首先你可以定义下面
+这样的一个函数：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:function DateInsert()
+:  $delete
+:  read !date
+:endfunction
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果希望在每次写文件时这个函数都会被调用，可以定义这样的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd FileWritePre *  call DateInsert()
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{FileWritePre}就是触发该命令自动被执行的事件：就在写入文件之前。
+\VimDQuote{*}是一个模式字串，用来匹配文件名，此例中要匹配的是所有文件。
+
+   打开这一命令后，每次你使用\VimDQuote{:write}命令，Vim都会触发以FileWritePre定义
+的自动命令，执行完之后再接着执行\VimDQuote{:write}操作。
+
+   :autocmd命令的一般形式如下：
+\begin{VimVBexcmdNoAdjustSpace}
+:autocmd [group] {events} {file_pattern} [nested] {command}
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+其中的\VimSpecialCharSquare{group}名字是可选的。它只是为了方便调用和管理这些命
+令(本文后面有更详细的解释). \{events\}参数是可以触发该命令的事件列表(每个事件
+以逗号分隔).
+
+   \{file\VimTT{\_}pattern\}是一个通常带有通配符的文件名。象\VimDQuote{*.txt}
+使得被定义的自动命令对所有以\VimDQuote{.txt}的文件名生效。
+\VimSpecialCharSquare{nested}这个可选的标志允许对自动命令的递归触发。最后，
+\{command\}中的部分是实际上要执行的命令体。
+
+\VimSubSection{事件}
+
+最常用的事件是BufReadPost. 它在每次Vim将要编辑一个文件时被触发。通常用于设置
+选项的值。比如你知道\VimDQuote{*.gsm}是GNU的汇编语言源文件。要为此类文件正确定义它的
+语法文件，可以用以下的自动命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd BufReadPost *.gsm  set filetype=asm
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果Vim能正常检测到文件的类型的话，它会设置\VimOption{filetype}选项。这又会触
+发FileType事件。这一事件可以让你为某一类的文件做些特别的设置。比如为所
+有的文本文件载入一个常用的缩写列表：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd Filetype text  source ~/.vim/abbrevs.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+编辑一个新文件时，你也可以借助自动命令来让Vim为你自动生成一个框架。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd BufNewFile *.[ch]  0read ~/skeletons/skel.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+请参考\VimCommonSrc{autocmd-events}了解可用事件的完整列表。
+
+
+\VimSubSection{文件名模式}
+
+\{file\VimTT{\_}pattern\}参数由一系列以逗号分隔的模式组成。比如
+\VimDQuote{*.c,*.h}这样的模式匹配所有以\VimDQuote{.c}和\VimDQuote{.h}结尾的文
+件名。
+
+   通常的文件通配符都能用于这里的文件模式。下面是一个常用文件模式通配符的列表：
+\begin{VimVBList}[commandchars=\\\{\}]
+*               匹配任意个数的任何字符
+?               匹配一个任意的字符
+\VimSpecialChar{
+[abc]}           匹配字符a或b或c
+.               匹配一个.号
+a\VimSpecialChar{\{b,c\}}          匹配ab和ac
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+如果文件名模式中含有斜杠(/)Vim就会比较目录名是否匹配。没有斜杠的话只有文件名
+部分和命令中的文件名模式进行比较。例如\VimDQuote{*.txt}可以匹配
+\VimDQuote{/home/biep/readme.txt}.模式\VimDQuote{/home/biep/*}也会匹配它，但
+\VimDQuote{home/foo/*.txt}就不能匹配到该文件了。
+
+   包含斜杠时，Vim同时会检查文件的绝对路径名
+(\VimDQuote{/home/biep/readme.txt})和它的相对路径(例如"biep/readme.txt).
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        对于一些以反斜杠作为目录之间的分隔符的系统，如MS-Windows来说，仍然可以
+        在自动命令中使用正斜杠/. 这样写起文件名模式来更容易，也更
+        容易在不同系统间移植你的脚本。另外反斜杠不是还有它的特殊用途么。
+} %end VimCaution
+
+
+\VimSubSection{删除自动命令}
+
+要删除一个自动命令，使用的形式与定义时相仿，只是不要再输入由\{command\}定义
+的命令体了，同时在autocmd后面加上一个!字符，如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd! FileWritePre *
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这将会删除所有使用文件名模式\VimDQuote{*}的为\VimDQuote{FileWritePre}事件定义的自动命令。
+
+
+\VimSubSection{列出已定义的自动命令}
+\VimMyFootnote{译注：规律：主持一类功能的主命令名不加任何参数一般可以列出由它定
+义的子命令列表}
+
+下面的命令列出当前已定义的自动命令列表：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+命令列表可能会很长，尤其是打开了文件类型检测功能时，要列表某一类的自动命令，
+可以在:autocmd的后面指定一个组名，事件名\VimTT{+}文件名模式，或是文件名模式。如下面的
+命令列出的是所有为BufNewFile定义的事件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd BufNewFile
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要列表所有为文件名模式\VimDQuote{*.c}定义的自动命令使用：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd * *.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+在此使用的\VimDQuote{*}代表所有的事件。要列出所有cprograms组的自动命令，使用：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd cprograms
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{命令组}
+
+\{group\}项用于在定义自动命令时为相关的命令分组。也可用于在删除自动命令时以此为
+依据一次删除一批命令。如下例。
+
+   要为某个命令组一次定义多个自动命令，可以使用\VimDQuote{:augroup}命令，下面我们来
+定义用于C程序的一些自动命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:augroup cprograms
+:  autocmd BufReadPost *.c,*.h :set sw=4 sts=4
+:  autocmd BufReadPost *.cpp   :set sw=3 sts=3
+:augroup END
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这等价于下面的形式：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd cprograms BufReadPost *.c,*.h :set sw=4 sts=4
+:autocmd cprograms BufReadPost *.cpp   :set sw=3 sts=3
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+欲删除所有属\VimDQuote{cporgrams}组的自动命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd! cprograms
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{嵌套自动命令}
+\VimMyFootnote{译注：这里的嵌套与map中的remap一样，都是不准确的表达，我喜欢
+称它为chained autocmd或recursive autocmd}
+
+一般情况下，自动命令的命令体的执行不会再触发新的事件。比如你
+在FileChangedShell事件时执行的重新读文件内容的动作不会再去触发设置语法的事件，
+要使它还能继续触发其它事件，在autocmd中使用\VimDQuote{nested}参数：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd FileChangedShell * nested  edit
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{强制执行自动命令}
+
+也可以强制执行一个自动命令，就好象触发它的事件已经发生一样。这对于在一个自动
+命令中想要触发另一个自动命令时很有用。例如：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[xleftmargin=-1.5cm,xrightmargin=-1.5cm,commandchars=\\\{\}]
+:autocmd BufReadPost *.new execute "doautocmd BufReadPost ".expand("<afile>:r")
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+上例中定义了一个每次编辑新文件时都被触发的自动命令。文件名必需以\VimDQuote{.new}结尾。
+\VimDQuote{:execute}命令使用一个表达式来重新构建一个命令并执行它
+\VimMyFootnote{译注：相当于shell或perl中的eval函数}。如果新编辑的文件是
+\VimDQuote{tryout.c.new}下面的命令就会被执行：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:doautocmd BufReadPost tryout.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+expand()函数以\VimDQuote{\VimSpecialChar{<afile>}}作为参数，该参数
+即autocommand命令执行时所要作用文件名，并根据\VimDQuote{:r}标志取它的文件名部
+分\VimMyFootnote{译注：此处
+说的文件名指去除扩展名之后的文件名，对于此例中含有多个点号的文件名，最后一个
+点号前面的部分都被视为文件名，虽然它也含有点号\VimDQuote{.}}. 
+
+\VimDQuote{:doautocmd}对当前缓冲区执行自动命令。\VimDQuote{:doautoall}也一样，
+不过它对每个缓冲区都分别执行自动命令。
+
+
+\VimSubSection{使用Normal模式下的命令}
+
+被自动命令执行的命令都是冒号命令。如果你想执行一个Normal模式下的命令，可以使用
+\VimDQuote{:normal}命令。如下例：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:autocmd BufReadPost *.log normal G
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这将会使你在编辑以.log为扩展名的文件时光标自动定位到文件尾。
+
+   使用\VimDQuote{:normal}命令有一些小机关需要小心。首先，它假设后面的内容是一个完整的
+命令，包括命令所需要的所有参数。所以如果你用\VimDQuote{i}命令来进入Insert模式，你也必需
+以\VimSpecialChar{<Esc>}离开Insert模式。如果你用\VimDQuote{/}命令来搜索一个字串，
+该命令也必需以\VimSpecialChar{<CR>}\VimMyFootnote{译注：
+回车键}结束。
+
+   \VimDQuote{:normal}命令把它后面的所有内容都看作是要在Normal模式下执行的命令。这样一
+来就不能在该命令之后使用|来追加另一个命令了。一定要这样做，可以把\VimDQuote{:normal}
+放在\VimDQuote{:execute}命令中，这样做同时也使得一些不可打印字符更容易键入。如
+下例：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmdNoAdjustSpace}
+:autocmd BufReadPost *.chg execute "normal ONew entry:<Esc>" |
+        \ 1read !date
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+此例也展示如何用反斜杠把一个长命令置放到多行上。这一技巧可用于Vim脚本中(冒号命
+令中可不行).
+
+如果你要以自动命令做一些过于复杂的事情，比如要在文件中来回跳转并要求回到执行
+命令前的位置，你可能想要恢复整个文件在编辑现场的快照。请查看\VimCommonSrc{restore-position}
+中的例子。
+
+
+\VimSubSection{忽略一个事件}
+
+有时，你或许想避免触发一个自动命令。\VimOption{eventignore}选项中包含了一个Vim可以忽略
+的事件列表\VimMyFootnote{译注：规律：VIM中包含一个集合性质的数据项时都是逗号分隔，并且可以
+对该选项使用\VimTT{+}=和-=来往集合中添加或删除元素}。例如，下面的命令使进入和离开
+一个Vim窗口的事件被忽略：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set eventignore=WinEnter,WinLeave
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要忽略所有的事件，使用\VimMyFootnote{译注：对于集合性质的选项，一般都可使用特
+殊的关键字all代表所有的项，至于空集合，有时是用none代表，如hi ctermfg=none,
+但此处的事件集用空字串代表，参考下面。}：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set eventignore=all
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要恢复它的正常行为，可以通过清空\VimOption{eventignore}中的事件列表来实现
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set eventignore=
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{41}  \ChapterFortyOneTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

@@ -1,0 +1,417 @@
+\VimNewChapter
+\VimBookMark{第23章　\ChapterTwentyThreeTitle}{usr_23.txt}
+\VimFileNameDest{usr\VimTT{\_}23.txt}{ \VimDocVer  最后修改：2006年04月24日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{编辑非文本文件\\}
+\begin{flushright}
+\small\CJKfamily{kai}
+世界上有10种人，理解二进制的，和不理解二进制的
+\end{flushright}
+
+
+本章内容是关于在Vim中编辑简单的文本文件之外文件。你可以在Vim中编辑压缩文件或
+加密文件。有些文件还需要从网上获取。除了某些方面的限制之外，也可以在Vim中象
+编辑其它文件一样编辑二进制文件。
+
+\VimSecList{23.1}{\ChapterTwentyThreenSectionOneTitle}
+\VimSecList{23.2}{\ChapterTwentyThreenSectionTwoTitle}
+\VimSecList{23.3}{\ChapterTwentyThreenSectionThreeTitle}
+\VimSecList{23.4}{\ChapterTwentyThreenSectionFourTitle}
+\VimSecList{23.5}{\ChapterTwentyThreenSectionFiveTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{24}  \ChapterTwentyFourTitle\\
+前一章：& \VimFileName{22}  \ChapterTwentyTwoTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{23.1}{\ChapterTwentyThreenSectionOneTitle}
+
+回想计算机的史前史，那时的打字机使用两个字符来开始一个新行。首先是一个
+字符命令使打印头移回开始位置(回车，\VimSpecialChar{<CR>}), 然后另一个字符命令控制向前进纸
+一行(进纸，\VimSpecialChar{<LF>}).
+
+   在计算机诞生之初，存储设备十分昂贵。于是有人就提出没有必要用两个字符来表示
+一行的结束。UNIX一族决定只用进纸一个字符\VimTT{<}Line Feed\VimTT{>}来表示行尾。
+来自苹果阵营的人则把回车\VimSpecialChar{<CR>}作为换行的标准。MS-DOS(和微软
+的Windows)仍然决定沿用古老的回车换行\VimSpecialChar{<CR>}\VimSpecialChar{<LF>}传统。
+
+   这也意味着如果把文件从一个系统移到另一个不同的系统，你就会遇到与换行相关的
+问题。Vim编辑器则可以识别这些不同格式的文件。
+
+   你可以在\VimOption{fileformats}选项里指定你希望Vim能自动识别的格式的集合。下面的这个
+命令就可以让Vim能自动识别UNIX格式和MS-DOS格式：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set fileformats=unix,dos
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你在编辑文件时可能就会注意到状态行中关于文件格式的信息。如果你是在编辑跟本机
+文件格式相同的文件，那就不会显示特别的信息，比如在Unix系统上编辑一个Unix格式
+的文件，那没什么好说的。但如果你编辑一个DOS文件，Vim就会在状态行以下面的形式
+通知你：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+"/tmp/test" [dos] 3L, 71C
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+对苹果机的文件格式你会看到\VimDQuote{[mac]}的字样。
+
+   被检测到的文件格式保存在\VimOption{fileformat}选项里。可以用下面的命令查看当前的
+文件格式：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set fileformat?
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimMyFootnote{译注：fileformat选项并不是一个只读的选项，你可以设置它的值来改
+变Vim对文件格式的假设} Vim以下面的名字代表三种不同的格式：
+\begin{VimVBList}[commandchars=\\\{\}]
+unix            \VimSpecialChar{<LF>}
+dos             \VimSpecialChar{<CR><LF>}
+mac             \VimSpecialChar{<CR>}
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimSubSection{使用苹果机格式}
+
+在Unix上，\VimSpecialChar{<LF>}被用于断行。通常情况下很少有一行中有一个
+\VimSpecialChar{<CR>}字符。但有些情况下，在Vi(和Vim)脚本里会需要该字符作为文本的
+内容。
+
+   但是在Macintosh上，\VimSpecialChar{<CR>}是一个换行符，\VimSpecialChar{<LF>}反而
+可以作为文本的内容出现。
+
+   结果就是一个文件同时包含\VimSpecialChar{<CR>}和\VimSpecialChar{<LF>}时很难100\%
+准确地判断是Unix格式还是Mac格式。所以Vim假设你在Unix系统上一般很少去编缉一
+个Mac格式的文件，对此类格式也就不做检查。如果你偏要这种格式，可以
+把\VimDQuote{mac}加到\VimOption{fileformats}选项中：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set fileformats+=mac
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这样Vim会对文件格式作出猜测。留心看看它什么时候会猜错。
+
+
+\VimSubSection{强制指定文件格式}
+
+如果你用老版本的Vi去编辑一个MS-DOS格式的文件，你会发现每行的行尾都有一个怪怪
+的\^{}M字符。(\^{}M其实是回车). 有了自动格式检测就不会这样了。如果你就是要编辑这样
+的文件，Vim也允许你强制指定文件格式：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit ++ff=unix file.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{\VimTT{++}}字符串告诉Vim后面紧接着的是一个选项名，对该选项的设置将
+覆盖它的默认值。 \VimDQuote{\VimTT{++}ff}代表的选项是\VimOption{fileformat}. 
+你也可以指定为\VimDQuote{\VimTT{++}ff=mac}或\VimDQuote{\VimTT{++}ff=dos}. 
+
+   不过并不是每个选项都有这种用法，目前来说只有\VimDQuote{\VimTT{++}ff}和
+\VimDQuote{\VimTT{++}enc}可以这样用。当然也可以用这两个选项的全称
+\VimDQuote{\VimTT{++}fileformat}和\VimDQuote{\VimTT{++}encoding}. 
+
+
+\VimSubSection{格式转换}
+
+你也可以利用\VimOption{fileformat}选项来转换文件的格式。假如你有一个MS-DOS格式
+的文件README.TXT. 现在你想把它转换为UNIX格式：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim README.TXT
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+Vim会识别出这是一个dos格式的文件。现在把它变为UNIX格式的：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set fileformat=unix
+:write
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该文件将以Unix格式保存。
+
+%======...
+\VimSepartor
+
+\VimSecDest{23.2}{\ChapterTwentyThreenSectionTwoTitle}
+
+有时候你的email里会有下面这种指定其URL的文件：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+You can find the information here:
+        \VimInlineURL{ftp://ftp.vim.org/pub/vim/README}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+当然，你可以用另一个程序把这个文件下载到你本地磁盘上，然后再用Vim打开它。
+
+   还有一种更简单的办法。将光标置于该URL上，使用这个命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+gf
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+运气好的话，Vim会找到一个合适的程序把该文件下载下来并且开始编辑它的一个副本。
+要在一个新窗口中打开该文件的话可以用\VimSpecialChar{CTRL-W} f.
+
+   如果中间出了岔子的话你会收到一个错误消息。可能URL是错误的，或者你对该文件
+没有读权限，网络连接断掉了，等等。不幸的是很难说错误的原因是什么。这时你应该去
+手工下载该文件。
+
+在Vim中直接访问来自因特网的文件靠的是netrw这个插件。目前为止可以处理下面几种
+类型的URL:
+\begin{VimVBList}[commandchars=\\\{\}]
+ftp://          uses ftp
+rcp://          uses rcp
+scp://          uses scp
+http://         uses wget (reading only)
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+Vim本身并不处理网络连接，它有赖于你的系统里相应的程序。在多数Unix系统上
+\VimDQuote{ftp}和\VimDQuote{rcp}程序一般都是默认的配备。\VimDQuote{scp}和
+\VimDQuote{wget}可能就需要另外安装。
+
+Vim会在需要开始编辑新文件时检测这些URL, 也包括\VimDQuote{:edit}和
+\VimDQuote{:split}. 除了http://之外，保存命令也可以用。
+
+关于更多的信息比如用户名/密码，请参考\VimCommonSrc{netrw}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{23.3}{\ChapterTwentyThreenSectionThreeTitle}
+
+有些信息你可能想对其它人保密。比如你要在一台跟学生们共用的电脑里写一个测验，有
+些机灵鬼可能会在测验没开始时就把试题搞到手。Vim可以为你的文件进行加密，这样可以
+给你一些保护。
+
+   要为新编辑的文件加密，可以在启动Vim时使用\VimDQuote{-x}参数，如：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -x exam.txt
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+Vim会向你要一个密码用于加密/解密该文件：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Enter encryption key:
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在要小心地键入你的密码了。键入的同时你看不到这些字符，它们都以星号显示。为了
+避免你的键入有误，Vim会要求你再次输入：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Enter same key again:
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在你可以放心地在文件里写下你的密秘了。编辑完毕要退出时，文件在加密后存盘
+退出。
+
+   下次以Vim打开该文件时，它会提醒你输入密码。这时不需要再用\VimDQuote{-x}参数
+。你也可以在Normal模式中用\VimDQuote{:edit}命令。Vim往加密文件中加入了一个魔术
+字并据此识别这是一个Vim加密文件\VimMyFootnote{译注：魔术字是应用程序对特定文件
+格式的一种约定。但就象文件扩展名一样，它并非强制性的，一个文件可以以某个类型的
+文件的魔术字作为伪装，但应用程序会在处理文件的其它部分时检测出错误，魔术字一般
+都在文件的固定位置，多位于文件最开头的几个字节，如MS-DOS可执行文件以MZ作为其魔
+术字。Tiff文件以0x4949作为其魔术字}
+
+   如果你试着用另一程序来打开该文件的话，你会看到一堆乱码。同样你用Vim编辑但密
+码不对的话也是乱码一堆。Vim也没办法判断你给的密码是对是错(这也使得破解密码十分
+困难).
+
+
+\VimSubSection{打开或关闭文件加密}
+
+要停止对一个文件加密，可以把\VimOption{key}选项设置为一个空字串：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set key=
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+下次你存盘该文件时就不会进行加密了。
+
+   通过设置\VimOption{key}的值来进行加密可不是一个好主意，因为密码会显露无遗。
+任何趴在你肩膀上的人都能看到你的密码。
+
+   为避免这个问题我们创造了\VimDQuote{:X}命令。它会象\VimDQuote{-x}一样问你要一个密码：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+:X
+Enter encryption key: ******
+Enter same key again: ******
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimSubSection{加密的限制}
+
+Vim中所用的加密算法还不够强大。偶尔防范一下窥视者还可以，对付一个加密专家尤其
+是他有充足的时间就不行了。同时你应该知道交换文件并没有被加密，所以在你编辑时拥
+有超级用户特权的人还是可以从该文件中获取未加密的内容。
+
+   有一个避免别人读取你的交换文件的办法就是禁用交换文件。如果在命令行上指定了
+-n参数，就不会生成交换文件(Vim会把所有东西都放到内存里). 比如，下面的命令就在
+编辑加密文件\VimDQuote{file.txt}时不使用交换文件：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -x -n file.txt
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+如果已经在编辑过程中，也可以通过下面的命令禁用交换文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:setlocal noswapfile
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+因为没有了交换文件，所以灾难恢复也不可能了。这时最好是经常保存编辑的结果，免得
+一番辛苦的成果杳然无踪。
+
+当文件在内存中时，它是以普通文本的形式保存的。任何有足够权限的人还是可以查看
+编辑器的内存和文件的内容。
+
+   如果你还用到了viminfo文件，要注意文本寄存器也可能会把你的机密在这里泄露。
+
+   如果你的确是要高度保密你的文件，最好在一个没有联网的电脑上编辑，使用足够
+强大的加密工具，用完就把电脑锁在一个安全的地方。
+
+%======...
+\VimSepartor
+
+\VimSecDest{23.4}{\ChapterTwentyThreenSectionFourTitle}
+
+你也可以用Vim来编辑二进制文件。不过Vim并未打算对二进制文件提供支持。所以还是
+有一些限制。但是至少你可以用它读取一个文件，改变一个字符并把它存盘写回去，结果
+是只有被编辑的字符内容变了，其它部分保持原来的内容。
+
+   要保证Vim在编辑二进制文件时没有滥用它惯常的聪明办法，你需要在启动Vim时使用
+\VimDQuote{-b}参数：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -b datafile
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+这会设置\VimOption{binary}选项。设置该选项的作用是避免你不希望有的副作用。比如
+\VimOption{textwidth}会被设置为0, 禁止了自动换行。文件总是以Unix格式读入。
+
+用Vim的二进制模式进行编辑可以用来修改一个可执行程序中的文本信息。不过注意此时
+只是去修改，不要去插入或删除任何东西，这样做会让你的程序死得很难看。用\VimDQuote{R}进入
+替换模式进行修改倒是个不错的主意。
+
+二进制文件中很多字符都是不可打印字符。设置下面的选项可以以十六进制格式显示
+这些字符：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set display=uhex
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+另外，\VimDQuote{ga}命令可以来查明当前光标下字符的本来面目。
+以\VimSpecialChar{<Esc>}\VimMyFootnote{译注：最左上角的字符}字符为例，其输出格式是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+<^[>  27,  Hex 1b,  Octal 033
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+二进制文件里也可能出现超长的行。如果仅是想看个大概就可以把\VimOption{wrap}选项关闭：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set nowrap
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{字节位置}
+
+下面的命令可以让你获知光标所在字符是整个文件中第几个字节：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+g CTRL-G
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+输出信息比ga命令更为丰富：
+\begin{VimVBDisplay}[xrightmargin=-2.5cm,commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Col 9-16 of 9-16; Line 277 of 330; Word 1806 of 2058; Byte 10580 of 12206
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+最后出现的两个数字分别是当前字符在整个文件中是第几个字节\VimMyFootnote{译注：以1开始计数，即
+第一个字节显示1而不是0}及全部的字节数。这个统计会把因\VimOption{fileformat}选项而起的
+字节数变量也计算在内。
+
+   \VimDQuote{go}命令可以移动到文件中指定字节去，比如下面的命令就可以转到第2345字节的
+位置去：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+2345go
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{使用xxd程序}
+
+一个地道的二进制文件编辑器会以两种方式显示内容：通常的文本显示方式和十六进制
+格式。在Vim中要收到这种效果你可以先用\VimDQuote{xxd}程序来做转换。该程序随Vim一起发布。
+
+   首先还是以二进制方式开始编辑：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -b datafile
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+现在用xxd程序把文件进行十六进制格式的转储：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:%!xxd
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+结果形如：
+% vim: replace_backtick
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+0000000: 1f8b 0808 39d7 173b 0203 7474 002b 4e49  ....9..;..tt.+NI
+0000010: 4b2c 8660 eb9c ecac c462 eb94 345e 2e30  K,.`.....b..4^.0
+0000020: 373b 2731 0b22 0ca6 c1a2 d669 1035 39d9  7;'1.".....i.59.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在你可以随心所欲地浏览和编辑了，Vim将之视为普通文本。改变其十六进制不会引起
+右边对应字符的改变，反之也一样\VimMyFootnote{译注：一个真正的二进制文件编辑器
+如UltraEdit或WinHex会做这种同步，同时，只有对其十六进制形式做出改变时用xxd -r才
+能真正改变文件}。
+
+   编辑完成后再做一次逆向转换：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:%!xxd -r
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+逆向转换时只有其十六进制形式被认为是有效的。对可打印形式的改变会被转换程序忽略。
+
+请参考xxd的参考手册获取更多关于该程序使用的信息。
+
+%======...
+\VimSepartor
+
+\VimSecDest{23.5}{\ChapterTwentyThreenSectionFiveTitle}
+
+其实简单：在Vim中你可以象编辑其它文件一样直接编辑一个压缩文件。\VimDQuote{gzip}插件会
+在你编辑时处理解压的问题。保存时进行压缩。
+
+   目前支持的压缩方法有：
+\begin{VimVBList}[commandchars=\\\{\}]
+.Z      compress
+.gz     gzip
+.bz2    bzip2
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+Vim使用上面这些程序进行压缩和解压。如果系统中还没有的话你需要在
+使用这一功能前先安装这些程序。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{24}  \ChapterTwentyFourTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

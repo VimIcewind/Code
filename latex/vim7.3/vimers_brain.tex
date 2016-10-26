@@ -1,0 +1,181 @@
+\VimNewChapter
+\VimBookMark{附录五　VIM使用者大脑的形态}{vimers_brain.tex}
+\begin{center}
+\VimBookChapter{VIM使用者大脑的形态\VimMyFootnote{译注：感谢我的朋友dever chang推荐此文}　\VimMyFootnote{译注：英文原文URL(至少2011-07-28有效):\\
+\VimInlineURL{http://symbolsystem.com/2010/12/15/this-is-your-brain-on-vim/}}}
+作者：Kevin Watters\\
+翻译: xGuru \<hackertian@gmail.com>\VimMyFootnote{译注：本文基于xGuru的翻译作少许修改，xGuru的原始译文在\\
+\VimInlineURL{http://www.cppblog.com/xguru/archive/2010/12/22/vim\_brain.html}}
+\end{center}
+
+{\setlength{\parindent}{0mm}
+\textcolor{VimSecDestColor}{原始状态}
+
+我曾经观看过小提琴家激情洋溢的表演，我想：也许我投入到文
+本编辑器和他投入到小提琴里的脑细胞在数量上差不多吧。我还想
+：当他在进行一场高难度的独奏时，脑中的核磁共振图和我在使用Vim操
+控源码的图像也许会有某种程度的相似吧？这想法会不会太另类诡异了点？
+
+\begin{figure}[ht]
+\begin{center}
+%\vspace{0.5in}
+%\caption{0.5 inch of space}
+\mbox{
+\includegraphics[width=0.78\textwidth]{brain_before.png}
+}
+\end{center}
+\end{figure}
+
+如果你有兴趣的话，请看以下vimmer学习旅程的剪辑
+
+\VimBookChapter{Vim涅磐所经历的漫长而艰苦的道路}
+
+\textcolor{VimSecDestColor}{星期一}
+
+"Eclipse当然是简洁实用的"
+
+"但是一些满脸落腮胡的奇怪家伙在工作中用起vim来真是神速啊，我也应该试一下"
+
+"好吧！我弄了个gvim, 看起来不错，它甚至还有菜单呢！"
+
+"哎哎...等等？我的文字哪去了？等一下，撤消，不要啊！"
+
+":help"
+
+":q!!!!!"
+
+今天剩下的时间还是回到让人上瘾的Eclipse自动补全样板中获得解脱吧
+
+\textcolor{VimSecDestColor}{星期二}
+
+ "好吧vim, 这是新的一天，这是个磨砺自己学习新东西的机会，我不是那么容易放弃的人！"
+
+\begin{samepage}
+\VimNewFooterInVerbatim
+\begin{VimVBDisplayKeepRawSingleQuote}[commandchars=\\\{\},label=,framerule=0pt]
+"WHY CAN'T I JUST STAY IN INSERT MODE\VimFooterMarkInVerbatim{}? FJDSAKLFJDALSKJKLDF"看\VimFooterMarkInVerbatim{}
+\end{VimVBDisplayKeepRawSingleQuote}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_9}{view_9}\hypertarget{view_9}{}\fbox{\textcolor{red}{Review}}\\
+\VimFootnoteForListEnv{
+\VimFooterTextInVerbatim{译注：为什么我就不能一直呆在插入模式里面呢，为
+体现作者原意此处保留不译}
+\VimFooterTextInVerbatim{译注：发狂的敲击键盘胡乱敲出的字符}
+}
+\end{samepage}
+
+    "等一下，你是说保存的时候必须按ESC-shift-冒号-w-回车？这简直就是狗屁啊"
+
+    "在花了2个小时学习教程以后，我基本上只知道ddp命令可以交换两行的内容，真是蛋疼啊"
+
+\textcolor{VimSecDestColor}{一星期后}
+
+	 "哇噢，任何地方都有vim哈，这意味着所有的努力都不白费，比如当我用ssh
+远程登入主机修改配置文件的时候"
+
+     "太爽了，嘿，哥们儿，来看看这个全暗色的配色主题，我的新工具痛苦症看起来好多了"
+
+     "噢，真是扯蛋，我的.vimrc不在我的远程主机里，当我用ssh登入编辑配
+	 置文件的时候，所有我的酷玩意都没了"
+
+\textcolor{VimSecDestColor}{两个月后}
+
+     hjkl的移动方式习惯成自然，你神秘的失去了使用鼠标的能力。
+
+    "从今往后我会一直用刚下载的这400个插件！尤其是这个折叠latex语法的插件，噢！哥们"
+
+    "谁要回头再用箭头键简直就是自虐狂"
+
+    "再见，Caps Lock键"
+
+    "我受够了！这是我忍耐的极限，vim甚至不能让文本正确的自动换行，我准备回到edit.com了"
+
+\textcolor{VimSecDestColor}{一年后}
+
+    更少的大声说话了。
+
+    安装command-T插件，每天节约成百上千次击键。
+
+    本想用宏来给你背后的某个家伙显摆显摆，结果搞砸了锅：把整个文件全
+	弄成了大写，或是用ROT13加密了文件。
+
+ 	ctrl+[终于在肌肉记忆里留下永不磨灭的印迹--腕关节综合症的来临因此推迟了好几年。
+ 
+     在某个奇迹般的一天里，学会了移动光标，使用visual模式和*键--这意味在
+ 	vim的修炼层次上已达至不退转境界。\VimMyFootnote{译注：前文有"Vim涅磐
+ 	..."的说法，所以这里用大乘佛教关于成佛之道中的十
+ 	种菩萨境界借喻，其中八地菩萨是不退转菩萨。南怀瑾《楞伽大义今释》中说
+ 	：修持到此，亲证无生，见道坚固而不退转，所以名为第八不动地，或名不退转地。}
+ 
+     "vim不支持交互式缓冲区？都20年了？好吧，作为一名黑客，我决定给它添加这项功能。"
+ 
+     看到vim代码的质量后，调头就撤。
+
+    "毕竟谁需要编辑器里弄个控制台？我这可到处都是unix哲学，等等
+	"\VimMyFootnote{译注：作者指"Do one thing and do it well"}.
+
+    一听到"vim只是将编辑模式整合到真正的编辑器中"\VimMyFootnote{译注：作
+者指emacs中的viper模式对vim的模拟}这样的说法，就会有类似更年期
+	妇女热潮红的反应\VimMyFootnote{译注：热潮红是患者有时突然感到从胸部
+	向颈部及面部扩散的热浪上延，上述皮肤部位伴有弥散性发红，常伴有出汗、
+	心悸、胸闷等症状。}。
+
+    因为你老是在聊天室里频繁跑题整出莫名其妙的":w", IRC的朋友们最后将你孤立。
+
+\textcolor{VimSecDestColor}{两年以后}
+
+    vim脚本就是一种对上帝的深恶痛绝。
+
+    有点觉得emacs脚本中括号一路向下缩进的程序结构真是天堂般的生活。
+
+    我昨晚做了一个噩梦，梦到我还没学会在宽屏显示器中垂直分隔窗口，真
+	他妈的吓死我了
+
+    趁四下无人，偷偷把ctrl+s到绑定存盘功能，搞定后松口气稍作平静
+
+	认识到通过搜索导航才是节约时间的终极工具，相比之下通过hjkl移动光标并不高效
+	
+	发现:python脚本，进入可定制性繁荣兴旺的黄金时代，只是感觉有点脏乱
+
+	疯狂地绑定<Leader>key直到键盘被打造成跟NASA指挥中心控制面板一样--功能
+	繁多到荒谬的地步
+
+   "嘿，大家都过来看看，我现在做版本管理、写博客、查邮件、跑测试、调程序、看黑客新闻，
+所有的一切都能在vim温暖舒适、超级可定制的母体中进行！为什么你小子不做几个后空翻来庆祝一下呢？"
+
+\textcolor{VimSecDestColor}{一段长的有些模糊的时间之后}
+
+在"文本编辑中采用不同编辑模式具有显著优势"演讲结束后失去了几个朋友。
+
+沉溺于github.com/me/vimfiles中分享配置文件的快乐，履行义务似地撰写博客
+来显摆你的配置多么的拉风，就象黑暗中的萤火虫一样，那样的鲜明，那样的出众。
+
+一定得装最全的配置，zip/rar/tar/gz之类的文件
+直接打开，杀手级的缩写最少得有一吨，什么语法检查呀、lint
+工具呀、自动补全、快速文档查看、对付所有文件类型的插件
+，能给它装的都给它装上，用户一运行，甭管需不需要，你都得
+加载成百上千的额外脚本，一副地道的没事装B样，倍能糊人！周围同事不是搞
+lisp，就得会点haskell/ruby/lua，你要是光拿它折腾个C/C++/C\VimSharp{}/Java/Python, 你
+都不好意思下班跟人一块坐13号地铁。--我们的口号是：让vim在生产力上接近真
+正的IDE，呃...还有启动时间上也是。\VimMyFootnote{译注：这一段嘛，呃，
+我承认离谱了一点，不懂的请看《大腕》，不爽的请看原文}
+
+登入服务器，下意识地用nano改了一个配置文件。几分钟后竟有种做了叛徒的
+感觉，还带着深深的羞愧---然后借着更新一些插件(其实很少用到)和向.vimrc配置文件
+中添加注释来转移自己的负罪感。
+
+归于淡定静寂，在重复性的编辑任务前无惧无扰、无喜无忧，在emacs与vim的争
+论中淡泊宁静、不偏不倚。
+
+...最终，历经vim的磨砺洗礼后，你的大脑核磁共振图可能是这样的：
+}
+\begin{figure}[ht]
+\begin{center}
+%\vspace{0.5in}
+%\caption{0.5 inch of space}
+\mbox{
+\includegraphics[width=0.78\textwidth]{brain_after.png}
+}
+\end{center}
+\end{figure}

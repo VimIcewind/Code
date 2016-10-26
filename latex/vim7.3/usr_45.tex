@@ -1,0 +1,495 @@
+\VimNewChapter
+\VimBookMark{第45章　\ChapterFortyFiveTitle}{usr_45.txt}
+\VimFileNameDest{usr\VimTT{\_}45.txt}{ \VimDocVer  最后修改：2008年11月15日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar}
+
+\VimBookChapter{选择语言}
+\begin{flushright}
+\small\CJKfamily{kai}
+阿鬼，你还是说中文吧\newline
+---《功夫》
+\end{flushright}
+
+Vim中的消息可以以多种语言显示。本章讲述如何切换显示的语言以及处理不同语言的
+方法。
+
+\VimSecList{45.1}{\ChapterFortyFiveSectionOneTitle}
+\VimSecList{45.2}{\ChapterFortyFiveSectionTwoTitle}
+\VimSecList{45.3}{\ChapterFortyFiveSectionThreeTitle}
+\VimSecList{45.4}{\ChapterFortyFiveSectionFourTitle}
+\VimSecList{45.5}{\ChapterFortyFiveSectionFiveTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{90}  \ChapterNinetyTitle\\
+前一章：& \VimFileName{44}  \ChapterFortyFourTitle\\
+目　录：& \VimFileName{toc} \\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+\VimSecDest{45.1}{\ChapterFortyFiveSectionOneTitle}
+
+Vim启动时，它会去检查你的系统所用的语言。多数情况下都没问题，它将以你的本土
+语言显示消息(如果相应语言已安装好的话). 下面的命令可以查看当前所用的语言：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:language
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果结果是\VimDQuote{C}, 那就是说用的是默认语言，英语。
+
+\VimCaution{
+        \VimCautionTitle{备注:}
+        只有Vim编译时打开了支持多语言显示时才能使用该功能。要查看当前的Vim是否
+        支持该功能，可以检查\VimDQuote{:version}命令看有没有
+        \VimDQuote{\VimTT{+}gettext}和\VimDQuote{\VimTT{+}multi\VimTT{\_}lang}. 
+        如果有就没事，如果看到的是\VimDQuote{-gettext}或
+        \VimDQuote{-multi\VimTT{\_}lang}那就坏菜了，你得再找一个Vim试试。
+} %end VimCaution
+
+如何显示几种语言的消息呢？好几处方法，具体要看你用的是什么系统。
+
+   第一个办法是启动Vim之前把你的环境设为想用的语言。比如在Unix上可以这样：
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+env LANG=de_DE.ISO_8859-1  vim
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+这也只有你的系统上已经支持该语言时才能奏效。好处是接下来GUI消息和函数库都能
+使用这个正确的设置了。缺点是必需在Vim启动之前设置好。如果你想在Vim运行时改变
+设置，那可以用第二种方法：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:language fr_FR.ISO_8859-1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+用这种办法你可以用好几个名字来代表你要用的语言。系统不支持该语言的话会有一个
+错误消息。如果只是系统中没有对应该语言的翻译文本。Vim会一声不响地返回到默认的
+英语。
+
+   要查看系统中就支持哪些语言，可以先找到存放语言设置的目录。在我的系统上是
+\VimDQuote{/usr/share/locale}. 在一些系统上位于\VimDQuote{/usr/lib/locale}. 
+\VimDQuote{setlocale}的帮助文档应该会告诉你它在当前系统上的位置。
+
+   注意要一字不差地输入对应的名字。大小写，\VimDQuote{-}和\VimDQuote{\VimTT{\_}}都不能弄错。
+
+你可以把系统中的消息文本，编辑文本和时间格式分别设置为不同的语言。请参考
+\VimCommonSrc{:language}. 
+
+
+\VimSubSection{DIY--自己翻译}
+
+如果你选的语言中没有对应的消息文本。你可以自己来写。首先要拿到Vim的源代码
+和GNU的gettext软件包。把源代码解压后，可以在\VimTT{src/po/README.txt}里找
+到相应的操作指南。
+
+   自己翻译没想象中那么难。你不一定非得懂编程才行。不过当然你得懂英语和你要
+翻译的目标语言。
+
+   如果你对自己的翻译成果感觉良好，可以考虑让大家共享。把它上载到vim的web站点
+(\VimInlineURL{http://vim.sf.net})或email给Vim的维护人
+\VimTT{<}\<maintainer@vim.org>\VimTT{>}. 或者都给他们来一份！
+
+%======...
+\VimSepartor
+\VimSecDest{45.2}{\ChapterFortyFiveSectionTwoTitle}
+
+默认的菜单是英语。要用你的本土语言显示菜单，必需先进行翻译。如果环境变量已经
+设置好的话通常这些都会自动弄好，就象消息文本一样。不需要额外再做什么。但是这一
+切都必需是在相应的内容都已翻译好的前提下。
+
+   假设你在德国，语言设置为德语，但是又希望菜单显示\VimDQuote{File}而不是
+\VimDQuote{Datei}. 你可以用下面的命令换回英语菜单：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set langmenu=none
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+当然也可以选用另一种语言：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set langmenu=nl_NL.ISO_8859-1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+正如上面的命令中一样，\VimDQuote{-}和\VimDQuote{\VimTT{\_}}不能弄混。不过此处的大小写倒是无关紧要。
+
+   \VimOption{langmenu}选项必需在载入菜单之前设置。一旦菜单已经载入再去
+\VimOption{langmenu}选项就不会直接看到效果。所以，最好把\VimOption{langmenu}
+放在你的vimrc文件里。
+
+   如果你坚持要在Vim运行时切换菜单语言，可以这样做：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:source $VIMRUNTIME/delmenu.vim
+:set langmenu=de_DE.ISO_8859-1
+:source $VIMRUNTIME/menu.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这样有一个损失：所有你自己定义的菜单都会丢掉。你要重新定义。
+
+
+\VimSubSection{自己翻译菜单}
+
+要查看哪些语言已经有了对应的菜单翻译，请检查目录：
+
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+$VIMRUNTIME/lang
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+文件名为menu\VimTT{\_\{}language\VimTT{\}}.vim. 如果你没看到有对应语言的文件名，
+那你又有机会自己翻译了。最简单的办法是把某个文件复制过来进行修改。
+
+   首先用\VimDQuote{:language}命令找到你的语言。在文件名\VimTT{\{}language\VimTT{\}}中就用这个名字，不过记住
+要小写。然后把它复制到你自己的运行时目录，可以通过前面介绍过的\VimOption{runtimepath}找到。
+比如，在Unix上你可以这样：
+
+\begin{VimVBexcmd}[xleftmargin=-1.5cm,xrightmargin=-1.5cm,commandchars=\\\{\}]
+:!cp $VIMRUNTIME/lang/menu_ko_kr.euckr.vim ~/.vim/lang/menu_nl_be.iso_8859-1.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你也可以在\VimDQuote{\VimTT{\$}VIMRUNTIME/lang/README.txt}文件里找到行动指南。
+
+%======...
+\VimSepartor
+\VimSecDest{45.3}{\ChapterFortyFiveSectionThreeTitle}
+
+Vim会猜测你正在编辑的文件会用当前语言相应的编码方案。对多数欧洲语言来说是
+\VimDQuote{latin1}. 每个字节一个字符。也就是说一共有256种不同的字符。对亚洲语种来说
+这可远远不够。它们通常用的是双字节的编码方案，可以提供上万种不同的字符。即使
+这样，同一个文件包含多种语言时还是不够用。这就是为什么要用Unicode的原因。它
+被设计来容纳常用语言的所有字符。这是一种替代所有其它方案的超级编码。但是目前
+还未成大器。
+
+   幸运的是，Vim支持上面的3种编码方案。除了有一些限制外，你甚至可以在环境
+变量设置为另一语言时使用它们。
+
+   而且，如果你只是编辑你的本土语言的话，默认的编码方案应该就没错，你什么都
+不用做。下面的内容只是针对你想以不同语言编辑文件的情况。
+
+\VimCaution{
+        \VimCautionTitle{备注:}
+        只有Vim编译时进行相应设置才可使用多种编码方案。要看是否支持该功能，可以
+        检查\VimDQuote{:version}的输出中有没有\VimDQuote{+multi\VimTT{\_}byte}. 如果有就没事。
+        如果是\VimDQuote{-multi\VimTT{\_}byte}你就要另找一个Vim了。
+} %end VimCaution
+
+\VimSubSection{在GUI中使用UNICODE}
+
+使用Unicode的好处是其它编码方案可以和它相互转换，又不会丢失信息。如果你
+的Vim内部本身就是用Unicode, 你就可以使用任一种编码方案。
+
+   不幸的是，支持Unicode的系统毕竟有限。所以你所选的语言可能就没用它。这时就需要
+你明确告诉Vim你想用Unicode, 以及如何处理系统中其它的界面部分。
+
+   我们来启动GUI版的Vim, 它可以显示Unicode字符。下面的命令应该可以工作：
+
+\begin{VimVBexcmd}[xleftmargin=-1cm,xrightmargin=-1cm,commandchars=\\\{\}]
+:set encoding=utf-8
+:set guifont=-misc-fixed-medium-r-normal--18-120-100-100-c-90-iso10646-1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimOption{encoding}选项告诉Vim你所用的字符是什么。它同时影响缓冲区内的文件(你
+编辑的文件), 寄存器的内容以及Vim的脚本文件等。你可以把\VimOption{encoding}看
+成对Vim的内部设置。
+
+   上例假设你的系统上已经安装好了相应的字体。例子中的名字是X-Windows上的。
+该字体位于一个增强xterm Unicode功能的包中。如果你没有该字体，可以从下面下载：
+
+\begin{VimVBurl}[commandchars=\\\{\}]
+\VimInlineURL{
+http://www.cl.cam.ac.uk/~mgk25/download/ucs-fonts.tar.gz}
+\end{VimVBurl}
+\vspace{-1.3\parskip}
+
+对MS-Windows来说，一些字体中Unicode字符有限。试一下\VimDQuote{Courier New}字体。
+你可以使用\VimDQuote{Edit/Select Font...}菜单命令来选择字体。注意只能用等宽字体。如：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set guifont=courier_new:h12
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果不能正确显示，取得fontpack试试。如果微软的链接还没改动，你可以在此处下载：
+
+\begin{VimVBurl}[commandchars=\\\{\}]
+\VimInlineURL{
+http://www.microsoft.com/typography/fonts/default.aspx}
+\end{VimVBurl}
+\vspace{-1.3\parskip}
+
+现在你已经告诉Vim以Unicode作为内部编码，并以Unicode字体显示文本。输入的字符
+仍然根据原来的语言设置进行编码。这需要把它们转换为Unicode编码。\VimOption{termencoding}
+选项可以告诉Vim从何种语言进行转码。比如下面的命令：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let &termencoding = &encoding
+:set encoding=utf-8
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+上面的命令把\VimOption{encoding}选项的值赋予\VimOption{termencoding}选项。然后
+将\VimOption{encoding}设置为utf-8. 你需要在自己的版本上试一试。如果你是用
+亚洲语系而又希望编辑Unicode文本。这一功能就显得尤其有用。
+
+
+在支持Unicode的终端上使用Unicode
+
+有一些终端可以直接支持Unicode. 随XFree86发布的标准xterm就是一例。下面我们就以
+此为例。
+   首先，xterm必须在编译时打开了Unicode支持功能。参考\VimCommonSrc{UTF8-xterm}看如何进行编译。
+   以\VimDQuote{-u8}参数启动xterm. 最好同时指定字体。如：
+
+\begin{VimVBshcmd}[xleftmargin=-1cm,xrightmargin=-1cm,commandchars=\\\{\}]
+xterm -u8 -fn -misc-fixed-medium-r-normal--18-120-100-100-c-90-iso10646-1
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+现在你可以在该终端中直接支持Vim. 象前述的命令一样把\VimOption{encoding}设为
+\VimDQuote{utf-8}. 就是这么简单。
+
+
+\VimSubSection{在普通终端中使用Unicode}
+
+如果你要处理Unicode文本，而当前的终端并不支持Unicode. 你还可以在Vim中使用，虽然
+终端不能支持的字符将不会正常显示。但整个文本的布局还是会保持良好。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let &termencoding = &encoding
+:set encoding=utf-8
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+看起来这与GUI中的情况一样，实际上两者作了不同的处理：Vim会在把字符送至终端之前
+进行转换。以免弄乱了文本的外观。
+
+   这样的转换要想行得通还必需保证\VimOption{termencoding}到\VimOption{encoding}的转
+换是可行的。Vim可以把latin1转换为Unicode, 这样的转换总是没有问题。进行
+其它的转换则必需保证\VimCommonSrc{\VimTT{+}iconv}这一特性。
+
+   试一下在一个文件中以Unicode字符进行编码。
+你会发现Vim以一个问号来替代无法显示的字符(或者是下划线或其它字符). 将光标移
+至该字符上用下面的命令试试：
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+ga
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+Vim会显示一行信息，报告该字符的身家底细。它会告诉你当前这个字符到底是什么。你
+也可以在一个Unicode表里看到它。实际上你有时间的话可以慢慢浏览该文件。
+
+\VimCaution{
+        \VimCautionTitle{备注:}
+        因为\VimOption{encoding}用于Vim中所有的文本，所以改变该选项可能会引起非ASCII字符
+        无效。使用寄存器和\VimOption{viminfo}的时候你就会体会到这一点(比如，一个记录下来
+        的搜索模式). 所以推荐你在vimrc配置文本里设置好\VimOption{encoding}后就别再动了。
+} %end VimCaution
+
+%======...
+\VimSepartor
+\VimSecDest{45.4}{\ChapterFortyFiveSectionFourTitle}
+
+如果你在安装Vim时指定它使用Unicode, 然后你希望编码一个16-bit的Unicode文本。听
+起来顺理成章，果真如此简单？实际上，Vim在内部总是使用utf-8编码，所以16-bit的
+编码必需进行转换。毕竟字符集(Unicode)和编码方案(utf-8或utf-16)之间还是有一些差
+别的。
+
+   Vim会自动检测你的文本。它将采用\VimOption{fileencodings}选项中指定的可用编
+码方案。使用Unicode时，其默认值是\VimDQuote{ucs-bom,utf-8,latin1}. 这意味
+着Vim会检查文件看它使用了这三种编码方案的哪一种。
+
+\begin{VimVBList}[xrightmargin=-1cm,commandchars=\\\{\}]
+ucs-bom  文本必需以一个字节顺序的标记进行标识。这使得检测16-bit
+         还是32-bit以及utf-8成为可能
+utf-8    utf-8编码。如果发现某个字符序列中出现了非utf-8字符就不能
+         选用该方案
+latin1   老式的8-bit编码。仍然运作良好
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+如果你在编缉一个16位的Unicode文件，其中含有一个字节顺序标记，Vim会检测到该
+文件的编码类型并在读取时将其转换为utf-8. \VimOption{fileencoding}选项(注意没有s)被设置
+为检测到的编码。在此例中就是
+\hypertarget{v73_bugfix_45_txt_change_1}{}\VimDQuote{utf-16le}\VimMyFootnote{
+译注：在Vim7.2版中是\VimDQuote{ucs-2le}, 软件实际使用的也是该值，Vim7.3中
+使用\VimDQuote{utf-16le}}. 这是说该文件是Unicode编码，以little-endian编
+码且每个字符占16位。这种文件格式在MS-Windows系统上很常用(比如注册表文件).
+
+   保存文件时，Vim会比较\VimOption{fileencoding}和\VimOption{encoding}. 如果两者不同，
+文件内容就会先被转换。
+
+   如果\VimOption{fileencoding}选项的值为空就那是说无需进行转换。即假设文件是以\VimOption{encoding}
+编码的。
+
+如果默认的\VimOption{fileencodings}设置对你并不合适，你可以把它定义为你希望Vim识别的
+编码集。只有在发现当前编码不符时Vim才会试用下一个。把\VimDQuote{latin1}放在首位就不
+行，因为它永远都不会是非法的。下例中，文件没有字节顺序标记并且不是utf-8时
+设为日文：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set fileencodings=ucs-bom,utf-8,sjis
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+请参考\VimCommonSrc{encoding-values}了解Vim建议的设置。另外的设置也有可能是可行的，这要
+看是否能进行编码转换而定。
+
+
+\VimSubSection{强制编码}
+
+如果自动编码识别失败，你就必需告诉Vim文件的编码方案。如：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit ++enc=koi8-r russian.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{\VimTT{++}enc}部分使Vim仅将该文件视为指定编码方案。Vim会将指定的编码方案，此例中
+是俄语，转换为\VimOption{encoding}编码方案，同时\VimOption{fileencoding}
+选项也被设为指定的编码方案，以便保存文件时进行逆向转换。
+
+   保存文件时同样可以使用该参数。通过这种方法你也可以让Vim来进行文件格式
+转换。如：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:write ++enc=utf-8 russian.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_234}{view_234}\hypertarget{view_234}{}\fbox{\textcolor{red}{Review}}\\
+\VimCaution{
+        \VimCautionTitle{备注:}
+        文件格式转换可能会引起内容丢失。从其它编码转换为Unicode一般来说没有什么
+        问题，除非其中有非法字符。而从Unicode转换到其它编码格式则经常会引起信息
+        丢失，尤其是被转换的文件中使用了一种以上的字符集时。
+} %end VimCaution
+
+%======...
+\VimSepartor
+\VimSecDest{45.5}{\ChapterFortyFiveSectionFiveTitle}
+
+计算机的键盘按键不过百余。但一些语言则有上千的字符，Unicode更是有过万的字符。这么
+多的字符是如何输入的呢？
+
+   首先，如果文件中要用的特殊字符不多的话，可以使用digraphs. 这在\VimSecSrc{24.9}中已经
+解释过了。
+
+   如果你所用的语言对应的字符多于键盘的键数，你就需要借助于某种输入法。当然你
+得学习这种输入法。需用输入法的话你可能已经安装好了。它应该能在Vim中正常工作，
+就象它支持其它程序一样。更多详情请参考\VimCommonSrc{mbyte-XIM}(适用于X-Windows), 和
+\VimCommonSrc{mbyte-IME}(适用于MS-Windows).
+
+
+\VimSubSection{键映射}
+\VimMyFootnote{译注：此处的键映射与作为命令快捷键的键映射是两个不同的概念}
+
+有些语言用的字符集不是latin, 但字符个数都差不多。这时可以通过映射键进行处理。
+Vim使用键盘映射的办法。
+
+   假设你想输入希伯莱文字。你可以载入它对应的键盘映射：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set keymap=hebrew
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会试着找到一个键映射文件。这视\VimOption{encoding}设置而定。如果没有找到符合的
+映射文件，则会报告一个错误。
+
+现在你可以在Insert模式下输入希伯莱文字了。在Normal模式和冒号命令行模式，Vim会
+自动转换为常规的英语键盘布局。你可以用下面的命令在两种模式间切换：
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-^
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这一命令只对Insert模式和Command-line格式有效。在Normal模式下它的意义完全不同
+(跳转到最近编辑的文件).
+
+   如果\VimOption{showmode}选项打开的话，键映射的用法会显示在模式信息中。在GUI版的Vim中还
+会以不同的颜色显示。
+
+   你也可以用\VimOption{iminsert}和\VimOption{imsearch}两个选项来改变键映射的用法。
+
+下面的命令可以查看映射的列表：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:lmap
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要找出就有哪些映射可用，在GUI版本下可用Edit/Keymap菜单。其它情况可以用
+下面的命令：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:echo globpath(&rtp, "keymap/*.vim")
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{键映射DIY}
+
+你可以创建自己的键映射文件。这并不很难。先找一个与你的目标比较接近的语言。把
+它复制到Vim运行时目录下的\VimDQuote{keymap}子目录。比如，在Unix系统上，你可以放在
+\VimDQuote{\VimTT{\~}/.vim/keymap}. 
+
+   键映射文件的名字必需是形如：
+
+\begin{VimVBListNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+        keymap/\{name\}.vim
+\textcolor{black}{
+or}
+        keymap/\{name\}_\{encoding\}.vim
+\end{VimVBListNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_235}{view_235}\hypertarget{view_235}{}\fbox{\textcolor{red}{Review}}\\
+的格式其中的\VimTT{\{}name\VimTT{\}}是键映射的名字。选一个好名字吧，但记住不要与已有的重名(除非你想
+把它替换掉). 名字里面不能含有下划线。此外还可以跟一个可选的编码格式，如：
+
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+keymap/hebrew.vim
+keymap/hebrew_utf-8.vim
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+定义后的文件应该是自说明的。可以参考一下随Vim发行的那些键映射文件。详情请
+参考\VimCommonSrc{mbyte-keymap}. 
+
+
+\VimSubSection{最后一招}
+
+如果上面的所有办法都失灵，你还可以用\VimSpecialChar{CTRL-V}输入任何字符：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+\textcolor{VimHelpHeaderColor}{
+encoding   type                 range}
+8-bit      \VimSpecialChar{CTRL-V} 123           decimal 0-255
+8-bit      \VimSpecialChar{CTRL-V} x a1          hexadecimal 00-ff
+16-bit     \VimSpecialChar{CTRL-V} u 013b        hexadecimal 0000-ffff
+31-bit     \VimSpecialChar{CTRL-V} U 001303a4    hexadecimal 00000000-7fffffff
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+例子中的空格不能键入。详情请参考\VimCommonSrc{\VimTT{i\_CTRL-V\_digit}}. 
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{90}  \ChapterNinetyTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

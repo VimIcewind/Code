@@ -1,0 +1,1014 @@
+\VimNewChapter
+\VimBookMark{第10章　\ChapterTenTitle}{usr_10.txt}
+\VimFileNameDest{usr\VimTT{\_}10.txt}{ \VimDocVer  最后修改：2006年11月05日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{大刀阔斧\\}
+
+
+第4章中介绍了几种对文件进行小幅改动的方法。本章的内容是如何对文本作出大量
+改动的办法。Visual模式允许对被选的文本块进行多种操作。也可使用一个外部程序
+来完成一些复杂的动作。
+
+\VimSecList{10.1}{\ChapterTenSectionOneTitle}
+\VimSecList{10.2}{\ChapterTenSectionTwoTitle}
+\VimSecList{10.3}{\ChapterTenSectionThreeTitle}
+\VimSecList{10.4}{\ChapterTenSectionFourTitle}
+\VimSecList{10.5}{\ChapterTenSectionFiveTitle}
+\VimSecList{10.6}{\ChapterTenSectionSixTitle}
+\VimSecList{10.7}{\ChapterTenSectionSevenTitle}
+\VimSecList{10.8}{\ChapterTenSectionEightTitle}
+\VimSecList{10.9}{\ChapterTenSectionNineTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{11}  \ChapterElevenTitle\\
+前一章：& \VimFileName{09}  \ChapterNineTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{10.1}{\ChapterTenSectionOneTitle}
+
+\VimDQuote{.}命令可以重复最近一次的编辑动作。但是如果你要做的操作远比这些
+小儿科复杂呢？那就是Vim为什么要引入命令记录的原因。使用命令记录分三个步骤
+\VimMyFootnote{译注：很多貌似复杂的事情其实都只分三步，如把大象装进冰箱\Smiley}
+
+1. 使用\VimDQuote{q\{register\}}命令开始，后续的动作将被记录进名为\{register\}的寄存器中。
+   给出的寄存器名字必需是a到z之间的一个字母\VimMyFootnote{译注：包括a和z}
+
+2. 执行你要执行的操作\VimMyFootnote{译注：象往常一样}。
+%% 冯亮qujianning@gmail.com指出，象应该是像，有待考证
+
+3. 按下q以结束对命令的记录(注意仅仅是q一个字符，不要键入多余的字符).
+
+现在你可以通过\VimDQuote{\VimAt\{recording\}}命令来执行刚刚记录下来的记录宏了。
+
+下面的例子将演示如何实际运行该功能。假如你有如下的文件名列表：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+stdio.h
+fcntl.h
+unistd.h
+stdlib.h
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+而你实际想要的结果如下：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+#include "stdio.h"
+#include "fcntl.h"
+#include "unistd.h"
+#include "stdlib.h"
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+将光标移动到第一行上。接下来执行：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+qa                      开始将后续的命令记入寄存器a
+^                       将光标移动到行首
+i#include "\VimSpecialChar{<Esc>}        在该行之前插入#include "
+$                       移动到行尾
+a"\VimSpecialChar{<Esc>}                 在行尾加上"字符
+j                       移到下一行
+q                       停止记录
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+现在你已经将对第一行的操作完成了一遍，对其它三行只需要执行3次
+\VimDQuote{\VimAt{}}命令\VimDQuote{\VimAt{}a}命令也可以加一个数字前辍\VimMyFootnote{
+译注：就象绝大多数VIM命令一样}，这会使该记录被回放由该数字指定的次数。在上面的
+例子中是：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+3\VimAt{}a
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{移动并执行操作}
+
+也许实际情况是你在几个不同的地方要执行这些操作(而不象上例中是连续的4行). 这只
+需要你将光标定位到目标行，然后再执行\VimDQuote{\VimAt{}a}命令。如果已经执行过
+\VimDQuote{\VimAt{}a}命令，下次重复执行只需再下\VimDQuote{\VimAt{}\VimAt{}}即可
+。这比\VimDQuote{\VimAt{}a}更容易键入。同样，如果你上次执行的是
+\VimDQuote{\VimAt{}b}那么\VimDQuote{\VimAt{}\VimAt{}}命令也将重复
+\VimDQuote{\VimAt{}b}的动作。
+
+   与\VimDQuote{.}方法相比，记录回放有几个地方不同，首先，\VimDQuote{.}命令只
+能重复一个动作。而在上例中，\VimDQuote{\VimAt{}a}重复的是好几个命令，其次，
+\VimDQuote{.}命令只重复最近一次改动的命令。而执行一个记录宏允许你随时都可执行
+同样的操作。最后，你拥有多达26个寄存器可供使用。也就是说，可以同时保存26个不同
+的命令宏。
+
+
+\VimSubSection{使用寄存器}
+
+用于命令记录的寄存器与用于yank和删除命令的寄存器是同一个东西。所以还
+可以多种方式混合操作这些寄存器。
+
+   假设你在寄存器n中记录了一些命令。执行时发现有些命令弄错了。当然你可以再重
+来一遍，但是还有其它办法补救：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+G                      到文件最后
+o\VimSpecialChar{<Esc>}                 生成一个新行
+"np                    将寄存器n的内容置于该行。你会看
+                       到这些命令就象你键入的普通文本一样。
+\VimSpecialChar{\{edits\}}                修改错误的部分。这与编辑普通文本无异
+0                      到行首
+"ny$                   将正确的结果回存到寄存器n中
+dd                     删除这行草稿
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+现在你可以用\VimDQuote{\VimAt{}n}来回放正确的命令宏了。(如果你的宏记录命令中包括有断行，调整
+上例中最后两个操作以确保将正确的结果存回寄存器n中)
+
+
+\VimSubSection{向寄存器中追加内容}
+
+目前为止我们用到的还都是小写字母的寄存器。要向寄存器追加内容而不是覆盖它，使用
+它的大写形式即可。
+
+  假设你已经记录了一个改变word的命令在寄存器c中。它已经可以正常工作，但你又
+想让它搜索到下一个word继续编辑。可以使用下面的命令：
+% vim: no special highlight in verbatim
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+qC/word<Enter>q
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+以\VimDQuote{qC}命令开始，这使得被记录的命令将被追加到寄存器c中，而不是覆盖它当前的
+内容。
+
+这种方式对命令记录和一般的yank, 删除操作都有效。比如你要把几行的内容收集到
+一个寄存器中去，以小写来yank第一行：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"aY
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+现在移动到第二行，执行：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"AY
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+对你要收集的行重复执行这个操作。现在寄存器a就会包括所有这些行的内容。
+
+%======...
+\VimSepartor
+
+\VimSecDest{10.2}{\ChapterTenSectionTwoTitle} \VimToRight{\VimCommonDest{find-replace}}
+
+\VimDQuote{:substitute}命令可以对一个指定范围的区域执行替换操作。它的通用形式如下：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:[range]substitute/from/to/[flags]
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令将由[range]指定的行中的字符串\VimDQuote{from}替换为\VimDQuote{to}. 比如
+你要把所有行中的\VimDQuote{Professor}替换为\VimDQuote{Teacher}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:%substitute/Professor/Teacher/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        一般人都不会把:substitute完整拼出来，使用它的缩略形式\VimDQuote{:s}就可以了。本文
+        中其余部分将都使用这种形式。
+} %end VimCaution
+
+命令之前的\VimDQuote{\VimTT{\%}}指定该命令将作用于所有行上。不指定一个范围的话，\VimDQuote{:s}将只作用于
+当前行。下一节\VimSecSrc{10.3}中将会讲述关于指定范围的详细内容。
+
+默认情况下，\VimDQuote{:substitute}命令只会替换一行中第一次被发现的目标字符串。比如，
+上一个命令将把
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Professor Smith criticized Professor Johnson today.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+变为：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Teacher Smith criticized Professor Johnson today.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+要改变一行中所有符合的目标字符串，可以在命令后加\VimDQuote{g}标志加以修饰。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:%s/Professor/Teacher/g
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+对此例来说结果将是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Teacher Smith criticized Teacher Johnson today.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\hypertarget{v71_bugfix_sp}{}其它可用于该命令的修饰标志还有p(列印),
+使\VimDQuote{:substitute}命令列出最后一个被改变的
+行。c(确认)标志告诉\VimDQuote{:substitute}命令要在执行每个替换前请求用户确认。
+执行下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:%s/Professor/Teacher/c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会在找到第一个\VimDQuote{Professor}后显示下面的信息并要求你的回答：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+replace with Teacher (y/n/a/q/l/^E/^Y)?
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+此时，你可以有几种答案
+\VimMyFootnote{译注：关于下面的\VimSpecialChar{CTRL-E CTRL-Y}. 用户确认是否要
+进行替换往往需要查看上下文的信息，如果当前被找到的行是在屏幕最底部，则没办法看
+到其下的内容，所以有这一功能}:
+
+\begin{VimVBList}[commandchars=\\\{\}]
+y               好吧，替换吧
+n               不，这个先留着
+a               别问了，全部换掉吧(这群教授都不够格？\Smiley{})
+q               退出，剩下的也不要管了
+l               把现在这个改完就退出吧
+\VimSpecialChar{CTRL-E}          向上滚屏一行
+\VimSpecialChar{CTRL-Y}          向下滚屏一行
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+
+例子中的目标字符串\VimDQuote{from}实际上可以是任何合法的正则表达式。与搜索命令所用的
+正则表达式一样\VimMyFootnote{译注：整个Vim中用的都是同一个正则表达式引擎，所以完全通用}。
+比如，下面的命令只会把一行行首的\VimDQuote{the}替换为\VimDQuote{these}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:s/^the/these/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你要替换的字符串中包含了斜杠/, 就需要在它前面加一个反斜杠，一个更优雅的
+办法是用另一个字符替换/作为命令中各部分的分隔符\VimMyFootnote{译注：确保被选中的新分隔符不
+会出现在你的源/目标字符串中}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:s+one/two+one or two+
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_136}{view_136}\hypertarget{view_136}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{10.3}{\ChapterTenSectionThreeTitle}
+
+对于\VimDQuote{:substitute}命令和很多其它的\VimDQuote{:}命令，可以指使它们作用于一些行上，这叫
+命令的作用范围。
+   作用范围的最简单形式是两个以数字表示的行号。如下：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:1,5s/this/that/g
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令将对第1到第5行的文本执行替换操作。也包括第1行和第5行。这样的作用范围
+总是放在命令的最开始
+
+单个的数字指示命令将只作用于由该数字指定的行上：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:54s/President/Fool/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+有一个命令在你不指定作用范围时默认是对整个文件进行操作。要使它们只作用于当前
+行上，可以在命令前放一个\VimDQuote{.}\VimMyFootnote{译注：代表当前行}. \VimDQuote{:write}就是这种命令的典型。不
+指定作用范围，它将写入整个缓冲区的内容。下面的命令使它只把当前行写入指定文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:.write otherfile
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+第一行的行号一定是1. 但是最后一行呢？\VimDQuote{\$}用于代表最后一行。比如，下面命令替换
+当前行到最后一行中所有的yes为no:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:.,$s/yes/no/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+所以，前面用到的\VimDQuote{\VimTT{\%}}范围指定符号，实际上等价于\VimDQuote{1,\VimTT{\$}}. 
+
+
+\VimSubSection{使用一个搜索模式来指定作用范围}
+
+假设你正在编辑一本书中的某一章内容，你想替换本章中所有的\VimDQuote{grey}为\VimDQuote{gray}. 但
+又不殃及其它章里的\VimDQuote{grey}. 你知道只有在章与章的边界才会有\VimDQuote{Chapter}这个词出现
+在一行的行首，所以命令是：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:?^Chapter?,/^Chapter/s=grey=gray=g
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你看，这里用了两个搜索模式。第一个\VimDQuote{?\^{}Chapter?} 向后查找，\VimDQuote{/\^{}Chapter/}向前。
+   为了避免眼花{\CJKfamily{li}{瞭}}\VimMyFootnote{译注：这个字
+在本文所用的主体字库中不存在，只好用其它字体代替}乱的斜杠/, \VimDQuote{:s}命令使
+用\VimDQuote{=}字符作为分隔符。
+
+
+\VimSubSection{增与减}
+
+其实上例中还略有瑕疵：如果下一章的标题中刚好含有\VimDQuote{grey}那么它也将会被替换掉。
+也许你要的就是这种效果，但如果不是呢？可以对命令的作用范围指定一个偏移作为微调：
+   找到一个符合的模式并使用它上面的一行：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+/Chapter/-1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+    可以用任何数字来替换1. 要定位匹配模式其下的第2行：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+/Chapter/+2
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+        作用范围的上下偏移也可用于以其它形式：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:.+3,$-5
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个范围从当前行其下的第3行开始，到倒数第6行\VimMyFootnote{译注：\$-1是倒数第二行，编辑器里也有
+臭名昭著的\VimSQ{}offset by one\VimSQ{}错误}。
+
+
+\VimSubSection{使用标记}
+
+使用标志可以免于上面的行号计算：在某处作上标记，然后以此标记来指定作用范围。
+
+   用第3章里的办法作上标记。如用\VimDQuote{mt}来标记一个范围的开始，\VimDQuote{mb}标记它的结束。
+然后就可以这样指定这个范围：(包括标记本身所在的行)
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:'t,'b
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{Visual模式与范围}
+
+如果你在Visual模式下选定了文本后按下了\VimDQuote{:}, 你将会看到如下命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:'<,'>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你只需直接键入命令，作用范围已由\VimSQ{}<,\VimSQ{}>指定好了，它代表你
+在Visual模式下选定的文本所在的范围。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        当你用Visual模式或用\VimSpecialChar{CTRL-V}去选择文本块时，该命令指定的作用范围仍是以
+        行为基本单位。这一点会在Vim的后来的版本中改进。
+} %end VimCaution
+
+\VimTT{\VimSQ{}<}和\VimTT{\VimSQ{}>}实际上就是标记，分别代表一个Visual选择区域
+的开始和结束。退出Visual模式后这两个标记仍然保持，直到下一次进入Visual模式。
+所以你还可用\VimDQuote{\VimTT{\VimSQ{}<}}命令来跳转到你一次在Visual模式时选定
+的文本区域的开始处。也可以混合使用多种方法指定作用范围：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:'>,$
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+它表示自上一次Visual模式时选定的文本区域的结束处\VimMyFootnote{译注：感谢
+\<yangxcmail-linux@yahoo.com.cn>提供的十分专业的Bug Report给我，上一
+版中"结束处"错译为"开始处"}到文件尾这样一个区域。
+
+
+\VimSubSection{以数字指定行数}
+
+如果你已经知道要使命令作用于几行内容，可以直接按下这个数字，然后按\VimDQuote{:}. 比如，
+按下\VimDQuote{5:}, 你会看到：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:.,.+4
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你要做是直接键入命令。它将作用的范围是\VimDQuote{.}(当前行)到\VimDQuote{.\VimTT{+}4}(自当前行到向下4行).
+所以一共是5行。
+
+%======...
+\VimSepartor
+
+\VimSecDest{10.4}{\ChapterTenSectionFourTitle}
+
+\VimDQuote{:global}命令是Vim最强大的功能之一。
+它允许你找到符合某个匹配模式的行然后将命令作用其上。下面是其一般形式：
+\begin{VimVBexcmdNoAdjustSpace}
+:[range]global/{pattern}/{command}
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+乍一看它与\VimDQuote{:substitute}命令很像。但是，这里执行的是由\{command\}指定的命令
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        \VimDQuote{:global}中所谓的命令都必需是以\VimDQuote{:}开始的命令行命令，Normal模式下的
+        命令不能直接使用。\VimCommonSrc{:normal}命令可以间接地
+        让你使用Normal模式下的命令。
+} %end VimCaution
+
+假设你想把\VimCPP{}风格的注释中的所有\VimDQuote{foobar}替换为\VimDQuote{barfoo}(这些注释将以\VimDQuote{//}开始):
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:g+//+s/foobar/barfoo/g
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令以\VimDQuote{:g}开始，它是\VimDQuote{:global}的缩写，就象\VimDQuote{:s}是\VimDQuote{:substitute}的缩写一样。
+接下来是以加号分隔的搜索模式。因为我们要搜索的内容中包括有斜杠/, 所以此处用加
+号来分隔命令的不同部分。最后是将\VimDQuote{foobar}替换为\VimDQuote{barfoo}的命令。
+
+        全局命令的默认作用范围是整个文件。所以此例中没有指定作用范围。这一点与命令
+\VimDQuote{:substitute}不同，它在没有指定作用范围时默认对当前行一行起作用。
+
+        上面给出的命令还不足以精确达到它的目标，因为它也匹配到那些\VimDQuote{//}出现在一行
+中间的情形，这时如果在\VimDQuote{//}之前也出现了\VimDQuote{foobar}, 那么它也会
+被误换掉\VimMyFootnote{译注：如下：
+
+puts("foobar"); // this line contains a foobar
+
+如何解决这个问题留给读者}。
+
+与\VimDQuote{:substitute}中对正则表达式的应用一样，全局命令中也可使用任何Vim中合法的正
+则表达式。接下来你会学到更多复杂的正则表达式技巧。
+
+%======...
+\VimSepartor
+
+\VimSecDest{10.5}{\ChapterTenSectionFiveTitle}
+
+使用\VimSpecialChar{CTRL-V}可以进入一种特殊的选择模式，在此模式下你可以选择一个矩形的文本块。
+Vim提供了一些特别的命令来操纵这个文本块\VimMyFootnote{译注：下面解释的\VimDQuote{\$}命令将使被选择
+区域看起来并不是一个矩形，这是一个特例}。
+
+在Visual block模式下\VimDQuote{\$}命令会让每一行的被选择区域扩展到该行的末尾，不管这些行
+的长短是否参差不齐。这种选择状态持续到你发出下一个改变水平选择域的命令。所以
+使用命令\VimDQuote{j}会保持这种状态，而\VimDQuote{h}命令则会停止它。
+
+
+\VimSubSection{插入文本}
+
+命令\VimDQuote{I\VimSpecialChar{\{string\}}\VimSpecialChar{<Esc>}}会在每行中插入相同的文本，插入位置在被选择块的左边。
+具体过程是以\VimSpecialChar{CTRL-V}进入Visual block模式。然后移动光标来调整被选择的区域。接下来
+键入I命令进入插入模式，键入你要插入的文本。在你键入文本的过程中，被键入的内容
+只会同时显示在文本块的第一行中。
+        一旦你按下\VimSpecialChar{<Esc>}来结束插入，刚刚键入的内容就会奇迹般地出现在被选择文本块的
+每一行中。如：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+include one
+include two
+include three
+include four
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+将光标移到\VimDQuote{one}中的\VimDQuote{o}上，然后按下\VimSpecialChar{CTRL-V}. 用\VimDQuote{3j}命令将选择区域扩大到向下3行，
+到单词\VimDQuote{four}上。现在你选择了一个纵跨4行的文本块。开始键入：
+% vim: no special highlight in verbatim
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+Imain.<Esc>
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+结果将是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+include main.one
+include main.two
+include main.three
+include main.four
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果选择的文本块的跨度包含一些太短的行以致于它的内容不能出现在文本块中，那么
+被插入的文本会跳过这些行。如下例中，选择一个同时包含第一行中\VimDQuote{long}和最后一行
+中的\VimDQuote{long}的文本块，这个文本块就没有包含第2行的任何内容：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+This is a long line
+short
+Any other long line
+
+\textcolor{black}{
+          ^^^^ selected block}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+现在键入命令\VimDQuote{Ivery \VimSpecialChar{<Esc>}}. 结果是：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+This is a very long line
+short
+Any other very long line
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+你看，含有\VimDQuote{short}的第二行没有被插入任何东西。
+
+如果你插入的过程中进行了换行，那么\VimDQuote{I}命令将会象Normal模式下一样，只影响文本块
+的第一行。
+
+\VimDQuote{A}命令类似于\VimDQuote{I}, 只不过它是在文本块的最右边追加文本。中间
+那个短短的第二行也被追加了文件，所以你可以通过选择I还是A命令来决定是否把新键入
+的文本也应用在Visual区域罩不住的短行上去。
+
+        对\VimDQuote{A}命令还有一种特殊情况：选择一个文本块然后按下\VimDQuote{\$}使文本块扩展到每行的
+末尾。然后用\VimDQuote{A}命令追加一些文本。
+        同样以上例说事，按下命令\VimDQuote{\$A XXX\VimSpecialChar{<Esc>}}, 结果如下：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+This is a long line XXX
+short XXX
+Any other long line XXX
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\begin{SaveVerbatim}[frame=single,commandchars=\\\{\}]{footnotevisualblock}
+This is a long line XXX
+short               XXX
+Any other long line XXX
+\end{SaveVerbatim}
+要收此宏效必需要用\VimDQuote{\$}命令，Vim会记住你到底有没有用它。如果你只是把光标移到最后
+同时是最长的行的那一行末尾\VimMyFootnote{译注：看起来可能会与\VimDQuote{\$}相同，如下：\\
+\colorbox{VimVisualBkColor}{\BUseVerbatim{footnotevisualblock}} }，可别想达到这样的效果。 
+
+\VimSubSection{改变文本}
+
+Visual block模式下的\VimDQuote{c}命令会删除被选择的文本块，然后你会身处Insert模式，键入
+改变后的内容。键入的内容会被插入在文本块的第一行上\VimMyFootnote{译注：当然又
+是在\VimSpecialChar{<Esc>}之后才能看到效果}
+        还拿上面的例子来说，假设你选择了包含第一第三行\VimDQuote{long}单词的文本区域，然后
+键入\VimDQuote{c\VimTT{\_}LONG\VimTT{\_} \VimSpecialChar{<Esc>}}命令，你会看到：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor},formatcom=\color{VimHelpHeaderColor}]
+This is a _LONG_ line
+short
+Any other _LONG_ line
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+与\VimDQuote{I}命令对中间的短行的效果一样：它不受影响，同时，新键入的文本中也不能有
+换行。
+
+\VimDQuote{C}命令会删除文本块最左边至每一行末尾的所有内容\VimMyFootnote{译注：注意不是文本块的末尾}
+，然后你又会在Insert模式下，键入的文本会追加到每一行的最后\VimMyFootnote{译注：实际上
+，中间的短行仍被排除在外}。
+        同上例，键入命令\VimDQuote{Cnew text \VimSpecialChar{<Esc>}}, 结果如下：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+This is a new text
+short
+Any other new text
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+注意，虽然说文本块中只包含了单词\VimDQuote{long}, 文本块后面的内容还是全部被删除了。所以
+此时只有文本块的左边界对这个命令有影响。
+        同样地，中间的短行被排除在外。
+
+Visual block模式下还有其它一些改变文本内容的命令：
+\begin{VimVBList}[commandchars=\\\{\}]
+~       交换大小写    (a -> A, A -> a)
+U       将小写变大写  (a -> A, A -> A)
+u       将大写变小写  (a -> a, A -> a)
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimSubSection{以一个字符填充}
+
+\VimDQuote{r}将使整个文本块的内容全部以一个字符来填充。同上例，选择了文本块后按下
+\VimDQuote{rx}命令：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+This is a xxxx line
+short
+Any other xxxx line
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        如果你要选择一个延伸到行尾后面的文本块，请查看第25章\VimOption{virtualedit}部分
+        的内容。
+} %end VimCaution
+
+
+\VimSubSection{左右移动}
+
+\VimDQuote{\VimTT{>}}命令会使你的文本块向右移动一个\VimDQuote{shift单位
+}\VimMyFootnote{译注：一个\VimDQuote{shift单位}由:set sw=N指定，N是一个自然数，请参
+考:h \VimOption{sw}}, 空出来的部分放置以空格。被移动的区域起自文本块左边界。同上
+例，\VimDQuote{\VimTT{>}}命令后结果如下：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+This is a         long line
+short
+Any other         long line
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+移动的多寡由选项\VimOption{shiftwidth}指定。欲使之移动4个空格：
+\begin{VimVBexcmdNoAdjustSpace}
+:set shiftwidth=4
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{\VimTT{<}}命令使文本块向左移动一个\VimDQuote{shift单位}. 不过它不
+象\VimDQuote{\VimTT{>}}一样姿意，它受限于文本块左边的空间，所以如果文本块左边
+的空白区域短于一个\VimDQuote{shift单位}, 它也无能为力\VimMyFootnote{译注：此
+时命令将没有任何效果，只要文本块中有一行属于这种情况，则整个文本块都不会左移，
+尽管有些行有足够的空间来左移}。
+
+
+\VimSubSection{将多行内容粘接起来}
+
+\VimDQuote{J}命令使文本块纵跨的所有文本行被连接为一行。换行符不存在了，实际上，
+换行符，以及每行的前导空白和后辍空白\VimMyFootnote{译注：此处用前导空白指出现在一行最前面的一
+个或多个连续的空格或\VimSpecialChar{<Tab>}, 后辍空白指一行最后的一个或多个连续的
+空格或\VimSpecialChar{<Tab>}用正则表达式来描述，分别是/\^{}\VimBS{}s\VimBS{}\VimTT{+}/和
+/s\VimTT{+}\$/, TODO：编辑器描述语言}都将被替换为单个的空格。连接后的句子结尾将被
+放两个空格\VimMyFootnote{译注：这是因为英文的排版中一般句子之间要显得醒目一些
+，所以句点之后要有两个空格，而非句子结尾则只有一个空格}(可以通过
+\VimOption{joinspaces}改变连接后的空格数).
+
+        还用那个我们熟知的例子吧。现在\VimDQuote{J}命令之后结果将是
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+This is a long line short Any other long line
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimDQuote{J}命令并不要求你一定在Visual block模式下作块选择。你用\VimDQuote{v}命令或\VimDQuote{V}命令
+进行选择时效果完全一样\VimMyFootnote{译注：因为它关心的文本单位是行}
+
+如果你想保留那些前导空白和后辍空白，用\VimDQuote{gJ}命令来代替\VimDQuote{J}
+
+%======...
+\VimSepartor
+
+\VimSecDest{10.6}{\ChapterTenSectionSixTitle}
+
+在你写e-mail时，也许会想引用来自另一个文件中的内容。这里可用\VimDQuote{:read \VimSpecialChar{\{filename\}}}
+命令。这样被读入文件的内容就被放在当前行的后面。
+        以下面的几行内容为例吧：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Hi John,
+Here is the diff that fixes the bug:
+Bye, Pierre.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在把光标移到第二行上，然后键命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:read patch
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+名为\VimDQuote{patch}的文件的内容将被插入到这里，结果可能是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Hi John,
+Here is the diff that fixes the bug:
+2c2
+<       for (i = 0; i <= length; ++i)
+---
+>       for (i = 0; i < length; ++i)
+Bye, Pierre.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:read}命令还可接受一个行范围。被读入的文件被放在这个范围的最后一行上。所以
+\VimDQuote{:\$r patch}将会把文件\VimDQuote{patch}的内容追加到当前文件的最后。
+        如果你要把文件放在第一行的上面呢？答案是特殊行号0. 当前行号为0的行并不存在。
+如果你以此行号作为目标行执行大多数其它命令，你会得到一个错误信息。但对\VimDQuote{read}
+命令而言允许现在这样的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:0read patch
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+文件\VimDQuote{patch}将会被放在第一行的上面。
+
+
+\VimSubSection{写入指定范围行}
+
+要写入指定范围行，可以用命令\VimDQuote{:write}. 没有指定一个范围时该命令将写入整个文件
+的内容。指定一个范围的话它就只写入指定的行：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:.,$write tempo
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个命令将从当前行到文件尾的内容写入文件\VimDQuote{tempo}, 如果文件\VimDQuote{tempo}已经存在，你会
+收到一条错误信息，Vim会保护你意外地覆盖掉其它文件。如果你要的就是覆盖它，可以在
+\VimDQuote{write}命令后放一个！
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:.,$write! tempo
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+注意：!必需紧挨着放在\VimDQuote{:write}之后，中间不要有任何的空白。否则它会被解释为一个
+过滤命令。下一章会解释什么是过滤命令\VimMyFootnote{译注：过滤命令}。
+
+
+\VimSubSection{向目标文件里追加}
+
+本章的第一小节中讲到如何将多行的内容收集到一个寄存器中去，同样也可以将这个办法
+用于将它收集到一个文件中去。写入第一行的内容：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:.write collection
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在把光标移到第二行上去，键入命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:.write >>collection
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{>>}告诉Vim不要把\VimDQuote{collection}看作一个新文件往里写东西，而是把要写的东西追加在
+它的后面。当然，你可以随意地多次执行这个命令。
+
+%======...
+\VimSepartor
+
+\VimSecDest{10.7}{\ChapterTenSectionSevenTitle}
+
+要是你在键入文字的时候每行的内容能自动调节到适应当前窗口的大小该有多好。
+\VimOption{textwidth}选项即用于实现这一功能\VimMyFootnote{译注：对于中文用户，
+一个汉字占用两个textwidth的单位，所以一行上能放的汉字是英文的一半，对于中英文
+混杂的情况，英文仍是一个字符占用一个textwidth单位，汉字占用两个，最终效果是屏
+幕显示上文本以textwidth进行对齐}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set textwidth=72
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+还记得我们在vimrc文件的例子中为每个文件指定了该选项吗？如果你用到了那个vimrc,
+你就已经在使用这一选项了。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set textwidth
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在每一行都会自动调整到只包含最多72个字符，但是如果你是在一行的中间删除或
+插入内容，Vim可管不了这么多。这样你的行还是可能变得太长或太短。
+
+    下面的命令告诉Vim格式化你的当前文本段：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+gqap
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+该命令以\VimDQuote{gq}开始，这是Vim中的一个操作符。接下来是\VimDQuote{ap},它代
+表\VimDQuote{a paragraph}这样一个文本对象，文本段与文本段之间的分隔标志是一个
+空行。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        包含了空白字符的行可不是这里说的空白行，这经常被很多人忽略！
+} %end VimCaution
+
+除了\VimDQuote{ap}你还可以用移动命令或其它指定文本对象的办法。如果你的整个文件都已经被
+正确地分为各个文本段，可以用下面这个命令来格式化整个文件：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+gggqG
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{gg}会首先定位到第一行，然后\VimDQuote{gq}告诉Vim要格式文本了，\VimDQuote{G}移动操作符跳转到
+最后一行，连起来的意思就是格式化整个文件。
+
+如果你并没有把你的文本内容分隔为一个一个的文本段，还可以只格式化一部分文本行。
+将光标置于要格式化的第一行上，命令\VimDQuote{gqj}会格式化当前行和它下面的一行。如果第一
+行太短，下一行的内容就会追加在它后面。如果它太长，长出来的单词\VimMyFootnote{译注：Vim格式化
+时不会把你的单词从中间打断，它格式化时不会在一个单词中间断行，用它的
+正则表达式描述，就是/\VimBS{}w\VimBS{}\VimTT{+}/}会被放到下一行去。接下来你可
+以使用\VimDQuote{.}命令来重复刚才的操作，直到你格式化到满意为止。
+
+%======...
+\VimSepartor
+
+\VimSecDest{10.8}{\ChapterTenSectionEightTitle}
+
+如果你已有的文本中所有的section header\VimMyFootnote{译注：节标题}都是小写。你想把\VimDQuote{section}
+全部变为大写。\VimDQuote{gU}命令可担此任。将光标置到第一列上\VimMyFootnote{译注：真正意思是把光标放在
+你要使之变为大写的单词section的第一个字母上}然后施以\VimDQuote{gU}操作：
+
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\}]
+                     gUw
+\textcolor{black}{
+SECTION header      ---->      section header}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{gu}则反\VimDQuote{gU}之道而行之：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\}]
+                     guw
+\textcolor{black}{
+SECTION header      ---->      section header}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+还可以用\VimDQuote{g\~{}}来使所有字母的大小写反个过，大写变小写，小写变大写。因为它们是操作
+符命令，所以可以搭配使用所有的移动命令，或者在Visual模式下先选择文本对象然后
+执行该操作\VimMyFootnote{译注：Vim命令还细分为不同的种类，operator command可以搭配
+以motion命令，和指定text object?？暂译为\VimDQuote{操作子命令}, 因为数学中的操
+作子通常要搭配一个操作数，比如a \VimTT{+} b, 所以操作子命令可理解为需要搭配一
+个作用对象的命令，就是学英语时常说的动宾结构}。
+    要使一个操作子命令作用于以行为单位的对象你可以键入该操作子两次。比如，删除
+操作子是\VimDQuote{d}, 所能删除一行的命令是\VimDQuote{dd}. 同样，\VimDQuote{gugu}使一整行变为小写。此外，它
+还可简写为\VimDQuote{guu}. \VimDQuote{gUgU}简写为\VimDQuote{gUU},
+\VimDQuote{g\~{}g\~{}}简写为\VimDQuote{g\~{}\~{}}\VimMyFootnote{译注：这里没有直译，
+%% 冯亮 qujianning@gmail.com 指正：g~ => g~~
+因为操作子命令还可另外搭配一个数字作为命令的重复次数，
+所以\VimDQuote{3dd}会删除连同当前行在内的3行}.   如：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\}]
+                        g~~
+\textcolor{VimHelpHeaderColor}{
+Some GIRLS have Fun    ---->   sOME girls HAVE fUN}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_137}{view_137}\hypertarget{view_137}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{10.9}{\ChapterTenSectionNineTitle}
+
+虽然Vim有一个几乎无所不能的强大的\VimMyFootnote{译注：同时也是庞大的}命令集。但是还是有一些
+任务如果用一个外部命令来做会更好或更快一些。
+
+    命令\VimDQuote{!\{motion\}\{program\}}以一块文本为对象将它们通过管道送至一个外部程序。
+换句话说，由\{program\}指定的外部程序，接受由\{motion\}命令指定的文本块作为输入，
+以它的输出来替换\{motion\}指定的文本块。
+
+    如果你对UNIX的过滤程序不熟的话，这样的解释还是令人费解，还是看一个例子吧。
+sort命令将一个文件排序。执行下面的命令会使未经排序的文件input.txt被排序后写入
+文件output.txt. (这个例子同时适用于UNIX和Microsoft Windows).
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+sort < input.txt > output.txt
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+现在回到Vim, 看看如何在这里做同样的事。假设你要将第1-5行的内容排序，首先将
+光标置于第1行上。然后键入如下命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+!5G
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{!}告诉Vim你要执行一个过滤操作了。Vim希望接下来收到你继续键入的移动命令，以此
+决定你要将哪个区域的文本块送至过滤程序。\VimDQuote{5G}命令告诉Vim到第5行去，所以Vim可以
+据此判断你要过滤的内容是第1行(也是当前行)到第5行。
+
+    由于这是一个过滤操作，所以此时Vim会把光标放到命令行模式\VimMyFootnote{译注：\{motion\}命令完之后Vim自动从Normal模式转入命令行模式，这样也更方便键入整个
+命令中其余的部分，这个部分可能会很复杂，在Normal模式下键入很容易出错，还有其它
+一些类似的操作会自动从Normal模式转到命令行模式}。接下来你可以键入过滤器的名字，
+这里是\VimDQuote{sort}. 所以，整个命令如下：
+% vim: no special highlight in verbatim
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+!5Gsort<Enter>
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+结果是sort程序将前5行排序。将输出替换这5行的内容。
+
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{black}]
+line 55                       line 11
+line 33                       line 22
+line 11        -->            line 33
+line 22                       line 44
+line 44                       line 55
+last line                     last line
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimDQuote{!!}命令过滤当前行的内容。在Unix系统中\VimDQuote{date}命令会显示当前的日期和日间。
+\VimDQuote{!!date\VimSpecialChar{<Enter>}}会以\VimDQuote{date}命令的输出来替换当前行的内容。要向文件里加入一个时间戳
+时这一命令很有用。
+
+
+\VimSubSection{出了问题呢？}
+
+在Vim中执行如上的过滤操作需要知道一些shell的有关情况。如果在使用过滤程序时遇到
+问题，可以考虑检查下面一些选项的设置：
+
+% \begin{samepage}
+% \VimNewFooterInVerbatim
+% \begin{tabular}{l|p{.7\textwidth}{l}}
+% \VimOption{shell}         &   指定Vim用于运行过滤程序的shell \\ \hline
+% \VimOption{shellcmdflag}  &   该shell的参数 \\ \hline
+% \VimOption{shellquote}    &   用于分隔shell与过滤程序时成对包围起过滤程序的字符 \\ \hline
+% \VimOption{shellxquote}   &   用于分隔shell与过滤程序和重定向符号时成对包围起过滤程序和重定向符号的字符 \\ \hline
+% \VimOption{shelltype}     &   shell的类型(只对Amiga有用\VimFooterMarkInVerbatim{}) \\ \hline
+% \VimOption{shellslash}    &   在命令中使用斜杠(只对MS-Windows这样的系统有用) \\ \hline
+% \VimOption{shellredir}    &   用于将命令输出重定向到文件的字符串 \\ \hline
+% \end{tabular}
+% \VimFooterTextInVerbatim{译注：我不懂Amiga, 谁来补充一下}
+% \end{samepage}
+
+\begin{VimVBList}[commandchars=\\\{\}]
+\makebox[3cm][l]{\VimOption{shell}         }   指定Vim用于运行过滤程序的shell 
+\makebox[3cm][l]{\VimOption{shellcmdflag}  }   该shell的参数 
+\makebox[3cm][l]{\VimOption{shellquote}    }   用于分隔shell与过滤程序时成对包围起过滤程序的字符 
+\makebox[3cm][l]{\VimOption{shellxquote}   }   用于分隔shell与过滤程序和重定向符号时成对包围起过
+\makebox[3cm][l]{                          }   滤程序和重定向符号的字符 
+\makebox[3cm][l]{\VimOption{shelltype}     }   shell的类型(只对Amiga有用) 
+\makebox[3cm][l]{\VimOption{shellslash}    }   在命令中使用斜杠(只对MS-Windows这样的系统有用) 
+\makebox[3cm][l]{\VimOption{shellredir}    }   用于将命令输出重定向到文件的字符串 
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+在Unix上使用过滤程序很少会碰到问题，因为有两种shell: \VimDQuote{sh}派和
+\VimDQuote{csh}派。Vim会检查\VimOption{shell}选项看是否包含了\VimDQuote{csh}并
+自动设置相关的选项，
+
+    但在MS-Windows上，有很多不同的shell, 所以你要手工调整这些选项来让过滤功能
+正常动作。请查看上面这些相关选项的帮助以了解更多信息。
+
+\VimSubSection{读取命令的输出}
+
+如下命令可以读取当前目录下的内容：
+Unix:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:read !ls
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_138}{view_138}\hypertarget{view_138}{}\fbox{\textcolor{red}{Review}}\\
+MS-Windows:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:read !dir
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{ls}或\VimDQuote{dir}命令的输出被Vim捕获并插入到当前光标下面。这与读
+%% 冯亮 qujianning@gmail.com 指正：当标=>光标
+取一个文件很类似，只有特殊的\VimDQuote{!}用以告诉Vim接下来的是一个命令。
+
+    过滤程序也可以有自己的参数。也可以指定一个范围告诉Vim把命令到的输出放到哪里：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:0read !date -u
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个命令会在文件开头插入UTC格式的当前日期时间(如果你的date命令支持
+\VimDQuote{-u}参数的话)注意这与\VimDQuote{!!date}命令的不同，
+\VimDQuote{!!date}是替换当前行的内容，而\VimDQuote{:read !date}则是将输出结果
+插入到文件中。
+
+
+\VimSubSection{将文本写入一个命令}
+
+Unix命令\VimDQuote{wc}会统计字符数，单词数，行数。要统计当前文件中的单词数，使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:write !wc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这与前面出现的\VimDQuote{write}命令一样，但是不是写入一个文件名，而是一个
+\VimDQuote{!}和一个外部程序名。被写入的内容会通过标准输入送入指定的命令中。输
+出结果大致是这样\VimMyFootnote{译注：根据文本内容的不同而不同}:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+4      47     249
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimDQuote{wc}命令没有过多的描述这3个数字的意义。这是说当前文件有4行，47个单词
+，共249个字符。
+
+看一下下面敲错这个命令时会怎样：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:write! wc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这将会强制覆盖当前目录下的\VimDQuote{wc}\VimMyFootnote{译注：如果它存在并且权
+限允许的话}. 这里的空白至关重要！
+
+
+\VimSubSection{重绘屏幕}
+
+如果外部命令运行时发生了错误，整个屏幕输出可能会被弄乱。Vim自己在处理屏幕上
+何处何时需要重绘方面非常有效，但它还是没办法知道别的程序会做些什么。下面的
+命令可以告诉Vim现在重绘一下屏幕显示：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-L
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{11}  \ChapterElevenTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

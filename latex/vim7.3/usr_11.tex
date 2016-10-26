@@ -1,0 +1,348 @@
+\VimNewChapter
+\VimBookMark{第11章　\ChapterElevenTitle}{usr_11.txt}
+\VimFileNameDest{usr\VimTT{\_}11.txt}{ \VimDocVer  最后修改：2010年10月20日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{灾难恢复\\}
+
+
+%% vim7.3 fix 去掉了"磁盘"这样特定的存储设备
+\hypertarget{v73_bugfix_11_txt_improve_1}{}
+你的电脑死过机吗？就在你辛辛苦苦编辑了几小时后？别急！Vim存储了足够的信息来恢
+复你的大部分工作。本章将讲解Vim是如何利用交换文件来恢复你的劳动成果的。
+
+\VimSecList{11.1}{\ChapterElevenSectionOneTitle}
+\VimSecList{11.2}{\ChapterElevenSectionTwoTitle}
+\VimSecList{11.3}{\ChapterElevenSectionThreeTitle}
+\VimSecList{11.4}{\ChapterElevenSectionFourTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{12}  \ChapterTwelveTitle\\
+前一章：& \VimFileName{10}  \ChapterTenTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{11.1}{\ChapterElevenSectionOneTitle}
+
+多数情况下恢复文件是简单的，如果你知道要恢复的文件名(当然也要保证你的硬盘还会
+转), 就可以在启动Vim时指定一个\VimDQuote{-r}参数：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -r help.txt
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+Vim会读取交换文件(这正是存放你已编辑的文件的地方)以及你的原文件的一些信息。恢
+复成功的话，你会看到下面的信息(当然文件名会不同):
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Using swap file ".help.txt.swp"
+Original file "~/vim/runtime/doc/help.txt"
+Recovery completed. You should check if everything is OK.
+(You might want to write out this file under another name
+and run diff with the original file to check for changes)
+You may want to delete the .swp file now.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+为安全起见，最好把它先存成另一个文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:write help.txt.recovered
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你可以比较一下两个文件看看上次结束的地方是不是你想要的地方。Vimdiff程序用于比较
+两个文件的不同是再好不过了\VimSecSrc{08.7}. 比如你可以用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:write help.txt.recovered
+:edit #
+:diffsp help.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+查看原文件可以了解最近的一个版本是什么样子(
+%% 冯亮 qujianning@gmail.com 指正：08.71=>08.7感谢!
+也就是电脑死机前你保存过的版本). 看一下有没有丢失一些内容(有可能哪出了问题
+连Vim也恢复不了)
+
+   如果Vim在恢复时给出了警告信息，那可要特别注意这些警告，尽管这种情况很少发生。
+
+如果恢复后的结果与文件本身的内容完全一致，你会看到下面这样的提示信息：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Using swap file ".help.txt.swp"
+Original file "~/vim/runtime/doc/help.txt"
+Recovery completed. Buffer contents equals file contents.
+You may want to delete the .swp file now.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+这通常是因为你此前已经成功作过恢复，或是你在修改文件后作过保存。此时可以放心
+地删除交换文件。
+
+通常最后的少量改动无法恢复。Vim会在你连续4秒不键入内容时跟磁盘同步一次，或者是
+连续键入了200个字符之后。这可以通过\VimOption{updatetime}和
+\VimOption{updatecount}两个选项来控制。所以如果系统有所改动但Vim还没有同步时发
+生了宕机，那这一部分内容就无法恢复了。
+
+如果你在编辑一个没有指定文件名的缓冲区时死机了，可以通过一个空字符串作为要
+恢复的\VimDQuote{文件名}:
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -r ""
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+确保你所在的目录是正确的，否则Vim会找不到正确的交换文件。
+
+%======...
+\VimSepartor
+
+\VimSecDest{11.2}{\ChapterElevenSectionTwoTitle}
+
+Vim可以在几个地方存放交换文件。通常它跟原文件同一个目录。要找到交换文件，可以
+先切换到某个目录然后用下面的命令：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -r
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+Vim会列出所有找到交换文件。它也会查看其它用来存放交换文件的目录来找到当前
+目录下的文件的交换文件\VimMyFootnote{译注：比如当前目录是\~{}foo/, 其下有一个
+文件叫readme.txt, 虽然该目录下没有名.readme.txt.swp的交换文件，但Vim还可能
+去/tmp目录下看有没有可能在此存有readme.txt的交换文件}。除此之外的其它目录
+就不会被搜索了，同时也不会遍历当前的目录树\VimMyFootnote{译注：指搜索其子目录
+}。
+
+   屏幕输出大致象这样：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+Swap files found:
+   In current directory:
+1.    .main.c.swp
+          owned by: mool   dated: Tue May 29 21:00:25 2001
+         file name: ~mool/vim/vim6/src/main.c
+          modified: YES
+         user name: mool   host name: masaka.moolenaar.net
+        process ID: 12525
+   In directory ~/tmp:
+      -- none --
+   In directory /var/tmp:
+      -- none --
+   In directory /tmp:
+      -- none --
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+如果有好几个交换文件看起来都差不多，Vim会以全部列出这些交换文件，请你从中
+选择一个来进行恢复。此时要小心这些交换文件的日期信息。
+
+   如果你实在难以决断到底用哪个交换文件，那就一个一个试看看哪一个恢复后的内容
+正是你想要的。
+
+
+\VimSubSection{指定交换文件}
+
+如果你能确切知道要用的交换文件名，你也可以在恢复时明确指定该文件。Vim会根据
+交换文件名找出原文件名。
+
+例如：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -r .help.txt.swo
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+%% vim73 fix: 加了swap文件名的模式
+这同样适用于交换文件位于另一个非常规的目录中的情况。
+Vim将符合模式\VimTT{*.s[uvw][a-z]}的文件名视为交换文件。
+
+如果这还不行，那就根据Vim报告的文件名把它改名。查看\VimOption{directory}可以获
+知Vim在哪些目录下存放交换文件。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        Vim会在\VimOption{dir}选项指定的目录中搜索相应的\VimDQuote{filename.sw?}文件。如果通
+        配符不能正常工作(比如 \VimOption{shell}选项设置不当时), Vim还是会试着查找名为
+        \VimDQuote{filename.swp}的文件。这样还是找不到的话，你就要自己指定要用的交换
+        文件了。
+} %end VimCaution
+
+%======...
+\VimSepartor
+
+\VimSecDest{11.3}{\ChapterElevenSectionThreeTitle}
+
+Vim会尽量防止你做错事。假设无辜的你正想编辑一个文件，希望Vim象往常一样显示
+该文件的内容。但它却给出了一大堆这样的东西：
+\begin{VimVBDisplayNoAdjustSpace}[xrightmargin=-1cm,formatcom=\color{VimHelpHeaderColor}]
+        E325: ATTENTION
+Found a swap file by the name ".main.c.swp"
+          owned by: mool   dated: Tue May 29 21:09:28 2001
+         file name: ~mool/vim/vim6/src/main.c
+          modified: no
+         user name: mool   host name: masaka.moolenaar.net
+        process ID: 12559 (still running)
+While opening file "main.c"
+             dated: Tue May 29 19:46:12 2001
+
+(1) Another program may be editing the same file.
+    If this is the case, be careful not to end up with two
+    different instances of the same file when making changes.
+    Quit, or continue with caution.
+
+(2) An edit session for this file crashed.
+    If this is the case, use ":recover" or "vim -r main.c"
+    to recover the changes (see ":help recovery").
+    If you did this already, delete the swap file ".main.c.swp"
+    to avoid this message.
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这是因为编辑文件之前Vim会检查是否存在该文件的交换文件。如果有，那一定是
+出了状况。可能是下面的两种情况：
+
+1. 另一个Vim会话正在编辑该文件。看看上面给出的信息中带有\VimDQuote{process ID}的那一行。
+   它可能是这样：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+process ID: 12559 (still running)
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+   \VimDQuote{(still running)}表明同一台电脑上另一进程正在编辑此文件。在非Unix系统上你
+   可不会看到这么多的提示。如果另一会话是通过网络编辑该文件，那你也不会看到
+   这段提示。因为进程是运行在另一台电脑上。这两种情况下你要自己想办法找出
+   原因。
+
+      如果另一个Vim也在编辑该文件，你再不顾一切地编辑它的话，被编辑的文件就
+   会有两个版本。最后保存的版本将覆盖前一个的内容，总会有人痛失一切。所以最
+   好还是礼让三先，退出Vim.
+
+2. 交换文件可能是肇因于上一次的系统崩溃或Vim自己崩溃。查看一下Vim给出的日期
+   信息。如果交换文件比你要编辑的文件更新，而且给出了下面的消息：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+modified: YES
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+   此时很可能是某个Vim会话崩溃了，这还有得救。
+
+      如果交换文件的日期比要编辑的文件旧，那说明要么该文件在崩溃之后又被更改过。
+(比如你此前已经恢复过，但还留着交换文件), 要么文件的最后存盘时间是崩溃之前，但
+却是在交换文件最后存盘时间之后(算幸运了，老的交换文件也不再需要了). 这时Vim会
+警告你说：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+NEWER than swap file!
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimSubSection{不可读的交换文件}
+
+有时候交换文件下面会出现这样的字样：
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+[cannot be read]
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+这是好是坏？要视情况而定。
+
+如果上一次编辑过程中没有对文件做出任何改变，那是好事。这时交换文件的明细
+情况会显示其长度为0. 你可以简单地删除它。
+
+如果是因为你没有该交换文件的读权限就有点不妙。你可以以只读方式浏览文件
+\VimMyFootnote{译注：
+没有读权限怎么读？}，或者退出。在多用户系统上，如果你对文件的最后一次修改时
+是以另一个账号登入系统的，退出系统后再以该账号登入就可以去除
+\VimDQuote{read error}. 或者你应该看看是谁最后一次编辑过这个文件(或者还正在
+编辑)并跟他谈一谈。
+
+如果是因为磁盘的物理错误引起的那就非常糟糕了。幸运的是这种情况很少发生。你可以
+先试着以只读方式打开文件(如果可以的话), 看看对文件的修改有多少被丢失了。如果正
+是你要对该文件负责，就准备好重来吧。
+
+\VimSubSection{怎么办？}
+
+如果你的VIM支持对话框的话，它会以下面的形式提示你作出选择：
+\begin{VimVBDisplayNoAdjustSpace}[xrightmargin=-2cm,formatcom=\color{VimHelpHeaderColor}]
+Swap file ".main.c.swp" already exists!
+[O]pen Read-Only, (E)dit anyway, (R)ecover, (Q)uit, (A)bort, (D)elete it:
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\begin{description}
+\item[O]
+{以只读方式打开。
+
+如果你只想查看文件内容不想恢复的话就选这个。或者你知道别人正在编辑该文件，你不
+   过想看一下它的内容而已。}
+\item[E]
+{还是要编辑。
+
+小心！如果该文件正被另一Vim编辑，你很可能会得到两个版本。此时Vim会警告你，但最
+   好还是安全第一，以和为贵。}
+\item[R]
+{从交换文件中恢复。
+
+如果你确信交换文件中的内容正是你要找回的东西就那用这个。}
+\item[Q]
+{退出。
+
+这样就免于编辑该文件了。如果有另一个Vim会话正在编辑最好是选择退让。
+      如果你是刚刚启动Vim, 这个选择会同时退出Vim. 如果启动时打开了好几个窗
+   口，Vim只有在第一个窗口遇到这种情况时才退出\VimMyFootnote{译注：否则Vim会继续打开其它
+   文件进行编辑}。如果是在使用一个编辑命令时选择退出，该文件就不会被继续载
+   入，系统回到此前的编辑状态。}
+\item[A]
+{丢弃。
+
+类似于退出，但它同时会撤消对后续命令的执行，这在载入一个脚本编辑
+多个文件时比较有用。如打开一个多窗口的编辑会话时。}
+\item[D]
+{删除交换文件。
+
+只有确信你已不再需要这个交换文件时才应做此选择。比如，交换
+   文件里没有包含任何新的改动，或原文件比交换文件还新。
+      在Unix上只有创建新交换文件的进程不再运行时才会给出这一选择。}
+\end{description}
+
+如果你没看到对话框(你运行的是不支持对话框的Vim), 就要手工恢复了。下面的命令
+执行恢复：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:recover
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim并不总是能正确地检测到交换文件的存在。比如另一编辑该文件的会话将交换文件放
+入了另一目录或者不同机器对被编辑文件的路径的理解不同。所以不要什么都指望Vim.
+
+如果你实在是不想看到这样的警告信息，你可以在\VimOption{shortmess}选项中加入
+\VimDQuote{A}标志\VimMyFootnote{译注：A代表ATTENTION}。但是多数情况下这一
+警告还是十分有用，所以建议保留。
+
+关于交换文件和文件加密的更多信息，请参考\VimCommonSrc{:recover-crypt}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{11.4}{\ChapterElevenSectionFourTitle}
+
+\begin{tabular}{l|l}
+\VimCommonSrc{swap-file} & 关于交换文件的位置和命名 \\ \hline
+\VimCommonSrc{:preserve} & 手工刷新交换文件 \\ \hline
+\VimCommonSrc{:swapname} & 查看原文件及其交换文件的名字 \\ \hline
+\VimOption{updatecount} & 连续击键多少次后做一次同步 \\ \hline
+\VimOption{updatetime} & 多长时间之后做一次同步 \\ \hline
+\VimOption{swapsync} & 同步交换文件时是否同时做一次磁盘同步 \\ \hline
+\VimOption{directory} & 列出存放交换文件的目录 \\ \hline
+\VimOption{maxmem} & 尚未写入交换文件的内容所受的内存限制 \\ \hline
+\VimOption{maxmemtot} & 同上，但是针对所有文件。\\ \hline
+\end{tabular}
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{12}  \ChapterTwelveTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

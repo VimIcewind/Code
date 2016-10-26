@@ -1,0 +1,711 @@
+\VimNewChapter
+\VimBookMark{第08章　\ChapterEightTitle}{usr_08.txt}
+\VimFileNameDest{usr\VimTT{\_}08.txt}{ \VimDocVer  最后修改：2006年07月18日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{分隔窗口\\}
+
+
+同时显示两个不同的文件，或者同时查看同一个文件的两个不同位置，或者是同步显示
+两个文件的不同之处。所有这些都可以通过分隔窗口的功能来实现。
+
+\VimSecList{08.1}{\ChapterEightSectionOneTitle}
+\VimSecList{08.2}{\ChapterEightSectionTwoTitle}
+\VimSecList{08.3}{\ChapterEightSectionThreeTitle}
+\VimSecList{08.4}{\ChapterEightSectionFourTitle}
+\VimSecList{08.5}{\ChapterEightSectionFiveTitle}
+\VimSecList{08.6}{\ChapterEightSectionSixTitle}
+\VimSecList{08.7}{\ChapterEightSectionSevenTitle}
+\VimSecList{08.8}{\ChapterEightSectionEightTitle}
+\VimSecList{08.9}{\ChapterEightSectionNineTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{09}  \ChapterNineTitle\\
+前一章：& \VimFileName{07}  \ChapterSevenTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{08.1}{\ChapterEightSectionOneTitle}
+
+打开一个新窗口最简单的办法就是使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:split
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令将屏幕分为上下两个窗口并将光标定位在上面的窗口中：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++----------------------------------+
+|/* file one.c */                  |
+|~                                 |
+|~                                 |
+|one.c=============================|
+|/* file one.c */                  |
+|~                                 |
+|one.c=============================|
+|                                  |
++----------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+你看到的是两个窗口，显示的内容却来自同一个文件。含有\VimDQuote{====}的行表示状态行。它
+显示了关于它上面的窗口的相关信息。(实际情况下状态行会反相显示)
+
+   同时打开两个窗口可以让你查看同一文件的两个不同部分。比如你可以让上面的窗口来
+显示一个程序中的变量声明部分，下面的窗口是使用了这些变量的编码区。
+
+\VimSpecialChar{CTRL-W} w命令可以切换当前活动窗口。如果你在上面窗口，它会把它带到下面。如果你
+在下面的窗口，同样的命令却是把你带到上面。
+(\VimSpecialChar{CTRL-W} \VimSpecialChar{CTRL-W}功能相同，只不过你可以迟一点
+松开\VimTT{CTRL}键)
+
+
+\VimSubSection{关闭窗口}
+
+命令
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:close
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimNoIndent{}可以关闭当前窗口。
+实际上，任何退出文件编辑的命令象\VimDQuote{:quit}和\VimDQuote{ZZ}都会关闭窗口
+，但是\VimDQuote{:close}命令会阻止你关闭最后一个窗口，以免意外地整个关闭了Vim.
+
+
+\VimSubSection{关闭除当前窗口外的所有其它窗口}
+
+如果你打开了一大堆窗口，但现在你只想把重心放在其中一个上面，这时命令
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:only
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+就十分有用了。
+它会关闭除当前窗口外的所有其它窗口。如果这些窗口中有被修改过
+的，你会得到一个错误信息\VimMyFootnote{译注：在支持中文的gvim上显示的信息是
+\VimDQuote{E445:其它窗口有改变的内容}}，同时那个窗口会被留下来。
+
+%======...
+\VimSepartor
+
+\VimSecDest{08.2}{\ChapterEightSectionTwoTitle}
+
+下面的命令可以打开第二个窗口同时在新打开的窗口中开始编辑作为参数的文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:split two.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你目前正编辑的文件名为one.c, 那么执行该命令后的屏幕大致象这样：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++----------------------------------+
+|/* file two.c */                  |
+|~                                 |
+|~                                 |
+|two.c=============================|
+|/* file one.c */                  |
+|~                                 |
+|one.c=============================|
+|                                  |
++----------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果要打开一个新窗口并开始编辑一个空的缓冲区，使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:new
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你可以重复使用\VimDQuote{:split}和\VimDQuote{:new}命令打开任何你喜欢的窗口数目
+\VimMyFootnote{译注：但在一个17英寸的显示器上，你不会喜欢5个以上同时打开的窗口}
+
+%======...
+\VimSepartor
+
+\VimSecDest{08.3}{\ChapterEightSectionThreeTitle}
+
+\VimDQuote{:split}命令还可以接受一个参数。如果指定了这个参数的话，它将会作为新打开窗口的
+高度。比如下面的命令就打开了一个高度为3行的新窗口并在其中编辑
+名为alpha.c的文件\VimMyFootnote{译注：这里的3可不是命令记数，而是命令的参数}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:3split alpha.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+对于已经打开的窗口有好几种办法可以改变它们的大小。如果你还有鼠标可用的话就更容易
+了：把鼠标移到分隔窗口的状态行上，上下拖动它即可。
+
+增加当前窗口高度：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-W +
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+减小：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-W -
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这两个命令都可以接受一个命令记数，用以一次将窗口的高度增减指定的行数。
+\VimDQuote{4 \VimSpecialChar{CTRL-W} \VimTT{+}}将使当前窗口增加4行高度。
+
+将窗口高度指定为一个固定的高度：
+\begin{VimVBnormalcmdNoAdjustSpace}
+{height}CTRL-W _
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这个命令的组成是：一个代表行数的数字\{height\},
+\VimSpecialChar{CTRL-W}和一个下划线(在标准键盘上
+同时按下Shift键和-键).
+
+   要让窗口达到它可能的最大高度，不指定命令记数直接使用\VimSpecialChar{CTRL-W} \VimTT{\_}. 
+\VimMyFootnote{译注：可以记为让窗口W自己CTRL控制高度，达到它的最大底线\VimTT{\_}}
+
+\VimSubSection{使用鼠标}
+
+在Vim中大多数工作都可以通过键盘有效地完成。不幸的是调整窗口大小的命令需要敲
+太多的键。这时用鼠标反而更快。将鼠标置于状态行。按下鼠标左键拖动。状态行就会
+跟着上下移动，相应地窗口的高度也跟着变大变小。
+
+
+\VimSubSection{相关选项}
+
+\VimOption{winheight}选项可以设置为一个你期望的最小的窗口高度。
+\VimOption{winminheight}则用于设置一个强制的最小高度
+
+   同样地，有一对对应的选项:\VimOption{winwidth}和\VimOption{winminwidth}, 分
+别用于指定期望的最小窗口宽度和强制的最小窗口宽度。
+
+   如果设置了\VimOption{equalalways}选项，则Vim在每次打开或关闭窗口之际都会自动让所有窗
+口均摊屏幕上可用的高度和宽度。
+
+%======...
+\VimSepartor
+
+\VimSecDest{08.4}{\ChapterEightSectionFourTitle}
+
+\VimDQuote{:split}命令创建的新窗口位于当前窗口之上。要让新窗口出现在当前窗口的左边，可以
+用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+        :vsplit
+或：
+        :vsplit two.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+分隔后的窗口大致象：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++--------------------------------------+
+|/* file two.c */   |/* file one.c */  |
+|~                  |~                 |
+|~                  |~                 |
+|~                  |~                 |
+|two.c===============one.c=============|
+|                                      |
++--------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+实际操作时这里窗口中间出现的|都会以反相显示。这叫垂直分隔符。它用来界定左右
+两个窗口。
+
+同样有一个对应的\VimDQuote{:vnew}命令，用于垂直分隔窗口并在其中打开一个新的空
+缓冲区。与此等价的一个命令是：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:vertical new
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+实际上\VimDQuote{:vertical}可以出现在任何分隔窗口的命令前\VimMyFootnote{译注：
+事实上它也可以出现在跟分隔窗口无关的命令前，如:vertical echo
+\VimDQuote{hello}, 只不过没有效果罢了}。这将使接下来的窗口分隔命令进行垂直方向
+的分隔而不是水平方向上。(如果随后的命令跟分隔窗口无关，这个前辍就形同虚设).
+
+
+\VimSubSection{切换窗口}
+
+因为你可以以水平和垂直方向任意分隔窗口，最终的窗口布局也会五花八门。置身于众多
+的窗口你需要在里面来去自如：
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+\VimSpecialChar{CTRL-W} h        到左边的窗口
+\VimSpecialChar{CTRL-W} j        到下面的窗口
+\VimSpecialChar{CTRL-W} k        到上面的窗口
+\VimSpecialChar{CTRL-W} l        到右边的窗口
+\VimSpecialChar{CTRL-W} t        到顶部窗口
+\VimSpecialChar{CTRL-W} b        到底部窗口
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+有没有觉得这些字符有些眼熟\VimMyFootnote{
+译注：hljk是左右上下以字符为单位移动，\VimSpecialChar{CTRL-W}
+hljk则是以窗口(W)为控制单位移动}. 
+如果你愿意的话，用光标键来也同样可以。
+
+   参考\VimCommonSrc{Q\VimTT{\_}w}可以了解更多的关于在窗口间移动的命令。
+
+%======...
+\VimSepartor
+
+\VimSecDest{08.5}{\ChapterEightSectionFiveTitle}
+
+如果你已经分隔出了几个窗口，但对它们的位置不满意。这时你需要一个命令来移动它们
+的相对位置。比如说，你已经有了下面三个窗口：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++----------------------------------+
+|/* file two.c */                  |
+|~                                 |
+|~                                 |
+|two.c=============================|
+|/* file three.c */                |
+|~                                 |
+|~                                 |
+|three.c===========================|
+|/* file one.c */                  |
+|~                                 |
+|one.c=============================|
+|                                  |
++----------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+显然最后一个窗口本应在最上面。转到该窗口(使用\VimSpecialChar{CTRL-W} w)然后键入如下命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-W K
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这里使用的是大写的字母K. 命令的结果是将当前窗口向上提升了一次。有没有注意到K又
+被用于向上移动\VimMyFootnote{译注：看得出来，作者对这种命令字符的精心选取颇为得意}。
+
+   如果你已经有了几个垂直分隔的窗口，\VimSpecialChar{CTRL-W} K会把当前窗口向
+上移动同时占据整个Vim程序窗口的宽度。假如当前的窗口布局是：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++-------------------------------------------+
+|/* two.c */  |/* three.c */  |/* one.c */  |
+|~            |~              |~            |
+|~            |~              |~            |
+|~            |~              |~            |
+|~            |~              |~            |
+|~            |~              |~            |
+|two.c=========three.c=========one.c========|
+|                                           |
++-------------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+对中间的那个窗口(three.c)应用命令\VimSpecialChar{CTRL-W} K将使窗口布局改为
+\VimMyFootnote{译注：对一个水平分隔的上下两个窗口使
+用\VimSpecialChar{CTRL-W} L试试，你会发现这一命令的副作用还可以把水平分隔的窗
+口变为垂直分隔}:
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++-------------------------------------------+
+|/* three.c */                              |
+|~                                          |
+|~                                          |
+|three.c====================================|
+|/* two.c */           |/* one.c */         |
+|~                     |~                   |
+|two.c==================one.c===============|
+|                                           |
++-------------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+另外三个相似的命令是(估计你已经猜到了) \VimMyFootnote{译注：对于相似的命令，本
+书一贯的作法是以其中之一为例详细讲解，其余的则一笔代过，留给读者去举一反三}：
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+\VimSpecialChar{CTRL-W} H        向左移动窗口
+\VimSpecialChar{CTRL-W} J        向下移动窗口
+\VimSpecialChar{CTRL-W} L        向右移动窗口
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimSecDest{08.6}{\ChapterEightSectionSixTitle}
+
+在打开一大堆窗口的情况下要退出Vim, 你可以一个一个地关闭这些窗口。还有另外
+一个专用的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:qall
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+意思很明显\VimDQuote{quit all}\VimMyFootnote{译注：退出全部窗口}. 如果这些窗口中有被修改又没保存
+的，Vim就不会退出。光标也会自动被定位到该窗口中。这样你可以用\VimDQuote{:write}来
+保存修改，或用\VimDQuote{:quit!}放弃这些改动。
+
+如果你已经知道有窗口被修改了而且还没有保存，可以用命令
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:wall
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+来保存所有被修改的窗口。
+命令意为\VimDQuote{write all}\VimMyFootnote{译注：存盘所有的缓冲区}. 但实际上，它只会存盘那些
+改动过的。Vim很清楚重写一遍完全没有改变的文件毫无意义。
+
+   还有一个对\VimDQuote{:qall}和\VimDQuote{:wall}的组合：保存并退出所有窗口：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:wqall
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个命令将保存所有被修改的文件然后退出Vim.
+
+   最后，还有一个放弃所有修改强制退出Vim的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:qall!
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+慎用！这一丢可就再也回不来了！
+
+
+\VimSubSection{为每一个文件打开一个窗口}
+
+使用\VimDQuote{-o}选项可以让Vim为每一个文件打开一个窗口：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -o one.txt two.txt three.txt
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+结果是：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++-------------------------------+
+|file one.txt                   |
+|~                              |
+|one.txt========================|
+|file two.txt                   |
+|~                              |
+|two.txt========================|
+|file three.txt                 |
+|~                              |
+|three.txt======================|
+|                               |
++-------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimDQuote{-O}参数可以使打开的窗口都垂直排列。
+
+   如果已经进入了vim, \VimDQuote{:all}命令会为命令行上指定的所有文件各开一个窗口。
+\VimDQuote{:vertical all}则让打开的窗口都是垂直分隔。
+
+%======...
+\VimSepartor
+
+\VimSecDest{08.7}{\ChapterEightSectionSevenTitle}
+
+Vim有一种特殊的启动方式，可以显示两个文件的不同之处。我们来以\VimDQuote{main.c}文件为
+例，在其中一行插入几个字符，在打开\VimOption{backup}选项的情况下保存文件，这样名为
+\VimDQuote{main.c\~{}}的备份文件会保留该文件此前的版本。
+
+   在一个shell中键入如下命令(注意不是在Vim中):
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vimdiff main.c~ main.c
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+Vim将会打开左右两个垂直分隔的窗口。你会只看到你多插入了几个字符的那行以及
+它周围的上下几行内容。
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+ VV                   VV
++-----------------------------------------+
+|+ +--123 lines: /* a|+ +--123 lines: /* a|  <- fold
+|  text              |  text              |
+|  text              |  text              |
+|  text              |  text              |
+|  text              |  changed text      |  <- changed line
+|  text              |  text              |
+|  text              |  ------------------|  <- deleted line
+|  text              |  text              |
+|  text              |  text              |
+|  text              |  text              |
+|+ +--432 lines: text|+ +--432 lines: text|  <- fold
+|  ~                 |  ~                 |
+|  ~                 |  ~                 |
+|main.c~==============main.c==============|
+|                                         |
++-----------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+(该图没有显示语法高亮，实地使用vimdiff命令会更好看一些)
+
+   没被修改的行被缩置到单独的一行中。这叫折叠。被执行的行以\VimDQuote{<- fold}为标识。
+单个的折叠行代表了123行的内容。这些行对于两个文件来说都是一样的。
+
+   以\VimDQuote{<- changed}标识的那一行以高亮显示，被插入的字符也以另类的颜色突出显示。
+这种方式清晰地展示了两个文件的异同之处。
+
+   在man.c窗口中显示为\VimDQuote{---}行表明该行被删除了。如图中标以\VimDQuote{<- delete line}的行。
+注意这些字符并不真的是文件内容的一部分，它们只是被用来填满main.c的空缺部分，
+这样两个文件就可以显示相同的行数了。
+
+
+\VimSubSection{折叠的栏位}
+
+两个比较窗口的左边都有一个背景略有不同的栏位。上图中它们以\VimDQuote{VV}标识。看到折叠行
+前面的加号字符了吗。把鼠标移到该字符上单击。折叠的行就会展开，这样你就可以看到
+被隐藏起来的内容了。
+
+   折叠栏前面的减号表明这是已经被打开了折叠行。单击该符号会再次折行。
+   当然，你要有鼠标可用才行。如果没有，也可以用使用\VimDQuote{zo}来展开折叠，
+   用\VimDQuote{zc}再把它们折起。
+
+
+\VimSubSection{运行VIM后比较不同}
+
+另一种进入diff模式的办法可以在Vim运行中操作。编辑文件\VimDQuote{main.c}, 然后打开
+另一个分隔窗口显示其不同\VimMyFootnote{译注：以diff模式后如何退出到普通模式??}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit main.c
+:vertical diffsplit main.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:vertical}命令让打开的对比窗口以垂直方向分隔。如果没有它，打开的窗口就是水平
+方向分隔的。
+
+如果你有一个patch或diff文件，还有第3种开始diff模式的方法。首先编辑那个要应
+用patch的文件。然后告诉Vim patch文件的名字：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit main.c
+:vertical diffpatch main.c.diff
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+警告：patch文件必需只包含了单个文件的patch才行。否则你会看到一大堆错误信息，
+同时也有可能把文件打上错误的补丁。
+
+   补丁会打到当前文件的一个副本上，该文件本身并不会被修改(除非你决定以打完补丁
+后的内容保存它).
+
+
+\VimSubSection{同步滚动}
+
+如果两个文件有很多不同之处，你可以以通常方式滚动窗口进行查看。Vim会保证两
+个窗口总是显示文件中相同位置\VimMyFootnote{译注：我在之前的注中说是指行号相同
+的行。感谢Jian Zou指出：实际中行号可能不相同。的确如此，准确说应该是diff算
+法所确定的位置相应的行。}的内容，所以你可以一行对一行
+地看到它们的差异。
+
+   如果暂时不想让它这样，使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set noscrollbind
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+即可
+
+\VimSubSection{跳到不同之处}
+
+如果你禁用了折行显示，要找到两个文件的不同之处就要费劲些，命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+]c
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+可以直接向前定位到下一个不同之处。
+向后定义下一个发生改变的行用：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+[c
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+以一个数字为命令记数可以加快跳转的步伐。
+
+
+\VimSubSection{消除差异}
+
+你可以在两个对比窗口中移动文字。这样做会引起两个文件对比结果的变化。不同之处
+会减少或增多。Vim并不时时更新对应的高亮显示。命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:diffupdate
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+可以在需要的时候重新比较两个文件。
+要消除一个不同之处，你可以把高亮起来的文件从一个窗口移到另一个窗口去。以上面的
+\VimDQuote{main.c}和\VimDQuote{main.c\~{}}为例。把光标置于左边窗口中比右边窗口
+多出的一行上。现在使用命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+dp
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+两个文件的不同被消除了，当前窗口中引起不同的内容被放到另一窗口中缺少这段
+内容的地方去了。\VimDQuote{dp}是\VimDQuote{diff put}的缩写。
+
+   也可以用其它方法来做。将光标移到右边的窗口，到\VimDQuote{changed}插入的位置。
+
+   键入命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+do
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+现在也消除了该位置的不同之处，Vim从另一窗口中的对应位置取来了差异的内容。因为
+现在两个文件完全相同了，Vim将把所有内容都折叠起来。
+\VimDQuote{do}意为\VimDQuote{diff obtain}\VimMyFootnote{译注：获取差异之意。
+\VimDQuote{diff get})可能更好些，不过它已经被别的命令用了(\VimDQuote{dg},键入这
+两个字符之后处于所谓\VimTT{pending}状态，即等待键入命令的其余问题，如接下来键
+入的是\VimTT{3j}则会删除自当前行开始连续4行}
+
+参考\VimCommonSrc{vimdiff}可以了解关于diff模式更多的内容。
+
+%======...
+\VimSepartor
+
+\VimSecDest{08.8}{\ChapterEightSectionEightTitle}
+
+\VimOption{laststatus}选项用于指定何时最近使用的窗口会有一个状态行：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+0       永远没有
+1       只有分隔窗口时(默认值)
+2       总是存在
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+很多要打开另一个文件的命令都有一个变体，可以新开一个窗口来打开指定的文件。
+对于命令行命令而言通常是在一般命令前面附加一个\VimDQuote{s}. 例如\VimDQuote{:tag}可以跳转到
+一个tag, \VimDQuote{:stag}则是打开一个新窗口跳转到该tag.
+
+   对于Normal模式的命令是在命令前使用\VimSpecialChar{CTRL-W}. 
+\VimSpecialChar{CTRL-\^{}}可以跳转到前一个编辑的
+文件，\VimSpecialChar{CTRL-W} \VimSpecialChar{CTRL-\^{}}则分隔出一个窗口来编辑前一个文件。
+
+\VimOption{splitbelow}选项用来控制新开的窗口出现在当前窗口的下面。\VimOption{splitright}则相应地
+使新开的垂直窗口出现在当前窗口的右边
+
+分隔窗口命令还可以有一个位置修饰限定词作为前辍，用来指定新打开的窗口将出现的
+位置：
+
+\begin{VimVBListNoAdjustSpace}[commandchars=\\\{\}]
+:leftabove \VimSpecialChar{\{cmd\}}      当前窗口的左边或上面
+:aboveleft \VimSpecialChar{\{cmd\}}      同上
+:rightbelow \VimSpecialChar{\{cmd\}}     当前窗口的右边或下面
+:belowright \VimSpecialChar{\{cmd\}}     同上
+:topleft \VimSpecialChar{\{cmd\}}        当前窗口的上边或左边
+:botright \VimSpecialChar{\{cmd\}}       当前窗口的下面或右边
+\end{VimVBListNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimSecDest{08.9}{\ChapterEightSectionNineTitle}
+
+可能你已经注意到windows的窗口并不会互相交迭，如果挨个平铺下来你的显示屏幕很快
+就不够用了。解决之道在于页签。
+
+假如你正在编辑的文件是"thisfile". 下面的命令会打开文件新的页签：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tabedit thatfile
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+命令在一个窗口中打开"thatfile", 该窗口占据着整个的Vim显示区域。在最上面你会看
+到这样的两个文件名：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++----------------------------------+
+| thisfile | /thatfile/ __________X|    (thatfile is bold)
+|/* thatfile */                    |
+|that                              |
+|that                              |
+|~                                 |
+|~                                 |
+|~                                 |
+|                                  |
++----------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在你有两个页签。第一个页签为"thisfile"分配了一个窗口。第二个是"thatfile". 这就象两个看上去都叠在对方之上的页，带着一个附着其上的标签显示着各自的文件名。
+
+现在用鼠标点一下第一行的"thisfile"标签。结果会变成：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++----------------------------------+
+| /thisfile/ | thatfile __________X|    (thisfile is bold)
+|/* thisfile */                    |
+|this                              |
+|this                              |
+|~                                 |
+|~                                 |
+|~                                 |
+|                                  |
++----------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+就这样通过点击顶行的标签就可以在不同的页签间切换。如果你没鼠标或者不想使用鼠标
+，也可以用\VimDQuote{gt}命令。关于助记法的友情提示：Goto Tab.
+
+现在来试试用下面的命令新建一个页签：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tab split
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+结果是新建了一个拥有一个窗口的页签，窗口中所编辑的正是我们此前发出命令的窗口所
+打开的缓冲区。
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++-------------------------------------+
+| thisfile | /thisfile/ | thatfile __X|   (thisfile is bold)
+|/* thisfile */                       |
+|this                                 |
+|this                                 |
+|~                                    |
+|~                                    |
+|~                                    |
+|                                     |
++-------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:tab}可以放置在任何打开窗口的Ex命令前。结果是新打开的窗口出现在一
+个新的页签中。再看一个例子：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tab help gt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_135}{view_135}\hypertarget{view_135}{}\fbox{\textcolor{red}{Review}}\\
+这会在一个新页签中打开关于\VimDQuote{gt}的帮助。
+
+对页签可以进行的操作有：
+\begin{VimVBListNoIndent}[xrightmargin=-2cm,commandchars=\\\{\}]
+- 在最后一个标签后面的地方单击将会象\VimDQuote{gt}一样选择下一个页签
+  除非当前页签中有尚未保存的改动
+- 单击右上角的\VimDQuote{X}按钮会关闭当前页签，除非当前页签中有未保存的改动
+- 在顶行双击将新建一个页签
+- \VimDQuote{tabonly}命令会关闭除当前页签之外的所有页签，除非那些页签中有未
+  保存的改动
+\end{VimVBListNoIndent}
+\vspace{-1.3\parskip}
+
+关于页签的更多内容请参考\VimCommonSrc{tab-page}. 
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{09}  \ChapterNineTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

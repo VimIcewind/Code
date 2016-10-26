@@ -1,0 +1,415 @@
+\VimNewChapter
+\VimBookMark{第42章　\ChapterFortyTwoTitle}{usr_42.txt}
+\VimFileNameDest{usr\VimTT{\_}42.txt}{ \VimDocVer  最后修改：2008年05月05日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{增加新菜单\\}
+
+
+现在你应该知道Vim是何其灵活，这包括在GUI环境下对菜单的使用，你可以通过定义自己
+的菜单项来更方便地使用一些命令。当然，这都是对善用鼠标的用户而言。
+
+\VimSecList{42.1}{\ChapterFortyTwoSectionOneTitle}
+\VimSecList{42.2}{\ChapterFortyTwoSectionTwoTitle}
+\VimSecList{42.3}{\ChapterFortyTwoSectionThreeTitle}
+\VimSecList{42.4}{\ChapterFortyTwoSectionFourTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{43}  \ChapterFortyThreeTitle\\
+前一章：& \VimFileName{41}  \ChapterFortyOneTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{42.1}{\ChapterFortyTwoSectionOneTitle}
+
+vim的菜单在\VimDQuote{\$VIMRUNTIME/menu.vim}中定义，在定义你自己的菜单之前，最好先看一下
+这个文件。
+        要定义一个菜单项，使用\VimDQuote{:menu}命令。其基本语法如下：
+\begin{VimVBexcmdNoAdjustSpace}
+:menu {menu-item} {keys}
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\{menu-item\}描述了菜单项要放的位置。一个典型的\{menu-item\}如\VimDQuote{File.Save},
+代表名为\VimDQuote{File}的菜单下的\VimDQuote{Save}菜单项。
+点号用于分隔菜单的名字和其下的菜单项的名字。如下：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:menu File.Save  :update<CR>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:update}命令在文件被改写时保存文件。
+
+   你还可以定义级联菜单：\VimDQuote{Edit.Settings.Shiftwidth}定义了菜单
+\VimDQuote{Edit}下的一个子菜单\VimDQuote{Settings}和该子菜单的菜单项
+\VimDQuote{Shiftwidth}. 你还可以定义更深层的级联菜单，不过最好不要使用太多层的
+子菜单，因为你得不停地移动鼠标。
+
+    \VimDQuote{:menu}命令很类似\VimDQuote{:map}命令：它们都是以左边定义如何触发一个操作，
+右边定义操作的具体内容。\{keys\}指定的就是你的种种模式下实际要键入的
+字符。所以在插入模式下，如果指定的\{keys\}是普通文本，那么执行这一操作
+就会在当前光标处插入这些文本。
+
+
+\VimSubSection{加速键}
+
+符号\&将定义它后面的字符为一个加速键。例如，按下ALT-F可以选择\VimDQuote{File}菜单，再按
+下S可以选择\VimDQuote{Save}菜单项(通过\VimOption{winaltkeys}选项可以禁用这一功能). 对应
+的\{menu-item\}就是\VimDQuote{\&File.\&Save}. 加速键字符在菜单中显示时有一个下划线。
+        必需注意每个加速键字符中同一级平行菜单中只能定义一次。否则的话触发该加速键
+到底是执行哪个操作呢。Vim不会对此发出警告，自己小心！
+
+
+\VimSubSection{优先级}
+
+File.Save菜单项的实际定义如下：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:menu 10.340 &File.&Save<Tab>:w  :confirm w<CR>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+其中数字10.340是优先号。Vim据此来决定把菜单项放在什么位置。第一个数字(10)指定
+菜单在菜单栏上的位置。小数靠左，大数靠右。
+
+   下面是标准菜单的优先级定义：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+  10    20     40     50      60       70         9999
+
++------------------------------------------------------+
+| File  Edit  Tools  Syntax  Buffers  Window      Help |
++------------------------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+Help菜单的优先级被定义为一个很大的数字，这样可以使它总是处于菜单栏的最右边。
+
+    第二个数字(340)决定了菜单项在下拉菜单中的位置。小的靠上，大的居下。下面
+是File菜单中的优先级定义：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+            +-----------------+
+10.310      |Open...          |
+10.320      |Split-Open...    |
+10.325      |New              |
+10.330      |Close            |
+10.335      |---------------- |
+10.340      |Save             |
+10.350      |Save As...       |
+10.400      |---------------- |
+10.410      |Split Diff with  |
+10.420      |Split Patched By |
+10.500      |---------------- |
+10.510      |Print            |
+10.600      |---------------- |
+10.610      |Save-Exit        |
+10.620      |Exit             |
+            +-----------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+你也许已经注意到这些优先级数字并不是一个紧挨一个。这是为你向中间插入自己的
+菜单项留下可能。(最好还是不要动这些标准菜单，另外定义一个新的菜单去加
+入你的菜单项)
+
+    如果你定义了子菜单。还可以为优先码附加一个对应的\VimDQuote{.数字}. 
+
+
+\VimSubSection{特殊字符的考虑}
+
+本例中的\{menu-item\}是\VimDQuote{\&File.\&Save\VimSpecialChar{<Tab>}:w}. 这揭示
+了很重要的一点：\{menu-item\}必需是一个字。如果你想在其中放入点号，空格或跳格
+健就得用别的办法：要么使用尖括号表示法(比如\VimSpecialChar{<space>}和
+\VimSpecialChar{<tab>}), 要么用反斜杠表示的脱字符序列：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmdNoAdjustSpace}
+:menu 10.305 &File.&Do\ It\.\.\. :exit<CR>
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+上例中，名为\VimDQuote{Do It...}的菜单项就包含了一个空格，对应的命令是
+\VimDQuote{:exit\VimSpecialChar{<CR>}}. 
+
+菜单项中的\VimSpecialChar{<Tab>}用于分隔菜单项的名字和用户提示。
+\VimSpecialChar{<Tab>}后面的部分显示在菜单项的最右边。在File.Save菜单项中形如
+\VimDQuote{\&File.Save\VimSpecialChar{<Tab>}:w}. 其中菜单名为
+\VimDQuote{File.Save}, 提示语是\VimDQuote{:w}. 
+
+
+\VimSubSection{分隔线}
+
+分隔线用于在视觉上把相关的菜单项划为一组，定义分隔线时菜单项名字的开头和结尾都
+必需是字符\VimDQuote{-}. 如\VimDQuote{-sep-}. 在同一菜单中使用多个分隔线时这些
+名字必需是唯一的。
+
+    为分隔线定义的命令永远不会被执行，但你还不能省略它。放一个冒号就可以了。如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:amenu 20.510 Edit.-sep3- :
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_229}{view_229}\hypertarget{view_229}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{42.2}{\ChapterFortyTwoSectionTwoTitle}
+
+你可以定义一些只在特定模式才出现的菜单项，就象\VimDQuote{:map}命令的变体：
+\begin{VimVBList}[commandchars=\\\{\}]
+:menu           Normal, Visual and Operator-pending mode
+:nmenu          Normal mode
+:vmenu          Visual mode
+:omenu          Operator-pending mode
+:menu!          Insert and Command-line mode
+:imenu          Insert mode
+:cmenu          Command-line mode
+:amenu          All modes
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+为避免定义在菜单项中的命令已经被\VimDQuote{:map}映射，
+使用形如\VimDQuote{:noremenu}, \VimDQuote{:nnoremenu}, \VimDQuote{:anoremenu}的命令。
+
+
+\VimSubSection{使用：AMENU}
+
+\VimDQuote{:amenu}命令有点特殊。它假定定义的\{keys\}在普通模式下被执行。如果当前模式
+是Visual或插入模式，Vim执行操作前会回到Normal模式。\VimDQuote{:amenu}命令自动为你插
+入\VimSpecialChar{CTRL-C} 或 \VimSpecialChar{CTRL-O}. 比如下面的命令：
+\begin{VimVBexcmdNoAdjustSpace}
+:amenu  90.100 Mine.Find\ Word  *
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+各种模式下的结果如下：
+\begin{VimVBList}[commandchars=\\\{\}]
+Normal mode:            *
+Visual mode:            \VimSpecialChar{CTRL-C} *
+Operator-pending mode:  \VimSpecialChar{CTRL-C} *
+Insert mode:            \VimSpecialChar{CTRL-O} *
+Command-line mode:      \VimSpecialChar{CTRL-C} *
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+在命令行模式下\VimSpecialChar{CTRL-C}会放弃当前已经键入的内容。在Visual和
+等待操作模式下\VimSpecialChar{CTRL-C}将终止该模式。而在插入模式下的
+\VimSpecialChar{CTRL-O}则会临时进入Normal模式，执行完该命令后再返回插入模式。
+
+    因为\VimSpecialChar{CTRL-O}只能为一个命令在插入模式下开绿灯。所以如果你要
+执行多个Normal模式下的命令，就要借助函数，如下：
+% vim: no special highlight in verbatim
+\begin{VimVBCodeSippetNoAdjustSpace}
+:amenu  Mine.Next\ File  :call <SID>NextFile()<CR>
+:function <SID>NextFile()
+:  next
+:  1/^Code
+:endfunction
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+执行这个菜单命令将跳转到下一个文件\VimDQuote{:next}. 然后搜索以\VimDQuote{Code}开始的文本行。
+
+    函数名前的\VimSpecialChar{<SID>}是脚本ID. 以此定义的函数局部于当前的Vim脚本。这样就避免了
+与其它脚本文件中定义的同名函数发生冲突。参见$\mid$\VimSpecialChar{<SID>}$\mid$.
+
+
+\VimSubSection{无回显菜单}
+
+菜单执行\{kyes\}中的命令与你实际键入这些命令一样。对于一个\VimDQuote{:}命令来说命令本身会
+被回显在命令行，如果命令行很长，还会出现\VimSQ{}请按ENTER或其它命令继续\VimSQ{}, 有时候这
+可真是烦人。
+        为避免这种情况，可以通过\VimSpecialChar{<silent>}参数把菜单定义为无回显的。比如，调用上例
+中的NextFile()函数，你会在命令行上看到：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+:call <SNR>34_NextFile()
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+在定义菜单时插入一个\VimSpecialChar{<silent>}作为命令的第一个参数就可以避免看到它：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:amenu <silent> Mine.Next File :call <SID>NextFile()<CR>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+但也不要到处去用\VimDQuote{\VimSpecialChar{<silent>}}. 对于短命令来说没有必要。如果的自定义菜单还有别的
+用户。能让他在执行菜单操作时看到实际进行的操作是一个不错的回馈。
+
+
+\VimSubSection{菜单列表}
+
+使用一个没有定义\{keys\}的菜单命令，将会列出该菜单的定义(如果该菜单已定义的话).
+你可以指定\{menu-item\}或它的一部分来列出某个菜单。如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:amenu
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令列出所有的菜单。那可是一份很长的清单！给出要显示的菜单名会让显示列表更
+集中也更短一些：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:amenu Edit
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这就只会列出\VimDQuote{Edit}菜单在各种模式下的定义了。要列出某个菜单中插入模式下的
+定义，使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:imenu Edit.Undo
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+注意要一字不差地键入菜单名。大小写也不能含糊。但是定义加速键的\VimDQuote{\&}可以省略。
+\VimSpecialChar{<Tab>}和它后面的部分也不用输入。
+
+
+\VimSubSection{删除菜单}
+
+要删除一个菜单，使用与显示菜单同样的命令，只是命令名从\VimDQuote{menu}变为\VimDQuote{unmenu}. 
+这样一来，\VimDQuote{:menu}变成\VimDQuote{:unmenu}, \VimDQuote{nmenu}变成\VimDQuote{nunmenu}, 如此等等。如要删除
+插入模式下的\VimDQuote{Tools.Make}菜单项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:iunmenu Tools.Make
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+也可以删除整个菜单，只指定菜单名：
+如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:aunmenu Syntax
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令删除Syntax菜单和它的所有子项。
+
+%======...
+\VimSepartor
+
+\VimSecDest{42.3}{\ChapterFortyTwoSectionThreeTitle}
+
+你可以通过\VimOption{guioptions}选项来改变菜单的外观。它的默认设置包括了除
+\VimDQuote{M}外的所有标志值。你可以用下面的命令去掉某个标志值：
+\begin{VimVBList}[commandchars=\\\{\}]
+\textcolor{VimExampleColor}{
+:set guioptions-=m}
+
+m     移除该选项菜单条就不会显示出来了
+
+M     移除该标志默认菜单将不会被加载
+
+g     移除该标志将使不可用的菜单项被移除而不仅仅是变灰(很多
+      系统上该功能都不能用)
+
+t     移除该标志使菜单成为浮点窗口的功能将失效
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+
+每个菜单列表顶端的虚线可不是分隔线。当你选择使用该命令时，菜单将好象被从该
+虚线处剪下一样，变成浮动窗口。这叫剪贴菜单(tearoff, 金山词霸里没有这个词，
+倒是有tear-off, 解释为\VimDQuote{可按虚线剪下的纸}). 当你要频繁使用同一菜单时这可让你
+用起来更方便。
+
+要翻译菜单项，参见\VimCommonSrc{:menutrans}. 
+
+因为使用菜单时要用到鼠标，所以最好用\VimDQuote{:browse}命令去选择文件。用
+\VimDQuote{:confirm}去打开一个对话框，而不是去看命令行上的出错信息。当前缓冲区
+被改变时，可以组合使用这两个命令：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:amenu File.Open  :browse confirm edit<CR>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:browse}命令会打开一个文件浏览窗口用于选择一个待编辑的文件。
+\VimDQuote{:confirm}将在当前缓冲区被改变时弹出一个确认对话框。你可以选择保存改
+变或放弃或撤消操作。
+
+    要进行更多的控制，可以使用confirm()和inputdialog()函数。默认菜单里面就有
+一些这样的例子。
+
+%======...
+\VimSepartor
+
+\VimSecDest{42.4}{\ChapterFortyTwoSectionFourTitle}
+
+有两种菜单情况特殊：工具栏和弹出式菜单。以此起始的菜单名将不会出现在通常的菜单
+条里。
+
+\VimSubSection{工具栏}
+
+工具栏只有在\VimOption{guioptions}选项里包括\VimDQuote{T}标志时才会出现。
+
+	工具栏使用图标而不是文字表示命令。比如，名为\VimDQuote{ToolBar.New}的
+\{menu-item\}将在工具栏上定义一个\VimDQuote{New}图标。
+
+	Vim编辑器内置了28个图标。你可以在\VimCommonSrc{builtin-tools}处找到它们。
+很多图标都被用于默认的工具栏。你也可以重新定义这些图标的操作。
+
+	你可以为某个工具项另外指定一个位图加到工具栏上。或者以一个新的图示来定义一
+个新的工具项。例如下面的命令定义了一个新的工具项：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tmenu ToolBar.Compile  Compile the current file
+:amenu ToolBar.Compile  :!cc % -o %:r<CR>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你需要创建一个图标。对MS-Windows而言必需是bitmap格式，文件名为
+\VimDQuote{Compile.bmp}.对Unix来说用XPM格式，文件名为
+\VimDQuote{Compile.xpm}\VimMyFootnote{
+译注：当然MS-Windows还是大小写不敏感的，而Unix是大小写敏感的}. 图标尺寸也必需
+是18 x 18像素。在MS-Windows上也可以用其它尺寸的图标，但看起来就不那么顺眼了。
+
+	把你创建的bitmap放在\VimOption{runtimepath}选项指定的任何一个目录下名为
+\VimDQuote{bitmaps}的子目录。如在Unix系统上
+\VimDQuote{\~{}/.vim/bitmaps/Compile.xpm}. 
+
+你可以为工具栏上的工具项定义一个提示语。一个提示语就是告诉用户这些工具能做什么
+的简短描述。比如\VimDQuote{Open file}. 鼠标位于工具项上面时将会显示这些提示语。
+如果图标并不能使人望文生义，提供这样一个语言描述就十分有用了：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tmenu ToolBar.Make  Run make in the current directory
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        留心大小写。\VimDQuote{Toolbar}和\VimDQuote{toolbar}可都不是\VimDQuote{ToolBar}!
+} %end VimCaution
+
+删除一个提示，用\VimCommonSrc{:tunmenu}命令。
+
+\VimOption{toolbar}选项可用于控制是显示图标还是文字，还是兼而有之。大多数人喜欢只用图标。
+因为文字会占去显示器上很大地方。
+
+
+\VimSubSection{弹出菜单}
+
+弹出菜单在鼠标所在位置处弹出。在MS-Windows上可以通过右击鼠标来激活它。
+然后用左健你可以选择它上面的菜单项。在Unix上弹出菜单通过按下右健，移动到要用的
+菜单项，然后松开右健使用\VimMyFootnote{译注：有机会用Xwindows时你自然会明白}。
+
+弹出菜单只有在选项\VimOption{mousemodel}被设置为\VimOption{popup}或
+\VimOption{popup\VimTT{\_}setpos}时才会出现。这两个选项的不同在于
+\VimDQuote{popup\VimTT{\_}setpos}会把光标移动到鼠标的当前位置。在一个被选择区
+域内点击时，选择区域保持不变。而在选择区域之外单击时，则会使区域选择被撤消。
+
+    每种模式下都有各自的弹出菜单。所以弹出菜单不会象常规菜单那样出现不可用的
+灰色菜单项。
+
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{43}  \ChapterFortyThreeTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=4:ft=help:norl:
+}

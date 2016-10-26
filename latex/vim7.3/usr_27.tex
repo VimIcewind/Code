@@ -1,0 +1,750 @@
+\VimNewChapter
+\VimBookMark{第27章　\ChapterTwentySevenTitle}{usr_27.txt}
+\VimFileNameDest{usr\VimTT{\_}27.txt}{ \VimDocVer  最后修改：2010年03月28日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{搜索命令和正则表达式\VimMyFootnote{译注：正则表达式是vim中的重头
+戏，本手册中的regular expresion, pattern一般情况下可以互用，都是指这种格式紧凑
+面目可憎的神秘符号。用于以抽象的方式指定一类要搜索/替换的对象}}
+
+
+在第3章介绍了一些简单的搜索模式。Vim可以执行远远比这复杂得多的搜索。本章讲解
+这些最常用的搜索。关于模式搜索更详细的话题可以参考\VimCommonSrc{pattern}. 
+
+\VimSecList{27.1}{\ChapterTwentySevenSectionOneTitle}
+\VimSecList{27.2}{\ChapterTwentySevenSectionTwoTitle}
+\VimSecList{27.3}{\ChapterTwentySevenSectionThreeTitle}
+\VimSecList{27.4}{\ChapterTwentySevenSectionFourTitle}
+\VimSecList{27.5}{\ChapterTwentySevenSectionFiveTitle}
+\VimSecList{27.6}{\ChapterTwentySevenSectionSixTitle}
+\VimSecList{27.7}{\ChapterTwentySevenSectionSevenTitle}
+\VimSecList{27.8}{\ChapterTwentySevenSectionEightTitle}
+\VimSecList{27.9}{\ChapterTwentySevenSectionNineTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{28}  \ChapterTwentyEightTitle\\
+前一章：& \VimFileName{26}  \ChapterTwentySixTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{27.1}{\ChapterTwentySevenSectionOneTitle}
+
+默认情况下Vim的搜索是大小写敏感的。这样\VimDQuote{include},
+\VimDQuote{INCLUDE}和\VimDQuote{Include}就是三个不同的word, 一次Vim搜索只匹配
+它们中的一个。
+
+   现在打开\VimOption{ignorecase}选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set ignorecase
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+再搜索一下\VimDQuote{include}看，现在它也可以匹配到\VimDQuote{Include},
+\VimDQuote{INCLUDE}和\VimDQuote{InClUDe}了。 (建设设置\VimOption{hlsearch}选项
+以快速浏览就有哪些地方符合匹配).
+
+   下面的命令又可以关闭这一选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set noignorecase
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+但这里我们还是暂且设置该选项，查找\VimDQuote{INCLUDE}. 这样它就同样可以匹配到
+\VimDQuote{include}.现在打开\VimOption{smartcase}选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set ignorecase smartcase
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你要搜索的内容中至少包括一个大写字母，整个搜索就会是大小写敏感的。这样
+设计你就不必总是输入大写字符了，你想要进行大小写敏感的搜索时准确键入就行了。
+这看起来智能多了。
+
+    设了上面这两个选项，下面的所有word都可以搜索得到：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+模式                    能匹配什么}
+word                    word, Word, WORD, WoRd, etc.
+Word                    Word
+WORD                    WORD
+WoRd                    WoRd
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimSubSection{正则表达式内部的大小写}
+
+如果你只想对搜索模式的一部分应用大小写不敏感的策略，可以在它前面加上一个
+\VimDQuote{\VimBS{}c}. 使用\VimDQuote{\VimBS{}C}会使大小写敏感。而且这两个前辍
+的优先级高于\VimOption{ignorecase}和\VimOption{smartcase}选项的设定，使用
+\VimDQuote{\VimBS{}c}或\VimDQuote{\VimBS{}C}时Vim不会考虑这两个选项的值是什么。
+
+\begin{VimVBListNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+模式                    能匹配什么}
+\VimBS{}Cword                  word
+\VimBS{}CWord                  Word
+\VimBS{}cword                  word, Word, WORD, WoRd, etc.
+\VimBS{}cWord                  word, Word, WORD, WoRd, etc.
+\end{VimVBListNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+使用\VimDQuote{\VimBS{}c}和\VimDQuote{\VimBS{}C}还另有一大优点，它们与要搜索的
+模式字符串写在一起，这样你从一个搜索命令历史列表中调出它们时，还可以精确地使用
+大小写敏感或不敏感\VimMyFootnote{译注：或是一部分敏感另一部分不敏感}，不管
+\VimOption{ignorecase}的\VimOption{smartcase}的设置是否已经被改变，搜索的结果
+都会与上次使用它们时保持一致。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        在搜索模式中对\VimDQuote{\VimBS{}}的解释因\VimOption{magic}选项的设置而异。
+	本章中我们假定\VimOption{magic}
+        选项是打开的，因为这是标准的情况，也是我们推荐的设置。
+	如果你改变了\VimOption{magic},
+        可能会发现很多原本好端端的搜索命令都不对劲了。
+} %end VimCaution
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        如果搜索的执行花了太长时间还没有返回，你可以中途打断它。
+        在Unix上用\VimSpecialChar{CTRL-C},
+在MS-DOS和MS-Windows上用\VimSpecialChar{CTRL-Break}. 
+} %end VimCaution
+
+%======...
+\VimSepartor
+
+\VimSecDest{27.2}{\ChapterTwentySevenSectionTwoTitle}
+
+默认情况下，一个向前的搜索会从当前光标开始，直到找到目标或达到文件尾。如果到了
+文件尾还没有找到匹配的字符串，它就会从文件开头继续查找。
+
+   记住每次你用\VimDQuote{n}命令来重复进行搜索时，你有可能实际上是回到了第一个
+匹配处。如果你从来都没有注意过的话，也可以注意一下Vim给你的提示：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+search hit BOTTOM, continuing at TOP
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果你用\VimDQuote{?}命令，从反方向开始搜索，得到的提示是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+search hit TOP, continuing at BOTTOM
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果你还是不知道什么时候你又回到了第一个匹配。还可以试试这样办法，打开\VimOption{ruler}
+选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set ruler
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会在窗口的右下角处显示当前的光标位置(如果有状态行的话它会出现在状态行上).
+看起来象这样：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+101,29       84%
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+第一个数字是当前所在的行号。记住你从哪一行开始第一次搜索的，这样你就可以对比
+检查什么时候越过了这个位置。
+
+\VimSubSection{不循环搜索}
+
+要关闭越过文件头尾的循环搜索，可以使用下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set nowrapscan
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在如果搜索已经达到了文件尾就会显示如下的错误信息：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+E385: search hit BOTTOM without match for: forever
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+这样你可以以下面的方法找到所有的匹配：用\VimDQuote{gg}命令回到文件的开头，继续搜索直到
+再次看到这样的错误信息。
+
+   如果你是在用\VimDQuote{?}做反方向搜索，你看到的将是会：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+E384: search hit TOP without match for: forever
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_158}{view_158}\hypertarget{view_158}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{27.3}{\ChapterTwentySevenSectionThreeTitle}
+
+默认情况下，搜索到一个目标后光标会停留在目标字符串的第一个字符上。你也可以
+告诉Vim此时要如何放置光标。对于向前搜索命令\VimDQuote{/}来说，指定一个偏移可以通过在
+模式最后再加上一个/符号，紧接着指定你要的偏移。
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/default/2
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这个命令会搜索模式\VimDQuote{default}, 找到后将光标停留在目标行向下的第2行。对
+上一段执行这个命令的话，Vim将会在第1行发现\VimDQuote{default}. 然后光标置于其
+后的第2行即\VimDQuote{an offset}上\VimMyFootnote{译注：这段话只对英文有效，对
+于中文你可以搜索\VimDQuote{默认}, 同样的命令会让你停留在开头是\VimDQuote{模式}
+所在的那一行}..
+
+如果指定的偏移是一个简单的数字，光标就会被简单地置于目标行其下第N行的开头。偏移
+可以是正的也可以是负的。如果是正的，光标会在找到目标行后向前移动，反之向后移。
+
+
+\VimSubSection{微调查找到结果时的光标位置}
+
+\VimDQuote{e}指示光标在找到目标串之后以它的结尾作为移动的起始处。它会把光标置于目标字符
+串的最后一个字符，命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/const/e
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+会在找到\VimDQuote{const}后把光标置于\VimDQuote{t}上。
+
+   从光标的默认位置上附加一个数字将引起光标向前移动指定的字符数，下面的命令将
+光标置于目标字符串的结尾处的下一个字符：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+/const/e+1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+正数使光标向右移动，负向左移。如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+/const/e-1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+会将光标移到\VimDQuote{const}的\VimDQuote{s}上。
+
+如果偏移指示符是以\VimDQuote{b}开始的，则光标移动到目标字符串的开头。这个用处
+不大，因为默认就是如此。只有在加减一个数时它才显得有用。此时光标从目标字符串的
+开头左右偏移。如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+/const/b+2
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+命令会以目标字符串的开头为原点，向右移动两个字符，最终停留在\VimDQuote{n}上。
+
+\VimSubSection{重复}
+
+要重复前一个搜索但应用不同的偏移，可以空出模式部分：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+/that
+//e
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+它与：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+/that/e
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+完全一样。
+
+如果要用的偏移也是一样，用
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+就行。
+
+\VimDQuote{n}命令与此相同。要继续查找但移除前面使用的偏移效果，用：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+//
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{反向搜索}
+
+对\VimDQuote{?}命令而言使用偏移也毫无二致。但是你必需以\VimDQuote{?}来分隔命令的不同部分：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+?const?e-2
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{b}和\VimDQuote{e}还保持原来的意思，它们不因\VimDQuote{?}命令的方向而改变。
+
+
+\VimSubSection{开始位置}
+
+搜索命令通常始于当前位置。如果你同时指定了一个行偏移，这就可以引起问题。比如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+/const/-2
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个命令查找下一个\VimDQuote{const}然后定位于其上的第2行。如果你用
+\VimDQuote{n}命令继续搜索，Vim就会从现在的位置搜索下一个\VimDQuote{const}. 应
+用同样的偏移，你又回到了刚才的那个地方。你会一直被耗在同一个位置！
+
+   这可能会引起错误：假设下面还有一个\VimDQuote{const}符合匹配。继续向前查找就会找到这个
+\VimDQuote{const}然后又向上移2行。这样实际上你的光标是往后移了！
+
+当你指定的是以字符为单位的偏移时，Vim会为此作出补偿。这样同样的目标字符串就
+不会被再次匹配到。
+
+%======...
+\VimSepartor
+
+\VimSecDest{27.4}{\ChapterTwentySevenSectionFourTitle}
+
+\VimDQuote{*}在一个模式中表明它前面的项可以匹配任意次数。这样：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+/a*
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+就可以匹配到\VimDQuote{a}, \VimDQuote{aa}, \VimDQuote{aaa}, 等等。但是它还能匹
+配""(空字符串), 因为0次匹配也包括在内。
+
+   不过\VimDQuote{*}只对紧靠在它前面的项起作用。所以\VimDQuote{ab*}匹配的是
+\VimDQuote{a}, \VimDQuote{ab}, \VimDQuote{abb}, \VimDQuote{abbb}, 等等这样的东
+西。要让整个字符串重复多次，必需让它们成组作为一个项。用\VimDQuote{\VimBS{}(}
+和\VimDQuote{\VimBS{})}把它们前后包围起来即可。下面的命令：
+\begin{VimVBexcmdNoAdjustSpace}
+/\(ab\)*
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+就可以匹配到：\VimDQuote{ab}, \VimDQuote{abab}, \VimDQuote{ababab}, 等等。还有"".
+
+要避免匹配到一个空的字符串，使用\VimDQuote{\VimBS{}+}. 它让前面的项重复1次或多次。
+%% 冯亮指正：\* => \+
+
+\begin{VimVBnormalcmdNoAdjustSpace}
+/ab\+
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+会匹配到\VimDQuote{ab}, \VimDQuote{abb}, \VimDQuote{abbb}, 等等，但不会匹配后面没有一个\VimDQuote{b}的\VimDQuote{a}. 
+
+要匹配一个可有可无的项，使用\VimDQuote{\VimBS{}=}. 例如：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/folders\=
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+匹配\VimDQuote{folder}和\VimDQuote{folders}. 
+%% Anky He
+%% 指出：
+%% 应为folders, 正解
+
+
+\VimSubSection{指定重复次数}
+
+要指定重复的次数，可以使用\VimDQuote{\VimBS{}\{n,m\}}这样的形式。\VimDQuote{n}
+%%%
+%% 冯亮 指正第二个n应为m
+%%
+和\VimDQuote{m}代表数字。其前的项会被匹配\VimDQuote{n}次到\VimDQuote{m}次。参
+考\VimCommonSrc{inclusive}. 例：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/ab\{3,5}
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+匹配 \VimDQuote{abbb}, \VimDQuote{abbbb} 和 \VimDQuote{abbbbb}. 如果
+\VimDQuote{n}被忽略了就默认它为0, 如果\VimDQuote{m}被忽略了就默认它为无穷大。如
+果\VimDQuote{,m}被忽略了那就会精确地匹配\VimDQuote{n}次重复。
+
+\begin{VimVBListNoAdjustSpace}[commandchars=\\\{\}]
+\textcolor{VimHelpHeaderColor}{
+模式               匹配到的次数}
+\VimBS{}\VimSpecialChar{\{,4\}}              0, 1, 2, 3 或 4 次
+\VimBS{}\VimSpecialChar{\{3,\}}              3, 4, 5 次，等等
+\VimBS{}\VimSpecialChar{\{0,1\}}             0 或 1, 跟 \VimBS{}= 一样
+\VimBS{}\VimSpecialChar{\{0,\}}              0 次或多次，跟 * 一样
+\VimBS{}\VimSpecialChar{\{1,\}}              1 次或多次，跟 \VimBS{}+ 一样
+\VimBS{}\VimSpecialChar{\{3\}}               3 次
+\end{VimVBListNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{正则表达式：懒惰模式} \VimMyFootnote{译注：在Jeffrey E.F.
+Friedl经典的\VimTT{《Mastering Regular Expressions》}一书中，将正则表达式
+默认的工作方式---匹配尽可能多的内容称为greedy(贪婪)模式，而将匹配尽可能少的内容
+这种工作方式称为lazy(懒惰模式), 这也是perl中对这两种模式的标准术语}
+
+目前为止，所有的重复项都是\VimDQuote{贪婪}地匹配所能找到的字符。要尽可能少次数
+地重复一个项，使用\VimDQuote{\VimBS{}\{-n,m\}}. 它跟
+\VimDQuote{\VimBS{}\{n,m\}}一样，只是在匹配时尽可能少次数地重复。
+
+   例如，用命令：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/ab\{-1,3}
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+将会匹配到\VimDQuote{abbb}中的\VimDQuote{ab}. 实际上，它永远都不会匹配多于一个
+的b, 因为没理由做这样的匹配。要让它超出最低限定次数地重复必需要有其它的强制因
+素。
+
+   对\VimDQuote{n}或\VimDQuote{m}一方缺角的情况也一样。甚至两个上下限都没有指
+定时也一样，如\VimDQuote{\VimBS{}\{-\}}. 它匹配它前面的项0次或多次，尽可能地少。
+%%
+%% 冯亮指出应为"一次或多次", 其实应为 零次或多次
+%% 
+这个模式本身只可能匹配到0次。跟其它东西联合使用时这一功能十分有用。如：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/a.\{-}b
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+它会匹配到\VimDQuote{axbxb}中的\VimDQuote{axb}. 如果模式是：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/a.*b
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+它就会尽可能多地匹配了。所以匹配到的是整个\VimDQuote{axbxb}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{27.5}{\ChapterTwentySevenSectionFiveTitle}
+
+在一个模式中的\VimDQuote{或}操作符是\VimDQuote{\VimBS{}$\mid$}. 如：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/foo\|bar
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+它匹配到\VimDQuote{foo}或者\VimDQuote{bar}. 更多的并列项可以继续串联在一块：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/one\|two\|three
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+匹配到\VimDQuote{one}, \VimDQuote{two} 和 \VimDQuote{three}. 
+
+   要匹配多次，必需把整个字符串用\VimDQuote{\VimBS{}(}和\VimDQuote{\VimBS{})}
+前后括起来：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/\(foo\|bar\)\+
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这可以匹配到\VimDQuote{foo}, \VimDQuote{foobar}, \VimDQuote{foofoo},
+\VimDQuote{barfoobar}, 等等。
+
+   看另一个例子：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/end\(if\|while\|for\)
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+匹配的是 \VimDQuote{endif}, \VimDQuote{endwhile} 和 \VimDQuote{endfor}. 
+
+另一个与此相关的项是\VimDQuote{\VimBS{}\&}. 它要求两个并列的选项同时被被匹配到
+。最终的匹配结果将是最后一个并列项。如：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/forever\&...
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+将只会匹配\VimDQuote{forever}中的\VimDQuote{for}. 但不会匹配到
+\VimDQuote{fortuin}中的\VimDQuote{for}\VimMyFootnote{译注：因为
+\VimDQuote{fortuin}不符合并列项中的forever, 在forever\&...中，首先forever这个
+被匹配到，然后3个任意字符一定会被匹配到，实际上就是for, 最终被匹配的是for, 所
+以如果搜索命令是/forever\&.../e则光标将停留在字母for中的r上。关于\VimTT{\VimBS{}\&},
+请参考\VimCommonSrc{\VimTT{/\VimBS{}\&}}}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{27.6}{\ChapterTwentySevenSectionSixTitle}
+
+要匹配\VimDQuote{a}或\VimDQuote{b}或\VimDQuote{c}你可以用
+\VimDQuote{\VimTT{/a\VimBS{}|b\VimBS{}|c}}. 如果你要匹配的是从\VimDQuote{a}到
+\VimDQuote{z}的所有26个字母这个模式就会变得很长很长... 下面是另一种更为简短的
+表示法：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/[a-z]
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimTT{[]}这种结构只匹配到一个单个的字符。在括号中你可以指定哪些字符可以被匹配到。
+你可以指定一个字符列表，象这样：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/[0123456789abcdef]
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这将会匹配到所有包括在内的单个字符。对于ASCII以1递增的连续字符你可以指定一个
+范围。\VimDQuote{0-3}代表\VimDQuote{0123}. \VimDQuote{w-z}代表\VimDQuote{wxyz}. 所以上面的整个命令可以写为：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/[0-9a-f]
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+要匹配一个\VimDQuote{-}本身只需把它放在整个字符集的开头或结尾。下面这些特殊字符可以在
+\VimTT{[]}中出现(实际上它们可以出现在一个搜索模式的任何地方):
+\begin{VimVBListNoAdjustSpace}[commandchars=\\\{\}]
+'e      \VimSpecialChar{<Esc>}
+'t      \VimSpecialChar{<Tab>}
+'r      \VimSpecialChar{<CR>}
+'b      \VimSpecialChar{<BS>}
+\end{VimVBListNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_159}{view_159}\hypertarget{view_159}{}\fbox{\textcolor{red}{Review}}\\
+%% 冯亮指出，e=>\e
+
+关于\VimTT{[]}的范围还有一些特别的情况，参考\VimCommonSrc{\VimTT{/[]}}可以获知该主题的完整内容。
+
+
+\VimSubSection{补集}
+
+要避免匹配到某个特殊的字符，在[]字符集的开头用\VimDQuote{\^{}}可以指定除[]中指定的所有
+字符之外的字符。如下：
+\begin{VimVBList}[commandchars=\\\{\}]
+\textcolor{VimExampleColor}{
+/"[^"]*"}
+ "        一个双引号
+  [^"]    除双引号外的任何字符
+      *   尽可能多地匹配
+       "  又一个双引号
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+这将会匹配到\VimDQuote{foo}和\VimDQuote{3!x}, 包括双引号本身。
+
+
+\VimSubSection{预定义字符集}
+
+由于字符集合在Vim中被广泛使用。所以Vim提供了另一种快捷的表示：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/\a
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+查找所有的字母字符。等同于
+\VimDQuote{/[a-zA-Z]}. 下面是其
+它一些类似的类集表示：
+\begin{VimVBList}[commandchars=\\\{\},xrightmargin=-2cm,formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+特殊项  匹配什么        等价的正则表达式}
+\VimBS{}d      数字            \VimSpecialChar{[0-9]}
+\VimBS{}D      非数字          \VimSpecialChar{[^0-9]}
+\VimBS{}x      十六进制数      \VimSpecialChar{[0-9a-fA-F]}
+\VimBS{}X      非十六进制数    \VimSpecialChar{[^0-9a-fA-F]}
+\VimBS{}s      空白字符        [       ]     (\VimSpecialChar{<Tab>} 和 \VimSpecialChar{<Space>})
+\VimBS{}S      非空白字符      [^      ]     (\VimSpecialChar{<Tab>} 和 \VimSpecialChar{<Space>}除外)
+\VimBS{}l      小写字母        \VimSpecialChar{[a-z]}
+\VimBS{}L      非小写字母      \VimSpecialChar{[^a-z]}
+\VimBS{}u      大写字母        \VimSpecialChar{[A-Z]}
+\VimBS{}U      非大写字母      \VimSpecialChar{[^A-Z]}
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        使用这些预定义的类集会比手工在[]中指定一个等价的类集要快得多
+	\VimMyFootnote{译注：Vim在内部已编译过这些类集所对应的内部形式，而临时
+	指定的类集需要即时编译}。
+	这些项不能用于\VimTT{[]}内部。所以\VimDQuote{[\VimBS{}d\VimBS{}l]}并不
+	会象你想象的那样去匹配数字或小写字母。
+用\VimDQuote{\VimTT{\VimBS{}(\VimBS{}d\VimBS{}|\VimBS{}l\VimBS{})}}就OK了。
+} %end VimCaution
+
+参看\VimCommonSrc{/\VimBS{}s}以了解特殊类集的完整列表。
+
+%======...
+\VimSepartor
+
+\VimSecDest{27.7}{\ChapterTwentySevenSectionSevenTitle}
+
+字符类集可以匹配一个数目固定的字符集合。字符类与此相似，但是有一点本质不同：
+字符类中的元素可以在不改变搜索模式的情况下重新定义。
+
+   比如查找下面的模式：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/\f\+
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{\VimBS{}f}项代表组成文件名的字符。这个模式可以匹配到一个看似文件名的字符串。
+
+   一个合法的文件名到底可以含有哪些字符依具体的操作系统而定。在MS-Windows上，
+可以包含一个反斜杠，在Unix上就不能。这可由\VimOption{isfname}选项指定。该选项在Unix上的
+默认值是：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set isfname
+isfname=\VimAt{},48-57,/,.,-,_,+,,,#,$,%,~,=
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+对其它系统来说这个默认值就不同了。所以你可以用\VimDQuote{\VimBS{}f}来搜索一个
+文件名，不过它应该被预先调整得适宜于你所工作的系统。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        实际上，Unix可以允许包括空格在内的任何字符。在\VimOption{isfname}选项里包含这些
+        字符在理论上也是正确的\VimMyFootnote{译注：实际中也是正确的，但是会造成诸多不便}。
+        但是这样的话Vim就没办法判断一个文件名到底在哪里结束了。所以默认的
+	\VimOption{isfname}选项的采取了实用的热衷主义\VimMyFootnote{译注：实际
+	上Unix系统的文件名可以是任何除\VimSQ{}\VimBS{}0\VimSQ{}和\VimSQ{}/\VimSQ{}之外的
+	字符，前者用于标记一个字符串的结束，后者用来分隔一个路径中不同的部分}。
+} %end VimCaution
+
+这些字符类还包括
+\VimMyFootnote{译注：规律：命令的大写形式是对小写形式的某种修饰，此例中减去一个集合}:
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+项      匹配什么                对应的选项}
+\VimBS{}i      标识符字符              \VimOption{isident}
+\VimBS{}I      同于\VimBS{}i, 但排除了数字
+\VimBS{}k      关键字字符              \VimOption{iskeyword}
+\VimBS{}K      同\VimBS{}k, 但排除数字
+\VimBS{}p      可打印字符              \VimOption{isprint}
+\VimBS{}P      同\VimBS{}p, 但排除数字
+\VimBS{}f      文件名字符              \VimOption{isfname}
+\VimBS{}F      同\VimBS{}f, 但排除数字
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimSecDest{27.8}{\ChapterTwentySevenSectionEightTitle}
+
+Vim可以查找下一个包括断行符号的字符串。你需要告诉它在哪里断行，因为目前为止所
+有的项都不包含断行符\VimMyFootnote{译注：这里用断行符是因为在不同的系统上换行
+的标识不一致，MS-DOS和MS-Windows是用\VimDQuote{回车}(ASCII为13)和\VimDQuote{
+换行}(ASCII为10)两个连续的字符来表示，Unix系统用一个\VimDQuote{换行}(ASCII为10)来
+表示，Mactonish则用\VimDQuote{换行} (ASCII为10)和\VimDQuote{回车}(ASCII为13)两个
+连续的字符来表示}。
+
+   要表明某处发生断行，使用\VimDQuote{\VimBS{}n}:
+\begin{VimVBnormalcmdNoAdjustSpace}
+/the\nword
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这将会匹配到以\VimDQuote{the}结束而且下一行以\VimDQuote{word}开始的行。要同时
+匹配\VimDQuote{the word}, 你需要匹配空格或断行。
+\VimDQuote{\VimBS{}\VimTT{\_}s}项正是这个的意思：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/the\_sword
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimMyFootnote{译注：在一个表示字符类的项中\VimBS{}后面附加一个\VimTT{\_}表示
+为这个字符类再附加一个元素：断行}下面的例子允许多个的空白字符：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/the\_s\+word
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这会同时匹配到行尾是\VimDQuote{the  }下一行开头是\VimDQuote{    word}的情况。
+
+\VimDQuote{\VimBS{}s}匹配空白，\VimDQuote{\VimBS{}\VimTT{\_}s}匹配空白或断行。
+同样，\VimDQuote{\VimBS{}a}匹配一个字母字符，\VimDQuote{\VimBS{}\VimTT{\_}a}匹
+配一个字母字符或一个断行。其它的字符类也一样。
+
+还有很多其它的项都可以通过前辍以\VimDQuote{\VimBS{}\VimTT{\_}}来同时包括断行。
+比如\VimDQuote{\VimBS{}\VimTT{\_}.}可以匹配包括断行在内的任何字符。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        \VimDQuote{\VimBS{}\VimTT{\_}.*}匹配到文件尾的所有东西。要慎用这样的命令，它可能会很慢。
+} %end VimCaution
+
+另一个例子是\VimDQuote{\VimBS{}\VimTT{\_}[]}, 它同样可以让一个字符类集额外地包含一个断行
+\VimMyFootnote{译注：也可以用[...\VimBS{}n]}:
+\begin{VimVBnormalcmdNoAdjustSpace}
+/"\_[^"]*"
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这个命令可以查找双引号引起来的字符串，即使它们跨过了行边界。
+
+
+%======...
+\VimSepartor
+
+\VimSecDest{27.9}{\ChapterTwentySevenSectionNineTitle}
+
+现在是一些搜索模式的例子。它们展示了如何组合使用上面的这些技巧。
+
+
+\VimSubSection{查找一个加州的汽车牌照}
+
+一个汽车牌照的样例如\VimDQuote{1MGU103}. 它包含一个数字，3个大写字母和接下来的3个数字。
+可以把它们直接反映在一个模式中：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/\d\u\u\u\d\d\d
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+另一个办法是指定字母或数字的个数：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/\d\u\{3}\d\{3}
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+用[]字符类集的话是：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/[0-9][A-Z]\{3}[0-9]\{3}
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+你喜欢哪一种方法？不管你首先想起哪一个，你最先想起来的就是最简单的。如果你同时
+知道上面的所有写法，那么最好不要用最后一种，因为它要键入更多的字符而且执行起来
+也很慢\VimMyFootnote{译注：如果你能记得所有这些写法，你真是一个正则表达式专家，那么你也就不
+需要这样的忠告，因为作为专家你也一定知道如何鉴定正则表达式的优劣;-). }
+
+
+\VimSubSection{查找标志符}
+
+在C程序中(对很多其它的计算机语言也是如此)一个标识符总是以一个字母开头，后面是
+字母或数字。下划线也可用于标识符的开头。这可以用下面的模式来识别：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/\<\h\w*\>
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{\VimTT{\VimBS{}<}}和\VimDQuote{\VimTT{\VimBS{}>}}或用于识别整个的单词。
+\VimDQuote{\VimTT{\VimBS{}h}}代表\VimDQuote{[A-Za-z\VimTT{\_}]}, \VimDQuote{\VimTT{\VimBS{}w}}代表\VimDQuote{.[0-9A-Za-z]}
+\VimMyFootnote{译注：不幸ASCII表的排列中9与A, Z与a都是不连续的，不然你可以写\VimDQuote{[0-z]}}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+\VimDQuote{\VimBS<}和\VimDQuote{\VimBS>}的工作视\VimOption{iskeyword}选项的值
+而定。如果它包含了\VimDQuote{-}, 比如\VimDQuote{ident-}这样的情况就不会被匹配
+\VimMyFootnote{译注：这里的意思比较令人费解，为什么\VimOption{iskeyword}多了一
+个元素反而匹配不到了呢？如\VimDQuote{ident-a}这样的一个字串，
+\VimDQuote{\VimBS<\VimBS{}h\VimBS{}w*}可以匹配到\VimDQuote{ident}, 这里
+\VimBS{}w不包括\VimDQuote{-}所以不能匹配到\VimDQuote{ident-}, 但恰恰此时
+\VimDQuote{-}是一个所谓keyword, 这样后面的\VimDQuote{\VimBS>}就满足不了了，所
+以整个模式匹配失败}。这时可以用：
+\VimBS{}w\VimBS{}\VimAt{}<!\VimBS{}h\VimBS{}w*\VimBS{}w\VimBS{}@!这个模式检查
+\VimDQuote{\VimBS{}w}既\VimMyFootnote{译注：我把既...也...写作即...也..., 
+感谢\<unicell@gmail.com>的指正。}不出现在一个标识符的前面，也不出现在
+其后面。参考/\VimBS{}\VimAt{}<!和/\VimBS{}\VimAt{}!.
+} %end VimCaution
+
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{28}  \ChapterTwentyEightTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

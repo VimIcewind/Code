@@ -1,0 +1,19 @@
+*{margin:0; padding:0;}
+body{font:11px Arial, "MS Trebuchet", sans-serif; background: url(../images/ubuntu.jpg) no-repeat top center;}
+ul{ list-style:none;}
+
+.wrapper{ width:770px; margin:0 auto; margin-top:10px;}
+.header,.content,.footer{ background:#ccc; -moz-border-radius:5px; opacity:0.80;}
+.header{ height:100px; position:relative;}
+.header #gedit{ font-size:16px; position:absolute; top:10px; left:10px;}
+.menu{ position:absolute; bottom:0; left:0; width:100%; background:#333; height:30px;}
+.menu li{ float:left;}
+.menu li a{ display:block; height:30px; line-height:30px; text-align:center; padding:0 20px;  color:white; text-decoration:none;
+}
+.menu li a:hover{ background:#666; color:#fc0;}
+
+.content{ margin:10px 0; padding:10px; height:1%; overflow:hidden;}
+.colA,.colB,.colC{ float:left; height:350px; width:243px; background:#eee; display:inline;}
+.colB{ margin:0 10px;}
+.footer{ height:30px; line-height:30px;}
+#copyright{ text-align:center;}

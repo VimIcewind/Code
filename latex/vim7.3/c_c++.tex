@@ -1,0 +1,270 @@
+\VimNewChapter
+\VimBookMark{附录三　用Vim进行C/C++编程介绍}{c_c++}
+\begin{center}
+\VimBookChapter{用Vim进行C/C++编程介绍}
+作者：Kmj\\
+\<slimzhao@hotmail.com> 翻译整理
+\end{center}
+自从Bill Joy最初写出Vi编辑器以来，Vi就一直是编程者中广为流传的(即使不说
+是最流行的)编程工具。
+
+Vi产生以来，历经不断革新，现在最新版的Vim已经具有了非常多的功能，这些功
+能使程序员能更加轻松、便捷地使用它们。下面是它的一些功能描述，正是这些
+丰富强大的功能使vi和vim成为无数程序员的至爱。本文志在向linux的初学者们
+介绍这些功能，而不是追溯其历史渊源。对此感兴趣的读者可以
+查看\VimDQuote{extra information}获得这些信息。
+
+(注：本文中使用vi兼指vim, 但有一些选项可能只有vim支持)
+
+\VimOneTwoThree{ctags}
+
+ctags是vim的伴生工具，它的基本功能是让程序员能自由穿梭于程序的不同部分(
+如从一个函数名跳转到该函数的定义处), 最通常的用法是象下面这样以源程序目
+录下所有文件作为参数。
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+[/home/someuser/src]$ ctags * 
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_238}{view_238}\hypertarget{view_238}{}\fbox{\textcolor{red}{Review}}\\
+该命令会在当前目录下创建一个名为\VimDQuote{tags}的文件，该文件包含了你当前目录下
+所有的C\verb|/|C++文件中的相关信息，具体来说包含以下对象的信息：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+由#define定义的宏
+枚举值
+函数定义、原型和声明
+类、枚举类型名、结构名和联合结构名
+名字空间
+类型定义
+变量(定义和声明)
+类、结构和联合结构的成员
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+接下来，Vim就通过该文件中的信息定位这些程序元素。有几种方法可以对这些元
+素进行定位。第一种方法，可以在命令行上启动vi程序时通过-t选项加要跳转的程序
+元素名，如下：
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+[/home/someuser/src]$ vi  -t  foo_bar 
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+将会打开包含foo\_bar定义的文件并定位到定义foo\_bar的那一行上。
+
+如果你已经在vi编辑环境中，也可以在底线命令行上键入：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:ta foo_bar 
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令可能使你离开你当前打开的文件\VimMyFootnote{译注：而跳转到包
+含foo\_bar定义的文件的相关行上去，如果你已经改变了当前文件的内容而没有存盘
+，则只能在你设置了\VimOption{autowrite}时才会跳转到该文件，否则会给出警
+告，另，autowrite可简写为等效的aw}，欲了解\VimOption{autowrite}选项的详
+细信息，可以使用在线帮助:h autowrite命令\VimMyFootnote{译注：也可简写为:h aw}。
+
+最后一种跳转到一个程序元素的方法是在(命令模式下)光标停在该程序元素上时按
+下\VimSpecialChar{CTRL-]}键，如，你在看程序时看到某处调用了一个叫
+\VimTT{foo\_bar()}的程序，你
+可以将光标停在\VimTT{foo\_bar}单词上\VimMyFootnote{译注：停在该单词任何一
+个字符都可}，然后按下\VimSpecialChar{CTRL-]}键，它就会跳转到该函数的定
+义处。值得注意的是\VimSpecialChar{CTRL-]}碰巧是结束telnet会话的特殊键，所以
+如果你在编辑远程计算机上的文件\VimMyFootnote{译注：通常是通
+过telnet登录到远程主机上}，可能会遇到一些问题。通过在线帮助\VimTT{"}
+:h \verb|^]|\VimTT{"}可以了解这方面的
+更多信息\VimMyFootnote{译注：在:h \^{}]
+中关于该问题是这样说的，多数telnet都允许使用命
+令telnet -E hostname来打开或关闭该脱字符，或者
+用telnet -e escape hostname来指定另外一个脱字符来代替\^{}], 此外，如果可
+能的话，可以使用rsh来代替telnet来避免这个问题，关于telnet -E及telnet -e的
+详情，请参看man telnet中的相关帮助}。
+
+ctags程序也可用于其它语言写的源程序，并且可以与其它的一些编辑
+器(如emacs, NEdit等等)协同工作。正确地使用它，会给你的编程工作带来极
+大的便利，尤其是你开发大项目时。
+
+关于ctags程序的更多用法，请参看它的相关帮助页，man ctags, 或者通过vim的
+在线帮助系统查看它的用法，:h ctags
+
+\VimOneTwoThree{c语言风格的缩进}
+
+% MYShao@lbl.gov 指出应调换set cindent与se cindent的前后位置。
+
+Vi有几种不同的方法实现自动缩进。对于C\verb|/|C++程序员来说，最好的方
+法显然是cindent模式，该模式具有多种功能帮助程序员美化程序的外观，无需任何额外的
+工作(当然，设置正确的模式:set cindent是必需的). 欲打开该模式，只需键入命
+令:se cindent\VimMyFootnote{译注：所有的set都可以简写为se, 虽然只节省了一
+个字符}
+需要注意的是cindent控制缩进量是通过shiftwidth选项的值，而不是通
+过tabstop的值，shiftwidth的默认值是8\VimMyFootnote{译注：也就是说，一个缩进为8个空
+格}，要改变
+默认的设置，可以使用\VimDQuote{:set shiftwidth=x}命令，其中x是你希望一个缩进量代表
+的空格的数目。
+
+cindent的默认设置选项一般来说是比较可人的，但如果你的程序有特殊需求，也
+可以改变它，设置cindent的选项，通过\VimDQuote{:set cino=string}选项
+\VimMyFootnote{译注：其中string是要用户自己键入的字符串。}, string定义了一个列表，该列表决定了你
+的cindent的行为。你可以定义多种indent类型，vim的帮助对此有很详细的说明。
+欲查找关于该主题的帮助，使用命令\VimDQuote{:h cinoptions-values}. 要想查看当前的
+设置值，可以使用命令\VimDQuote{:set cino}. 
+
+要了解更多的细节，可以使用在线帮助\VimDQuote{:h shiftwidth},
+\VimDQuote{:h cindent}, \VimDQuote{:h cinoptions}, \VimDQuote{:h
+cinoptions-values}, \VimDQuote{:h cinkeys}, 和\VimDQuote{:h cinwords}
+
+\VimOneTwoThree{语法高亮}
+
+用过集成开发环境的程序员都知道语法高亮的妙处所在，它不光使你的代码更具
+可读性，它也使你免于拼写错误，使你明确注释的范围，Vim对多种语言都有语法
+高亮的功能，当然，C\verb|/|C++一定包括在内，打开语法高亮功能，可使用命令\VimDQuote{:syntax on}. 
+如果你觉得默认的设置已经够好了，使用它就是如此简单。Vim的语法高亮工具也
+可以十分复杂，拥有众多选项。要了解更多的细节，可通过命令\VimDQuote{:h syntax}查看
+在线帮助，在支持彩色的终端上或者使用gvim\VimMyFootnote{译注：vim的GUI版，
+增强了色彩显示能力。}, 但如果你当前的环境不支持彩色显示，vim会使用下划线，粗体字，试图
+进行等效的替代，但对我而言，这样太难看了。
+
+要了解更详细的内容，可通过命令\VimDQuote{:h syn-gstart}, \VimDQuote{:h syntax-printing}查看
+在线帮助
+
+\VimOneTwoThree{编辑-编译-再编辑}
+
+这实在是极好的功能，其主要卖点是，你可以不用离开当前编辑环境，通过指定
+一个命令，就可以编译你当前编辑的项目，然后，如果编译时因发生错误而中
+断，vim将会打开第一个发生错误的文件并定位于引起错误的行上。这一命令就是\VimDQuote{:mak}
+(或者\VimDQuote{:make}). vim将会运行由选项makeprg指定的make程序，它的默认值就
+是make. 如果愿意的话，你也可以使用命令\VimDQuote{:set makeprg =string}改变项目维护工
+具\VimMyFootnote{译注：比如，在VC下使用nmake, \VimDQuote{:set makeprg=nmake.exe}
+}。
+
+% MYShao@lbl.gov 指出，此时有两处编译器的器误写为喧嚣的嚣
+vim使用选项\VimDQuote{errorformat}的设置去解析编译器输出的错误信息的格式。由于不同
+的编译器有不同的错误信息格式，所以可能需要显式地指定错误信息的格式。选项
+\VimDQuote{errorformat}的设置使用与c函数scanf风格类似的语法，最重要的是指定\verb|%|f, 代
+表文件名，\verb|%|l, 行号，\verb|%|m, 错误信息。
+
+\VimOneTwoThree{GCC格式的errorformat设置：\%f:\%l:\%m}
+
+有些编译器的errorformat可能十分复杂，但好在vim对此提供了完整的在线帮助
+\VimDQuote{:h errorformat}. 
+
+要了解其它细节，可用命令\VimDQuote{:h quickfix}, \VimDQuote{:h mak}, \VimDQuote{:h makeprg}, \VimDQuote{:h errorfile}, 
+\VimDQuote{:h errorformat}查看相应的帮助。
+
+\VimOneTwoThree{有用的快捷按键}
+
+有一些快捷按键对程序员而言特别有用，下面是其中的一部分：
+
+在函数中移动
+\begin{VimVBList}[commandchars=\\\{\}]
+[[    = 移动到前一个行首的'\{'字符上，等价于?^\{
+]]    = 移动到下一个行首的'\{'字符上，等价于/^\{
+[]    = 移动到前一个行首的'\}'字符上，等价于?^\}
+][    = 移动到下一个行首的'\}'字符上，等价于?^\}
+\{     = 到前一个空行上
+\}     = 到下一个空行上
+gd    = 到当前局部变量的定义处(当前的意思是光标停留其上的单词).
+*     = 到与当前单词相同的下一个单词上
+#     = 到与当前单词相同的上一个单词上
+''    = 到上次光标停靠的行
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+
+括号匹配：\\
+\verb|%|	可以让光标从它当前所在的括号跳转到与它相匹配的括号上去，对花括号和
+圆括号，方括号都有效，常用于手工检查括号是否匹对。
+
+替换操作：\\
+Vim具有强大的字符串替换功能，操作起来十分简单，不需惹人生厌的GUI(图形用
+户界面), 查找并替换文本，可以使用下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:[address] s//string/[g|c|N] (where N is an integer value). 
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+(其中的N是一个整数值).
+
+此命令查找由grep风格的正则表达式指定的匹配模式，并将其替换为
+由string指定的字符串，\VimDQuote{address}, \VimDQuote{g}, 和\VimDQuote{N}是对命令的补充选项，它们分别
+决定了命令的作用范围，是只替换第一个匹配的字符串还是替换所有匹配的字符串，
+只替换每行中第N次匹配的字符串\VimMyFootnote{译注：(a)如果没有指定这些
+辅助修饰标志，则vim默认为只替换一行中第一个匹配的字符串。(b) 据我所知，
+只有ed行编辑器才有这种品性，ex与vi都没有这个选项}:
+\begin{VimVBList}[commandchars=\\\{\}]
+g = 全部：替换每行中所有匹配的字符串
+c = 询问：在每次替换之前询问用户是否确定要进行替换
+N = Nth   只替换该行第N次匹配
+    (不作指定时隐含为N=1, 替换该行的第一个匹配) 
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+(即等价于address1, address2s\verb|//|string\verb|/|1)
+
+\begin{samepage}
+\VimNewFooterInVerbatim
+\begin{VimVBList}[xrightmargin=-.5cm,commandchars=\\\{\}]
+[address values] --- 可以是一个或是由逗号分开的两个指定行范围的标识符
+(下面的x代表一个整数)
+. = 表示当前行\VimFooterMarkInVerbatim{}
+$ = 当前文件的最后一行
+% = 整个文件\VimFooterMarkInVerbatim{}
+x = 当前文件的第x行
++x = 从当前行开始下面的第x行(如果当前行为第1行，则+3 代表第4行)
+-x = 从当前行开始上面的第x行(如果当前行为第4行，则-3 代表第1行)
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_239}{view_239}\hypertarget{view_239}{}\fbox{\textcolor{red}{Review}}\\
+\VimFootnoteForListEnv{
+\VimFooterTextInVerbatim{译注：即光标所在的行}
+\VimFooterTextInVerbatim{译注：即对每一行，等价于1,\$}
+}
+\end{samepage}
+
+逗号用于分隔任何上面指定的单个行，以形成一个范围\VimMyFootnote{译注：当然
+，这个范围的下界不能小于上界，如10,1为非法的范围，此时vim会给出一个警告
+信息，问你是否进行反向操作，如回答y, 则等价于1,10, 操作仍正常进行，否则
+，撤消当前操作}，其后指定的操作将作用于此处给出的范围，vim帮助里有关于替
+换操作的充分信息。
+
+\VimOneTwoThree{其它杂项}
+Vim有众多诱人的小功能，这里不可能一一列出，下面列出一些尤其值得注意的一
+些特性。
+
+包含文件搜索---\VimDQuote{:h include-search}
+
+书签设置---\VimSQstr{mx}用于设置书签，‘\VimSQ{}x’用于从书签返回\VimMyFootnote{译注：其中
+的x可以为任何字母，但，只能记录当前文件里的书签，退出vim后再次进入将不会保
+留这些书签，书签就是代表在文件中某一特定位置的一种标记}。
+
+\VimDQuote{剪贴板} 缓冲- “"xY”用于剪切或复制到一个名
+为x的缓冲区(Y代表任何的删除或取样命令), “"xZ”用于粘贴
+内容(Z代表粘贴命令p或P); (其中x可以为任何字母，也可在跳转到另一文件中
+时继续生效(:e filename).
+
+注释符---\VimDQuote{:h comments}
+
+.vimrc---别忘了你的.vimrc文件(在你用户目录中\verb|~/|.vimrc). 该文件可用
+于记录上面你所做的大多数设置，记住在.vimrc文件中无需在每个命令前使用一个
+冒号\VimDQuote{:}.(在DOS下的vim中，.vimrc文件存放于vim程序所在的目录中，且
+，此时不叫.vimrc, 叫\_vimrc, 另，.vimrc也可为.exrc, \_vimrc也可为\_exrc)
+
+\VimOneTwoThree{其它资源}
+
+X\_Console\VimMyFootnote{译注：此处不知如何翻译}上有一个非常好的vi教程，如
+果你要开始学习使用vi, 就从这里开始吧。因特网上有非常多的关于vi/vim信息的
+网页，有好有坏。在Google或其它搜索引擎上查找vi或vim会找到非常多的搜
+索结果，我个人觉得下面两个是最好的：
+
+VI爱好者主页---链接多多，信息多多...
+
+VI帮助文件---非常完整而简练的一份参考手册，特别是ex命令。
+
+Unix世界Vi教程---九部分，从开始到结束...看了就知道，我们为什么喜欢VI.
+
+本文由Keith Jones(\<kmj9907@cs.rit.edu>)所作；我不是vim专家，但我希望上面
+的一些内容对大家有所帮助。希望大家喜欢！！！
+

@@ -1,0 +1,155 @@
+\VimNewChapter
+\VimBookMarkLevelTwo{关于6.3.0版}{about_603.tex}
+\begin{center}
+{\CJKfamily{kai}\LARGE{关于6.3.0版}}
+\end{center}
+{\setlength{\parindent}{0mm}
+1. 为什么一下跳到6.3.0了？
+
+我最新得到的VIM是6.3,它的文档与我最初翻译所基于的6.1有少许不同。这使我萌
+生了将文档更新至最新版本的想法。那么，为何不让中文版与软件保持同步呢？
+
+2. 6.3.0与0.2版相比有如下改动：
+
+\begin{enumerate}
+\renewcommand{\labelenumi}{(\Alph{enumi})}
+\item{
+0.1版与0.2版居然都缺了\VimTT{usr\_21.txt, usr\_22.txt, usr\_29.txt,
+usr\_45.txt}这4个文件，这4个文件与其它文件是一并翻译完毕的，打包处理时
+竟漏掉了。
+}
+
+\item{
+将文档中所有出现的示例性的代码、shell命令、屏显样例、都重新格式化，如下：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:au BufRead *.tip setf tip
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_1}{view_1}\hypertarget{view_1}{}\fbox{\textcolor{red}{Review}}\\
+看起来更醒目一些。
+}
+
+我把示例性的代码分为7类。一类是上面显示的这种，Vim中的命令行模式，标题是ex command, 另外6种分别是：
+
+normal mode command\\
+Vim的normal模式命令，特点是没有冒号打头。如
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+gg=G
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+shell command\\
+多数情况下为unix类系统下的shell命令，也可能是windows OS的DOS BOX中的命令
+。如：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+env LANG=de_DE.ISO_8859-1  vim
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+Display\\
+对应于一个命令执行完之后的屏幕显示结果，或操作的某种中间状态。如：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+:!make | &tee /tmp/vim215953.err
+gcc -g -Wall -o prog main.c sub.c
+main.c: In function 'main':
+main.c:6: too many arguments to function 'do_sub'
+main.c: At top level:
+main.c:10: parse error before '\VimTT{\}}'
+make: *** [prog] Error 1
+
+2 returned
+"main.c" 11L, 111C
+(3 of 6): too many arguments to function 'do_sub'
+Hit ENTER or type command to continue
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+List\\
+显示的是一系列列表值，如：
+\begin{VimVBList}[commandchars=\\\{\}]
+r       在Insert模式下按下回车时插入一个星号
+o       在Normal模式下按"o"或"O"时插入一个星号
+c       根据'textwidth'的设置自动为注释断行
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+code, 如：
+\begin{VimVBCodeSippetNoAdjustSpace}
+while i < b {
+        if a {
+                b = c;
+        }
+}
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+url, 如：
+\begin{VimVBurl}[commandchars=\\\{\}]
+\VimInlineURL{http://www.cl.cam.ac.uk/~mgk25/download/ucs-fonts.tar.gz}
+\end{VimVBurl}
+\vspace{-1.3\parskip}
+
+\item{
+把混杂在汉字中的英文的默认字体改成了cmtt, 即computer modern typewriter, 个
+人品味，比cmr(computer modern roman)好看。除了个别的情况，如显示Latex系
+统中的标志性建筑{\fontfamily{rm}\LARGE\LaTeX}时用的还是cmr, 此时如果还坚
+持用cmtt就会是这样：{\LARGE\LaTeX{}}. 中间那个A显得很萎缩
+\VimMyFootnote{译注：\<unicell@gmail.com>的细心让我感动，他建议萎缩
+应为"猥琐", 金山词霸上关于"猥琐"确有一个词条意思是"不魁梧;短小": 看贾环
+人物委琐，举止粗糙。――《红楼梦》，不过多数人看见"猥琐"第一反应是"下流，
+丑陋，俗气". 萎缩一词也非我生造，用在这里更中性一些。无论如何，这位朋友
+对文字的严谨态度对我是一种督促。} }
+
+\item{
+文档内也加了超级链接，但只限于这份中文用户手册内部，如果指向参数手册的文
+档，则没有超级链接，目前这份中文文档只限于用户手册。
+
+另外指向外部的URL也能打开你的默认浏览器了。指向email地址的也会打开你的默
+认mail程序。
+}
+
+\item{
+所有的双引号不再显示为{\fontfamily{rm}``...''}(\VimLaTeX{}风格), 
+也不是汉字中的“...”，而显示为最朴素的\VimTT{"..."}, 同样，以前显示为'
+的字符，在该版本中显示为\VimTT{\char"0D{}}, 这样的目的一是为了与原文档的
+风格更接近，再者也更悦目一些。而正反斜杠的显示为/hello \VimBS{}hi, 粗粗
+壮壮，看上去很厚道。不象这样$\backslash$hi. 上下都长出一截，看起来突兀。
+}
+
+\item{
+对一些原文档中特殊显示的元素以同样的风格高亮起来，
+如\VimSpecialChar{CTRL-N}, \VimSpecialChar{<Esc>}
+}
+
+\item{修改了一些BUG, 对不那么顺畅的词句重新润饰一番。对原来译文中留下的
+一些不甚了了的技术问题仔细对照文档，试验/实验\VimMyFootnote{译注：\VimDQuote{实验}是为
+了检验某种科学理论或假设而进行某种操作或从事某种活动。也指实验工作。\VimDQuote{试
+验}是为了察看某事的结果或某物的性质而从事某种活动。张楠指出上一版中的
+\VimDQuote{试验}应为\VimDQuote{实验}, 对我而言，觉得自己试验和实验的成份
+都有。}、修改、添加\ldots
+}
+
+\item{
+加了背景色，PDF不比HTML, 你打开HTML源文件加一个bgcolor就可以改改背景色。
+这是个小问题，但是PDF中显示汉字有一个笔画太淡的问题。这在各种PDF制作或
+\VimTeX相关的论坛上也是一个热门话题。看起来对比度不够。现在的这个背景能让汉
+字显得更清晰一些。另外。本文档拟提供一个内嵌字体的伴生版\VimMyFootnote{译
+注：查看PDF文件的字体信息，才发现原来已经把字体嵌入进去了}。其中的字
+体不是宋体，是文鼎公司贡献给自由软件社区的PL简报宋(Public License, 不是Piao Liang). 这
+个字体比起windows自带的宋体字着墨要浓一些。当然这也导致文件会比较大
+。
+}
+\end{enumerate}
+
+3. TODO:
+
+似乎每解决一个问题，都会引起更多新的问题。比如，好不容易找到了一个叫
+\VimTT{upquote}的\VimLaTeX{}宏包, 也能把原来的
+'变成现在的\char"0D{}了。可是却发现普通文字中的这个符号与示例代码中的显
+示不一样，后者显示出来的更粗壮一些。通过\VimTT{fancyvrb}把示例代码弄得更好
+看一些了，可是却发现那个圈起来的框框有时候罩不住里面的文字---里面的文字
+太长了。这些虽是小问题，终究让人不爽。我不是{\VimLaTeX}专家，
+这些鸡毛蒜皮的事可TMD费功夫了，虽然现在这个样子我还不是很满意，但总得把
+它锁定到一个状态。就这了。
+}

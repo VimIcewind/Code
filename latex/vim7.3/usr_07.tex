@@ -1,0 +1,585 @@
+\VimNewChapter
+\VimBookMark{第07章　\ChapterSevenTitle}{usr_07.txt}
+\VimFileNameDest{usr\VimTT{\_}07.txt}{ \VimDocVer  最后修改：2006年04月24日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{编辑多个文件\\}
+
+
+不管你有多少文件要编辑，你都可以在Vim中处理它们。可以定义一个要编辑的文件列表。
+从一个文件转到另一个文件。也可以在不同文件之间复制粘贴。
+
+\VimSecList{07.1}{\ChapterSevenSectionOneTitle}
+\VimSecList{07.2}{\ChapterSevenSectionTwoTitle}
+\VimSecList{07.3}{\ChapterSevenSectionThreeTitle}
+\VimSecList{07.4}{\ChapterSevenSectionFourTitle}
+\VimSecList{07.5}{\ChapterSevenSectionFiveTitle}
+\VimSecList{07.6}{\ChapterSevenSectionSixTitle}
+\VimSecList{07.7}{\ChapterSevenSectionSevenTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{08}  \ChapterEightTitle\\
+前一章：& \VimFileName{06}  \ChapterSixTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{07.1}{\ChapterSevenSectionOneTitle}
+
+目前为止我们使用Vim的方式还是为每一个要编辑的文件运行一次Vim. 这是最简单的
+用法。命令
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit foo.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+可以在当前Vim中开始编辑另一个文件。
+当然你可以用任何文件名来替代\VimDQuote{foo.txt}. Vim会关闭当前正在编辑的文件打开指定的
+新文件进行编辑。如果当前文件还有未存盘的内容，Vim会显示如下的错误消息同时也
+不会打开另一个文件：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+E37: No write since last change (use ! to override)
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        Vim在每条错误消息前放上它对应的错误ID号，这样如果你从简单的错误信息中
+        还不知道错误的原因时，可以通过帮助系统查找这个ID:
+                :help E37
+} %end VimCaution
+
+此时，你可以有几种选择。你可以保存该文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:write
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+或者你可以强制Vim丢弃当前未保存的修改并开始编辑新的文件，使用强制执行修饰符：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit! foo.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你想编辑另一个文件，但又不想保存当前文件中的改动\VimMyFootnote{译注：当然也不想放弃这些
+改动}，你可以使它变为一个隐藏的缓冲区：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:hide edit foo.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+被修改过的文本还在，只是你看不到它而已。在\VimSecSrc{22.4}中讲解缓冲区列表的主题中
+对此有详细的解释
+
+%======...
+\VimSepartor
+
+\VimSecDest{07.2}{\ChapterSevenSectionTwoTitle}
+
+你可以在启动Vim时就指定要编辑多个文件。如：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim one.c two.c three.c
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+该命令启动Vim并告诉它你要编辑3个文件。Vim将在启动后只显示第一个文件。完成
+该文件的编辑后，可以以命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:next
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+开始下一个文件的编辑。如果你的当前文件中有未存盘的内容，你会象前面一样得到一个
+错误消息，\VimDQuote{:next}命令也不会继续。这与前面提到的\VimDQuote{:edit}命令
+一样。要放弃这些改动，用：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:next!
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+但多数情况下人们还是要保存工作成果并继续下一个文件的编辑。有一个命令合并了这个
+过程：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:wnext
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个命令完成以下两个单独命令的工作
+\VimMyFootnote{译注：规律，对于使用频率极高的命令序列，Vim会提供一个单一的命令来做本可以由几个
+命令组合起来完成的操作。但你不能这样任意组合基本命令}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:write
+:next
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{当前在编辑哪个文件？}
+
+可以通过查看窗口的标题条得知你当前正在编辑的文件名。
+应该也会同时显示出象\VimTT{"(2 of 3)"}这样的信息。这意味着你正在编辑一个由3个文件组成的文件列表中的第2个。
+
+   如果你想查看整个列表中都有哪些文件，使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:args
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这是\VimDQuote{arguments}的简写形式。输出结果形如：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+one.c [two.c] three.c
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+这就是你启动Vim时指定的要编辑的文件列表。方括号括起的是当前正在编辑的文件。
+
+\VimSubSection{移到另一个文件}
+
+要回到前一个文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:previous
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+就跟\VimDQuote{:next}命令一样，不过它是朝向另一个文件。同样有一个对应的快捷方式命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:wprevious
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+要移到最后一个文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:last
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+到第一个：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:first
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+不过没有\VimDQuote{:wlast}或者\VimDQuote{:wfirst}这样的命令。
+
+你也可以在\VimDQuote{:next}和\VimDQuote{:previous}命令前面使用一个命令计数。要向前跳过2个文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:2next
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{自动存盘}
+\VimMyFootnote{译注：这里说的自动存盘指的是某个事件发生时自动保存文件，而不是象word中每隔
+一段时间就自动保存一次文件，当然Vim中也有此功能，但此处另有所指}
+
+当你在不同文件之间转移时，你必需记住用\VimDQuote{:write}命令来存盘。否则就会得到一个错误
+消息。如果你确定自己每次都是要保存文件，就可以告诉Vim每当需要时就自动保存文件，
+不必过问：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set autowrite
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你正在编辑一个不希望它被自动保存的文件，还可以把该选项关闭：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set noautowrite
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{编辑另一个文件列表}
+
+不用重新启动Vim, 你就可以重新定义一个文件列表。下面的命令定义了要编辑3个文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:args five.c six.c seven.h
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+或者用一个通配符，就象在shell使用通配符一样：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:args *.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会打开列表中的第一个文件。同样，如果当前文件被改动但没有存盘，你需要先保存
+当前的文件，或者用\VimDQuote{:args!}(加了一个!)放弃当前文件中未存盘的内容。
+
+
+\VimSubSection{你编辑过最后一个文件了吗？} \VimToRight{\VimCommonDest{arglist-quit}}
+
+当你有一个列表的文件要编辑时，Vim假设你要全部编辑它们。为防止你漏掉某些文件过
+早地退出，Vim会在你没有编辑过最后一个文件就想退出时给出一个错误信息：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+E173: 46 more files to edit
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果你确定要退出，只要再执行一次退出命令。这次可以真正退出了(但是不要在这两次
+执行同样的命令中间再做其它操作)
+
+%======...
+\VimSepartor
+
+\VimSecDest{07.3}{\ChapterSevenSectionThreeTitle}
+
+要在两个文件间快速切换，使用\VimSpecialChar{CTRL-\^}(在美语键盘上\VimTT{\^}位于字母键区的6上). 如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:args one.c two.c three.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+当前编辑的文件是one.c.
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:next
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在变成two.c了。使用\VimSpecialChar{CTRL-\^}可以让你再回到one.c. 再执行
+一次\VimSpecialChar{CTRL-\^}又会再转到two.c, 如此轮流切换，如果你执行的是：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:next
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你会转到three.c. 注意\VimSpecialChar{CTRL-\^}命令并不改变当前你在文件列表中的位置，只有命令
+\VimDQuote{:next}和\VimDQuote{:previous}才会引起此位置的变化。
+
+你上一个编辑的文件叫\VimDQuote{alternate}文件。所以刚进入Vim时就用这个命令的话它就无
+事可做，因为你还没有编辑过任何其它的文件。
+
+
+\VimSubSection{预定义的标记}
+
+跳转到另一个文件后，你还可以使用两个十分有用的标记：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+\VimBacktick{}"
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这个标记会带你到上次你离开该文件时光标所在的位置。另一个标记则是你最后一次
+对文件做出改动处：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+\VimBacktick{}.
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+假设你正在编辑的是\VimDQuote{one.txt}. 在文件半中间的某个地方你用\VimDQuote{x}
+命令删除了一个字符。然后你用\VimDQuote{G}命令到了最后一行，用\VimDQuote{:w}命令
+保存该文件后转而编辑其它几个文件，最后又用\VimDQuote{:edit one.txt}回到该文件。
+如果现在你用\VimBacktick\VimTT{"}命令Vim就会跳转到该文件的最后一行，那是上一次
+你关闭该文件时的光标位置。使用\VimBacktick\VimTT{.}则带你到你用\VimDQuote{x}删
+除了一个字符的地方。即使你已经在该文件来回移动了多次，\VimBacktick\VimTT{"}和
+\VimBacktick\VimTT{.}这两个标记还是忠实是记录着这两个特殊的位置。除非你又一次
+对该文件做出改动或关闭该文件。
+
+
+\VimSubSection{文件标记}
+
+第4章中我们说过可以用\VimDQuote{mx}在一个中某个设置一个标记，
+然后用\VimDQuote{\VimBacktick{}x}可以将光标移到
+该位置。这只在当前文件内有效，如果你编辑了其它的文件并且也在其中设置了标记，
+这些标记将只对这个的文件有效。每个文件都有它自己的标记。它们是局部于文件的。
+
+   目前为止我们用的标记还都是以小写字母命名的。还有一种以大写字母命名的标记。它
+们是全局标记，它们可以用在任何文件中。比如假设我们正编辑\VimDQuote{foo.txt}. 到文件的半
+中间(\VimDQuote{50\VimTT{\%}})处设置一个名为F的标记(F意为foo):
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+50%mF
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+现在转而编辑\VimDQuote{bar.txt}并在其最后一行设置一个名为B(B意为bar)的标记：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+GmB
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+现在你可以用\VimDQuote{\VimSQ{}F}命令跳转到文件foo.txt的半中间。
+或者编辑另一个文件，\VimDQuote{\VimSQ{}B}命令会
+再把你带回文件bar.txt的最后一行。
+
+Vim会一直记得你在文件中设置的标记，直到你改变标记的位置为止。所以你可以设置
+一个标记后成几个小时做别的事情，需要的时候还可以用该标记回到它所代表的位置
+\VimMyFootnote{译注：如果你删除了标记所在的行，同时也就等于删除了该标记}
+
+   把标记的名字与它所代表的位置联系起来会十分好记。比如，用H代表header文
+件，M代表Makefile, C代表C源文件。
+
+要知道某个标记所代表的位置是什么，可以将该标记的名字作为\VimDQuote{marks}命令的参数：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:marks M
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你也可以连续跟上几个参数：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:marks MCP
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+别忘了你还可以用\VimSpecialChar{CTRL-O}和\VimSpecialChar{CTRL-I}可以跳转到较
+早的位置和靠后的某位置。
+
+%======...
+\VimSepartor
+
+\VimSecDest{07.4}{\ChapterSevenSectionFourTitle}
+
+通常情况下Vim不会生成备份文件。如果你需要的话，只需要执行命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set backup
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+生成的备份文件名将是原文件名后面附加一个\VimTT{\~}. 如果原文件是data.txt,
+则生成的备份文件是data.txt\VimTT{\~}. 
+
+   如果你不喜欢这个默认的备份文件名后辍，你可以用下面的命令重新指定一个：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set backupext=.bak
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这将会生成一个名为data.txt.bak的备份文件。
+
+   另一个与此有关的选项是\VimOption{backupdir}. 它指定了备份文件将被置于哪个目
+录下。默认是写到原文件所在的目录下。多数情况下人们需要的正是这样。
+
+\VimCaution{
+  \VimCautionTitle{备注：}
+  如果\VimOption{backup}选项是关闭的但\VimOption{writebackup}选项是打开
+  的，Vim还会生成一个备份文件。但是，一旦该文件被成功地保存它就会被自动删
+  除。如果因为某种原因(比如磁盘满或被雷电击中，虽然后者不常发生)原文件不能
+  保存。这倒不失为一种保护文件的办法。
+} %end VimCaution
+
+
+\VimSubSection{保存原始版本}
+
+如果你在编辑的是程序源文件，你可能会希望保存一份修改前的原始文件的一个副本。
+但是用备份文件的话它会在每次你写文件时被覆盖。这样备份文件将总是保存前一个版本
+的内容，而不是原始的版本。
+
+   \VimOption{patchmode}选项可以让Vim保存原始文件，它指定了备份该原始版所用的文件扩展名：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set patchmode=.orig
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你第一次开始编辑data.txt文件，改一些东西然后存盘，Vim会保留一份该文件
+的原始版在\VimDQuote{data.txt.orig}中。
+
+   如果你继续修改该文件，Vim也会注意到名为\VimDQuote{data.txt.orig}的文件已经存在，后续
+生成的备份文件将被命名为\VimDQuote{data.txt\VimTT{\~}}(或者你用\VimOption{backupext}选项指定的其它扩展名).
+
+   如果你把\VimOption{patchmode}选项设置为空(默认情况正是如此), 文件的原始副本就不会被
+额外保存。
+
+%======...
+\VimSepartor
+
+\VimSecDest{07.5}{\ChapterSevenSectionFiveTitle}
+
+本节讲述如何在不同文件之间复制内容，我们以一个简单的例子开始。首先编辑你希望从
+中复制内容的文件。将光标移到某处文件并按下\VimDQuote{v}. 该命令将开始Visual模式。现在把
+光标移到要复制文件的末尾按下\VimDQuote{y}. 该命令将yanks(复制)被选择的内容。
+
+   要复制上面这一段的话，你要做的是\VimMyFootnote{译注：因为以文档本身为例，所以
+这里的说法只对英文版帮助文件有意义}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit thisfile
+/This
+vjjjj$y
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在开始编辑你希望把复制的内容放入其中的文件。把光标置于你希望复制内容的
+地方，用\VimDQuote{p}把此前复制的内容粘贴到这里。
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit otherfile
+/There
+p
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+当然你可以用其它的命令来yank要复制的内容。比如用\VimDQuote{V}命令进入Visual模式整行整行
+地选择文本。或者用\VimSpecialChar{CTRL-V}来选择一个矩形块的内容。或者用\VimDQuote{Y}选择当前行单行的内容，
+用\VimDQuote{yaw}来yank-a-word, 等等。
+
+   \VimDQuote{p}命令将把复制的内容放到光标之后。\VimDQuote{P}则可以把要复
+制的内容放在光标之前。注意Vim会知道你复制的内容是整行的内容还是一个矩形块
+，粘贴这些内容时也会采用相应的方式。
+
+\VimSubSection{使用寄存器}
+
+如果你要从一个文件中复制出好几块独立的文本到另一个文件中去，单用上面的方法就
+不得不多次切换文件，存盘。将这些独立的文本存到一个寄存器中去可以避免这种繁琐
+的切换。
+
+   寄存器只是Vim用来存放文本的地方。这里我们只用从a到z这26个寄存器(稍后你会发
+   现还有其它的寄存器). 来把一个句子复制到名为f的寄存器中(f意为first):
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"fyas
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{yas}命令象前面一样复制一个句子。告诉Vim把复制的内容放到寄存器f中的部分是\VimTT{"}f. 
+而且必需放在复制命令的前面。现在把3个整行的内容放到寄存器l中(l意指line):
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"l3Y
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+命令计数也可以放在\VimTT{"}l的前面。要复制一个文本块到寄存器b中(b意为block):
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-Vjjww"by
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+注意指定寄存器的部分\VimTT{"b}紧挨在y命令的前面。这是必需的。放在\VimDQuote{w}命令
+前面就不行。
+
+   现在你分别在寄存器f, l, 和b中保存了3块不同的内容。开始另一个文件的
+编辑，将光标移到你想复制内容的地方然后：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"fp
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+指定寄存器的部分\VimTT{"f}必需出现在p命令的前面。
+
+   你可以以任何顺序复制这3个寄存器中的内容。其中的内容也会一直保存，直到你再次
+使用该寄存器保存内容时覆盖了它\VimMyFootnote{译注：还可以向寄存器中追加内容而不覆盖先前的内容}。
+这样你可以多次复制其中的内容。
+
+删除内容时，也可以指定一个寄存器名。这种办法可以用来移动多处的文本。比如，下面
+的命令删除了一个word并把它保存在名为w的寄存器中：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"wdaw
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+指定寄存器名的部分又一次出现在删除命令\VimDQuote{d}的前面。
+
+
+\VimSubSection{向文件中追加内容}
+
+要把多行文本收集到一起写入一个文件，可以用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:write >> logfile
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这将会把当前文件的内容追加到文件\VimDQuote{logfile}. 这样做避免了你使用前面的方法去复制
+内容，编辑log文件。这样可以省去两个环节。但它的局限是只能在文件的最后追加内容。
+
+   要想只追加几行的内容到文件中去，可以在使用命令\VimDQuote{:write}之前先在Visual模式下
+选定要写入的内容。在第10章你会了解其它选择文本行的办法。
+
+%======...
+\VimSepartor
+
+\VimSecDest{07.6}{\ChapterSevenSectionSixTitle}
+
+有时候你只想查看文件的内容而已，并不会向其中写入什么东西。但不假思索就用\VimDQuote{:w}可
+会招致覆盖原始文件的风险。要避免这种错误，可以以只读方式编辑文件。
+
+   下面的命令以只读方式运行Vim:
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -R file
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+在Unix上下面的命令是等价的
+\VimMyFootnote{译注：可以用批处理在MS-Windows或MS-DOS上做一个等价的命令}:
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+view file
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+现在你将在只读模式编辑\VimDQuote{file}, 此时尝试用\VimDQuote{:w}会招来一个错误消息告诉你该文件
+不能被保存。
+
+   如果你尝试修改这个文件的话也会得到一个警告消息：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+W10: Warning: Changing a readonly file
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+不过你还是可以做出修改。这样人们可以为了方便浏览起见格式化该文件。
+
+   如果你改动了该文件但忘了它是只读的，你还是可以保存该文件。在\VimDQuote{:write}命令
+之后使用!强制执行修饰符\VimMyFootnote{译注：此处的!是强制保存修改而不是丢弃修改的内容}。
+
+如果是想强制性地避免对文件进行修改，可以用命令：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -M file
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+这样每个修改文件的尝试都会失败。帮助文件就是这样，比如，你试着去修改帮助文件时
+会看到这样的错误信息：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+E21: Cannot make changes, 'modifiable' is off
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+你可以用-M选项告诉Vim工作在viewer模式。这都是表明你自愿如此，毕竟下面的命令还是
+可以去掉这层保护：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set modifiable
+:set write
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_134}{view_134}\hypertarget{view_134}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{07.7}{\ChapterSevenSectionSevenTitle}
+
+编辑一个新文件的最好办法是以一个内容相似的文件为基础进行修改。比如，你要写一个
+移动文件的程序。同时你已经有了一个可以复制文件的程序，你可以这样开始：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit copy.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你可以删除其中不需要的部分。现在可以把它存成一个新文件了。\VimDQuote{:saveas}
+命令正好可堪此任：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:saveas move.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会以给定的文件名保存当前缓冲区中的内容，同时开始编辑该文件。这样下次你再
+用\VimDQuote{:write}命令的话，它就是存成\VimDQuote{move.c}, 而
+\VimDQuote{copy.c}还保持原来的内容。
+
+   如果你想改变当前正在编辑的文件名，但不想保存该文件，就可以用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:file move.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim将把该文件标记为\VimDQuote{not edited}\VimMyFootnote{译注：中文版为
+\VimDQuote{未编辑}}. 这意味着Vim知道这不是你进入Vim时开始编辑的文件。你保存该
+文件时就会收到这样的错误信息：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+E13: File exists (use ! to override)
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+这可以保护你意外地覆盖了其它文件。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{08}  \ChapterEightTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

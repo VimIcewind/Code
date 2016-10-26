@@ -1,0 +1,227 @@
+\VimNewChapter
+\VimBookMark{第01章　\ChapterOneTitle}{usr_01.txt}
+\VimFileNameDest{usr\VimTT{\_}01.txt}{ \VimDocVer  最后修改：2008年05月07日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{关于本手册\\}
+
+
+本章介绍Vim的帮助系统。本文将使你了解到Vim的帮助中讲解每个命令时的假设环境。
+
+\VimSecList{01.1}{\ChapterOneSectionOneTitle}
+\VimSecList{01.2}{\ChapterOneSectionTwoTitle}
+\VimSecList{01.3}{\ChapterOneSectionThreeTitle}
+\VimSecList{01.4}{\ChapterOneSectionFourTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{02}  \ChapterTwoTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{01.1}{\ChapterOneSectionOneTitle}
+
+Vim的文档由两部分组成：
+
+1. 用户手册
+   面向问题，由浅入深进行讲解。可以象读一本书一样从头至尾进行学习。
+
+2. 参考手册
+   详述Vim方方面面的细节。
+
+这些手册中用到的一些约定的记法可以在\VimCommonSrc{notation}中找到。
+
+\VimSubSection{跳转}
+
+两个管道符之间的超级链接可以使你直接跳转到对该主题的解释处。或者是对相应的
+编辑任务的应对之计，或者是对它的功能进行详尽的解释。牢记下面的两个命令
+\VimMyFootnote{译注：不要误会这样的说法，Vim中超级链接的实现跟HTML中不一样，
+\VimTT{<}a href=\#somewhere\VimTT{>}click here\VimTT{<}/a\VimTT{>}中的click
+here跟作为普通文本的\VimDQuote{click here}是不一样的，单击前者会跳转，后者不会
+；而Vim中两个管道符圈起一个词条作为一个帮助主题并不是说只有将光标置于此处按
+\VimSpecialChar{CTRL-]}才可跳转，它是说明性的，如果普通文本中碰巧有一个单词跟
+某个帮助主题相同，在它上面施以\VimSpecialChar{CTRL-]}效果也完全一样}:
+
+\begin{VimVBList}[commandchars=\\\{\}]
+CTRL-] 跳转到当前光标所在单词对应的主题
+CTRL-O 回到前一个位置
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+很多的链接都写在两个管道符中，象这个：\VimCommonSrc{bars}. 一个选项，如\VimOption{number},
+或者是一个命令如\VimDQuote{:write}, 或者任何其它的词都可以作为一个超级链接。试一下移动光
+标到\VimSpecialChar{CTRL-]}上按下\VimSpecialChar{CTRL-]}. 
+
+其它的帮助主题可以通过\VimDQuote{:help}命令来访问，请参考\VimCommonSrc{help.txt}.
+
+%======...
+\VimSepartor
+
+\VimSecDest{01.2}{\ChapterOneSectionTwoTitle}
+
+手册中假设你已正确地安装了Vim. 如果你还没有，或者装了但不能运行(比如找不到
+文件或GUI菜单显示不出来), 请先阅读关于安装的手册：
+\VimFileName{90}. 
+
+\hfill\VimCommonDest{not-compatible}\\
+手册中也假设你是在Vi兼容模式关闭的情况下使用Vim的。对绝大多数命令来说
+是否是Vi兼容都没有问题，但有时这一点会变得很重要，比如对于多级撤消。保证你
+进行正确设置的最简单办法就是复制一个样板vimrc文件。在VIM内部复制的话你甚至
+无需知道它的具体位置，不过文件名因系统而异。
+Unix:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:!cp -i $VIMRUNTIME/vimrc_example.vim ~/.vimrc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_12}{view_12}\hypertarget{view_12}{}\fbox{\textcolor{red}{Review}}\\
+MS-DOS, MS-Windows, OS/2:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:!copy $VIMRUNTIME/vimrc_example.vim $VIM/_vimrc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_13}{view_13}\hypertarget{view_13}{}\fbox{\textcolor{red}{Review}}\\
+Amiga:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:!copy $VIMRUNTIME/vimrc_example.vim $VIM/.vimrc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_14}{view_14}\hypertarget{view_14}{}\fbox{\textcolor{red}{Review}}\\
+如果同名文件已经存在你也许还想保留下来。
+
+如果你现在启动Vim, \VimOption{compatible}选项应该是关闭的。下面的命令可以检查它的设置：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set compatible?
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_15}{view_15}\hypertarget{view_15}{}\fbox{\textcolor{red}{Review}}\\
+如果结果是\VimOption{nocompatible}就对了。如果是\VimDQuote{compatible}可就麻烦了。你要找找看为什么
+这个选项还是这样的设置。也许是上面的文件没找到。下面的命令可以告诉你它的位置：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:scriptnames
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_16}{view_16}\hypertarget{view_16}{}\fbox{\textcolor{red}{Review}}\\
+如果你的配置文件没有在这个列表中，你需要检查一下它的位置和名字。如果在，那一定是
+别的什么地方把\VimOption{compatible}选项给打开了。
+
+详情请参考\VimCommonSrc{vimrc}和\VimCommonSrc{compatible-default}. 
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        本手册是关于以常规方式使用Vim. 还有一个叫\VimDQuote{evim}(easy vim)的程序。
+        它也是Vim. 但是被改装成了类似于Notepad的风格。它总是处于Insert模式，
+        感觉很难受。本手册不对此提供帮助，因为它太简单了，一看就会。
+        关于它的细节请参考\VimCommonSrc{evim-keys}. 
+} %end VimCaution
+
+%======...
+\VimSepartor
+\VimSecDest{01.3}{\ChapterOneSectionThreeTitle}
+
+除了阅读文档(无聊！)你还可以用vimtutor来开始学习Vim的简单命令。这是一个大
+概30分钟的教程，它会教给你最常用的基本操作。
+
+在Unix系统上，Vim安装好之后，可以这样进入该教程：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vimtutor
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_17}{view_17}\hypertarget{view_17}{}\fbox{\textcolor{red}{Review}}\\
+在MS-Windows系统上可以在"程序/Vim"菜单中找到该教程。或者从\$VIMRUNTIME指定的目
+录中执行批处理文件vimtutor.bat.
+
+它会复制一份教程文件，这样你可以在其中放心地练习，不用担心破坏了原来的内容。
+
+   本教程有几个译本。要看看你的本国语是否已被翻译，可以在命令后加两个字符的语言
+代码试试，如对法语：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vimtutor fr
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+   在Unix系统上，如果你更喜欢带图形界面的Vim, 可以使用\VimDQuote{gvimtutor}或
+者\VimDQuote{vimtutor -g}来替代\VimDQuote{vimtutor}.
+
+   对于OpenVMS系统，如果VIM已正确安装，可以用下面的命令进入教程：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+\VimAt{}VIM:vimtutor
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+在其它系统上，你可要费点小事：
+
+1. 复制教程文件。你可以在VIM中做(它知道文件的位置):
+\begin{VimVBshcmd}[xrightmargin=-2cm,commandchars=\\\{\}]
+vim -u NONE -c 'e $VIMRUNTIME/tutor/tutor' -c 'w! TUTORCOPY' -c 'q'
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_18}{view_18}\hypertarget{view_18}{}\fbox{\textcolor{red}{Review}}\\
+这会在当前目录创建一个名为\VimDQuote{TUTORCOPY}的文件作为副本，要使用教程的某
+种语言的本地化的版本，只需在文件名后追加它的对应的两个字符的语言代码，比如对法语：
+\begin{VimVBshcmd}[xrightmargin=-2cm,commandchars=\\\{\}]
+vim -u NONE -c 'e $VIMRUNTIME/tutor/tutor.fr' -c 'w! TUTORCOPY' -c 'q'
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_19}{view_19}\hypertarget{view_19}{}\fbox{\textcolor{red}{Review}}\\
+2. 用Vim编辑这个副本
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -u NONE -c "set nocp" TUTORCOPY
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_20}{view_20}\hypertarget{view_20}{}\fbox{\textcolor{red}{Review}}\\
+    这两个参数会让Vim更happy一些。
+
+3. 学完后把教程文件删掉：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+del TUTORCOPY
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimSecDest{01.4}{\ChapterOneSectionFourTitle}
+\hfill\VimCommonDest{manual-copyright}\\
+
+Vim用户手册和参考手册的版权声明：
+版　权 \copyright 1988-2003 by Bram Moolenaar. 只有遵循\VimDQuote{开放出版许可证}1.0及更新
+版本中的条件方可散布该资料，该许可证的最新版位于：
+\VimURL{http://www.opencontent.org/opl.shtml}
+
+希望为该手册贡献心力者必须同意上面的版权声明。
+
+\hfill\VimCommonDest{frombook}
+
+本手册的部分内容来自Steve Oualline的《Vi IMproved - Vim》一书(由New Riders出版
+公司发行，ISBN:0735710015). \VimDQuote{开放出版许可证}也同样适用于该书，该书被本手册
+引用的部分也已作出修改(比如，去掉了一些图片，更新了一些Vim 6.0版相关的内容以
+及修改了一些错误). 没有\VimCommonSrc{frombook}标签的地方可并不是说一定就不是来自该书。
+
+多谢Steve Oualline和New Riders出版社制作了该书并以OPL的形式出版！它对我写这
+份手册大有帮助。不光是因为它提供了文字素材，也决定了这份手册的风格和基调。
+
+如果你通过出售该手册谋利的话，我强烈建议你把部分收益捐助给乌干达的爱滋病患者。
+请参考\VimCommonSrc{iccf}. 
+
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{02}  \ChapterTwoTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

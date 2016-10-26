@@ -1,0 +1,541 @@
+\VimNewChapter
+\VimBookMark{第90章　\ChapterNinetyTitle}{usr_90.txt}
+\VimFileNameDest{usr\VimTT{\_}90.txt}{ \VimDocVer  最后修改：2008年09月10日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{Vim安装\\}
+
+\hfill\VimCommonDest{install}\\
+能用上Vim之前你必需先安装它。安装的简易程度依你的操作系统而定。本章为你的安装
+提供一些向导，同时教你如何升级到一个新的版本。
+
+\VimSecList{90.1}{\ChapterNinetySectionOneTitle}
+\VimSecList{90.2}{\ChapterNinetySectionTwoTitle}
+\VimSecList{90.3}{\ChapterNinetySectionThreeTitle}
+\VimSecList{90.4}{\ChapterNinetySectionFourTitle}
+\VimSecList{90.5}{\ChapterNinetySectionFiveTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+前一章：& \VimFileName{45}  \ChapterFortyFiveTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{90.1}{\ChapterNinetySectionOneTitle}
+
+首先你要搞清楚是为整个系统安装Vim还是为单个用户安装。安装过程倒是几乎一样，不过
+安装后的目录对这两种情况来说有所不同。
+
+   为整个系统安装Vim的话通常用的基准目录是\VimDQuote{/usr/local}. 但也可能因你所用的系统
+不同而异。你可以试着看看其它软件包都安装在哪个目录。
+
+   为单用户安装Vim时，你可以把该用户的home目录作为基准目录。安装文件将会被放
+在其下名为\VimDQuote{bin}和\VimDQuote{shared/vim}的目录中。
+
+
+\VimSubSection{从一个预编译包中安装}
+
+多种UNIX系统都有预编译好的包可供安装。参考下面URL中的列表。
+
+        \VimURL{http://www.vim.org/binaries.html}
+
+这些二进制包由志愿者们维护，有可能已经过期了。直接从源代码编译你自己的UNIX版
+本的Vim是个不错的选择。同时，直接从源代码打造你的Vim也可以让你控制各种
+特性的取舍。当然，说这些东西之前编译器是必备的。
+
+如果你用的是Linux, \VimDQuote{vi}程序一般来说指向一个简装版的Vim. 它没有语法高亮功能。你
+可以试着在你的Linux光盘里找到另一个Vim软件包，或者从网上搜索。
+
+\VimSubSection{从源码构造}
+
+要编译安装Vim, 你需要有以下准备：
+\begin{VimVBList}[commandchars=\\\{\}]
+-  一个C编译器 (最好是GCC)
+-  GZIP程序(你可以从\VimInlineURL{www.gnu.org}下载)
+-  Vim的源代码和运行时文件
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+要得到Vim的文档，请查看下面给出的镜像站点，你应该能从中找到对你最快的站点：
+\VimURL{ftp://ftp.vim.org/pub/vim/MIRRORS}
+
+或者访问从主站点ftp.vim.org, 如果你觉得它已经够快的话。在\VimDQuote{unix}目录下你会看到
+很多文件。版本号跟文件名连在一起。往往最想下载的总是最新版。
+
+   一共有两种办法得到这些文件：一个包括了所有东西的大的文档，或者4个分开的文档，
+每个可以放在一张磁盘上。对6.1版本而言那个单个的大文档是：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+vim-6.1.tar.bz2
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+这需要bzip2程序来解压。如果你没有这个程序的话，去抓取那4个小一点的文件，它们是
+用gzip压缩的。对于Vim 6.1版来说这4个文件名是：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+vim-6.1-src1.tar.gz
+vim-6.1-src2.tar.gz
+vim-6.1-rt1.tar.gz
+vim-6.1-rt2.tar.gz
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimSubSection{编译}
+
+首先创建一个顶层的工作目录，比如：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+mkdir ~/vim
+cd ~/vim
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+然后把压缩文件解到该目录下。如果是单个的大文档，可以用
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+bzip2 -d -c path/vim-6.1.tar.bz2 | tar xf -
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+来解压。然后切换路径到你下载这些文件的目录下。
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+gzip -d path/vim-6.1-src1.tar.gz | tar xf -
+gzip -d path/vim-6.1-src2.tar.gz | tar xf -
+gzip -d path/vim-6.1-rt1.tar.gz | tar xf -
+gzip -d path/vim-6.1-rt2.tar.gz | tar xf -
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+如果你对默认的特性已经心满意足，系统环境也没问题的话，你应该可以直接以这样的
+命令开始编译：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+cd vim61/src
+make
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+make程序会运行配置程序并且进行所有必要的编译。等下我们会介绍如何把各种特性
+编译进去。
+
+   如果编译过程发生了错误，请仔细检查给出的错误信息。这些信息往往指明了错误的
+原因。但愿你能根据这些自己解决问题。可能要关闭一些功能来使编译通过。
+查看Makefile中对你所用的特定系统的提示。
+
+
+\VimSubSection{测试}
+
+现在你可以用命令
+
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+make test
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+检查一下编译后的程序是否正常。
+这个命令将会运行一系列的测试脚本来检查是否与预期的结果相符合。在此过程中Vim会
+多次启动，屏幕上会有很多文本信息一闪而过。如果一切顺利的话你会最终看到这样的
+字样：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+test results:
+ALL DONE
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果看到的是\VimDQuote{TEST FAILURE}那说明有失败的测试，如果只是一两个错
+误，Vim还是可以工作，只是不够完美而已。如果你看到了太多的错误信息或者Vim停不下来，
+那可能的确是有地方出错了。要么你自己能解决它，或者你可以找人来帮忙。你可以检
+查\VimCommonSrc{maillist-archive}看有没有现成的解决方案。如果还有其它东西失败了
+。你可以在\VimCommonSrc{maillist}里提问，看看有没有人能帮你。
+
+
+\VimSubSection{安装} \VimToRight{\VimCommonDest{install-home}}
+如果你想安装在你的home目录，编辑Makefile文件，查找这样的行：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+#prefix = $(HOME)
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+移去最前面的\#.
+
+   如果是为整个系统安装，Vim极有可能已经自己检测到了一个合适的安装目录。你也
+可以自行指定一个，需要有root权限。
+
+要安装Vim执行：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+make install
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+这应该会让相关的文件都安装就绪。现在可以试着运行一次来验证一下是否装好了。下面
+两个简单的测试可以证明运行时文件是否也装好了：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help
+:syntax enable
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果不行，这个命令可以告诉你Vim是在哪找运行时文件的：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:echo $VIMRUNTIME
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+下面的命令也可以让你得知启动过程中发生的事情：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim -V
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+别忘了用户手册都假设你以某种方式使用Vim. 装好后，遵照\VimCommonSrc{not-compatible}中的
+指示来让你的Vim能象手册说的那样。
+
+
+\VimSubSection{选择哪些功能}
+
+有多种办法来取舍某个Vim功能，最简单的莫过于直接编辑Makefile文件。该文件里本身
+就以注释的形式嵌入了很多关于如何编辑它的建议和例子。通常你可以通过为一行文本
+加上注释或去掉它的注释来决定某个功能的去留。
+
+   另一个办法是运行\VimDQuote{configure}程序。这可以让你手工指定配置选项。不过
+你得一字不差地键入整个命令。
+
+   下面是一些最有用的配置选项。它们也可以通过修改Makefile里的相关内容来实现。
+
+
+\begin{VimVBList}[xrightmargin=-1cm,commandchars=\\\{\}]
+--prefix=\VimSpecialChar{\{directory\}}     安装Vim的顶层目录
+
+--with-features=tiny     关闭多数功能进行编译
+--with-features=small    关闭部分功能
+--with-features=big      打开多数功能
+--with-features=huge     打开几乎所有功能
+                         参考 \VimCommonSrc{+feature-list} 可以了解更多关于
+                         一些更多明细的功能特性
+
+--enable-perlinterp      启用Perl接口。类似的还有ruby, python
+                         和tcl的接口
+
+--disable-gui            不把GUI编译进去
+--without-x              不编译X-windows支持
+                         这两项都被关闭的话，Vim就不会连到一个X
+                         服务器上了，这会让启动快一些
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+别忘了用帮助：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+./configure --help
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+它可以告诉你全部可用的选项。
+你还可以在\VimCommonSrc{feature-list}找到每个功能对应的简单解释以及其它相关链接和信息。
+
+   乐于冒险的话，你也可以自己编译头文件\VimDQuote{feature.h}. 你甚至可以自己修改源码！
+
+%======...
+\VimSepartor
+
+\VimSecDest{90.2}{\ChapterNinetySectionTwoTitle}
+
+有两种办法可以安装Vim的MS-Windows版本。你可以解压下载的几个文档或是一个大一
+点的。现在的很多电脑用户更喜欢第二种方法。对于第一种办法需要：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+- 编译好的Vim可执行文件
+- Vim运行时文件
+- 解压zip文件的程序
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+要得到Vim的文档，可以在镜像站点中找一个离你最近的，现在的镜像站点列表应该能帮你
+找到最快的：
+\VimURL{ftp://ftp.vim.org/pub/vim/MIRRORS}
+
+或者访问从主站点ftp.vim.org, 如果你觉得它已经够快的话。在\VimDQuote{pc}目录下你会看到
+很多文件。版本号跟文件名连在一起。往往最想下载的总是最新版。
+
+\begin{VimVBList}[commandchars=\\\{\}]
+gvim61.exe              可自解压安装的文件
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+对第二种方法来说只要这一个就够了。只要运行这个程序，照着提示做就行了。
+
+对第一种方法来说你还要选择一个二进制文件。一共有下面几个可用：
+
+\begin{VimVBList}[xrightmargin=-1cm,commandchars=\\\{\}]
+gvim61.zip              普通的MS-Windows GUI版
+gvim61ole.zip           带OLE支持的MS-Windows GUI版
+                        吃掉更多内存，不过能支持与其它OLE程序交互
+vim61w32.zip            32位MS-Windows命令行版。 用于
+                        Win NT/2000/XP 的控制台。在Win95/98下不行
+vim61d32.zip            32位MS-DOS版。 这个可在
+                        Win95/98命令行窗口中使用
+vim61d16.zip            16位MS-DOS version. 只用在一些老系统上，
+                        不支持长文件名
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+你只需要这些文件的其中一个。虽然你也可以同时安装一个GUI版和命令行版。运行时
+文件总是需要的。
+
+\begin{VimVBList}[commandchars=\\\{\}]
+vim61rt.zip             运行时文件
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+un-zip程序可以解压这些文件。如用\VimDQuote{unzip}来解压：
+\begin{VimVBshcmdNoAdjustSpace}
+cd c:\
+unzip path\gvim61.zip
+unzip path\vim61rt.zip
+\end{VimVBshcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这将会把文件解压到目录\VimDQuote{c:\VimBS{}vim\VimBS{}vim61}. 如果你系统里哪个
+地方已经有了一个名为\VimDQuote{vim}的目录，你需要转到它的上层目录再执行上面的操
+作。
+
+   现在可以到\VimDQuote{vim\VimBS{}vim61}目录下运行安装程序：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+install
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+注意看程序的提示信息以准确选择你要的选项。如果你最终选择了\VimDQuote{do it}安装程序
+就会执行你所选择的操作。
+
+   安装程序不会去动运行时文件。它们还留在你把它们解压的地方。
+
+如果你对预编译的可执行文件中带的功能不满意的话，还可以自己编译。首先弄到一份
+源代码。然后找一个编译器，Microsoft Visual C就行，不过太贵了。可以用免
+费的Borland命令行编译器5.5版，或者是MingW, Cygwin编译器。文件src/INSTALLpc.txt里
+有相关的提示。
+
+%======...
+\VimSepartor
+
+\VimSecDest{90.3}{\ChapterNinetySectionThreeTitle}
+
+如果你已经在运行Vim但想安装另一个版本，本节就是讲述如何升级的。
+
+
+\VimSubSection{UNIX}
+
+运行\VimDQuote{make install}会把运行时文件复制到你指定的目录。这样它就不会覆盖掉以前的
+版本了。
+
+   可执行程序\VimDQuote{vim}则会覆盖它的老版本--不过如果你不在乎的话，
+\VimDQuote{make install}也没意见。你也可以手工删掉老版本的运行时文件。只需整个
+删除带着版本号的那个目录。如：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+rm -rf /usr/local/share/vim/vim58
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+通常来说这个目录下的东西都不会被动到，如果你动过了象\VimDQuote{filetype.vim}这样的文件
+，记得在删除它们之前把你自己喜欢的一些设置合并到新版本中去。
+
+如果你只是小心翼翼地想尝试一下新版本感觉如何，可以把新版本安装在另一个目录
+下。这需要另定一个配置选项。如：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+./configure --with-vim-name=vim6
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+真正运行\VimDQuote{make install}之前，你也可以用\VimDQuote{make -n install}预
+演一遍看该命令的执行会不会覆盖你要的东西\VimMyFootnote{译注：make -n参数是只显示
+要运行的命令，而不真正运行这些命令}。
+
+   如果你最终决定换用新版，只需把可执行文件名改过来就行了，如：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+mv /usr/local/bin/vim6 /usr/local/bin/vim
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_236}{view_236}\hypertarget{view_236}{}\fbox{\textcolor{red}{Review}}\\
+MS-WINDOWS
+
+对MS-WINDOWS来说升级跟安装新版也差不多。解压文件。通常会生成一个新的目录名，
+如\VimDQuote{vim61}. 新版本的文件就存放在该目录下，你的运行时文件，vimrc配置文件
+，viminfo文件等等则留着不动。
+
+   如果你要运行新版，多少得多动一下手。不要运行install程序，它会覆盖掉你旧版
+中的一些文件。可以通过指定绝对路径来运行新版程序。启动后它会自动找到相应
+版本的运行时文件。不过，如果你把\$VIMRUNTIME变量设错了可不行。
+
+   如果你对新版试用满意，就可以把旧版的文件给删了。参考\VimSecSrc{90.5}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{90.4}{\ChapterNinetySectionFourTitle}
+
+本节回答关于安装Vim的一些常见问题。
+
+
+\VimQuestion{Q：我没有Root权限该怎么安装Vim?(Unix)}
+
+用下面的配置命令，把Vim安装到\$HOME/vim目录去：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+./configure --prefix=$HOME
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+这会为你安装一个个人专用版。你需要把\$HOME/bin加到你的搜索路径中。
+参考\VimCommonSrc{install-home}. 
+
+
+\VimQuestion{Q：我的Vim显示的颜色不对(Unix)}
+
+用下面的SHELL命令检查一下你的终端设置：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+echo $TERM
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+如果列出的终端类型不对的话，给它设置一个恰当的值。关于这个\VimSecSrc{06.2}处有更多的提示。
+另一个解决办法是使用GUI版，这个不需要终端设置。
+
+
+\VimQuestion{Q：我的删除键和退格键不能正常工作}
+
+对\VimSpecialChar{<BS>}和\VimSpecialChar{<Del>}两个键来说，该送什么码并不十分固定，首先还是要检查\$TERM的设置。
+如果这个没问题，试试命令：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set t_kb=^V<BS>
+:set t_kD=^V<Del>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+上面的命令中第一行你需要先按下\VimSpecialChar{CTRL-V}然后按退格键。第二行中你需要先按下
+\VimSpecialChar{CTRL-V}然后按删除键。你也可以把这两个命令放到你的配置文件中去，见\VimSecSrc{05.1}. 
+缺点是哪天你换用了另一种终端它就又不正常了。可以参考\VimCommonSrc{:fixdel}
+试试另一种解决。
+
+\VimQuestion{Q：我用的是RedHat Linux. 我能使用系统自带的Vim吗?}
+
+默认情况下RedHat安装的是一个最小的简装版Vim. 检查一下系统中所安装的RPM包。
+看有没有一个叫\VimDQuote{Vim-enhanced-version.rpm}, 你可以安装这个。
+
+
+\VimQuestion{Q：我如何打开语法高亮功能？怎样使用plugins?}
+
+使用示例的vimrc配置脚本。你可以参考\VimCommonSrc{not-compatible}了解如何使用它。
+
+第6章有关于语法高亮的信息：\VimFileName{06}. 
+
+
+\VimQuestion{Q：什么样的vimrc配置文件好用?}
+
+参考\VimInlineURL{www.vim.org}网页上的一些例子。
+
+
+\VimQuestion{Q：在哪能找到Vim插件?}
+
+Vim-online站点：\VimInlineURL{http://vim.sf.net}. 很多用户把一些有用的脚本上载到了这里。
+
+
+\VimQuestion{Q：在哪能找到更多的技巧提示?}
+
+Vim-online站点：
+
+\VimURL{http://vim.sf.net}
+
+那有一个集结了所有技巧提示的文件。你也可以
+搜索邮件列表文档\VimCommonSrc{maillist-archive}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{90.5}{\ChapterNinetySectionFiveTitle}
+
+总有这样的情况：你不得不卸载Vim. 本节讲述卸载。
+
+
+\VimSubSection{UNIX}
+
+如果你是以软件包的形式安装的Vim, 你应该看一下你的软件包管理工具如何卸载它。
+
+   如果你是从源代码编译过来的你可以用命令：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+make uninstall
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+来卸载。
+不过，如果你已经删除了原来编译时的文件或者你用的是别人编译的，
+你就不能用这个命令了。手工删除好了，下面是\VimDQuote{/usr/local}用做顶层安装目录时
+要删除的文件列表：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+rm -rf /usr/local/share/vim/vim61
+rm /usr/local/bin/eview
+rm /usr/local/bin/evim
+rm /usr/local/bin/ex
+rm /usr/local/bin/gview
+rm /usr/local/bin/gvim
+rm /usr/local/bin/gvim
+rm /usr/local/bin/gvimdiff
+rm /usr/local/bin/rgview
+rm /usr/local/bin/rgvim
+rm /usr/local/bin/rview
+rm /usr/local/bin/rvim
+rm /usr/local/bin/rvim
+rm /usr/local/bin/view
+rm /usr/local/bin/vim
+rm /usr/local/bin/vimdiff
+rm /usr/local/bin/vimtutor
+rm /usr/local/bin/xxd
+rm /usr/local/man/man1/eview.1
+rm /usr/local/man/man1/evim.1
+rm /usr/local/man/man1/ex.1
+rm /usr/local/man/man1/gview.1
+rm /usr/local/man/man1/gvim.1
+rm /usr/local/man/man1/gvimdiff.1
+rm /usr/local/man/man1/rgview.1
+rm /usr/local/man/man1/rgvim.1
+rm /usr/local/man/man1/rview.1
+rm /usr/local/man/man1/rvim.1
+rm /usr/local/man/man1/view.1
+rm /usr/local/man/man1/vim.1
+rm /usr/local/man/man1/vimdiff.1
+rm /usr/local/man/man1/vimtutor.1
+rm /usr/local/man/man1/xxd.1
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_237}{view_237}\hypertarget{view_237}{}\fbox{\textcolor{red}{Review}}\\
+MS-WINDOWS
+
+如果你是从那个自解压文件中安装的Vim, 你也可以运行Vim可执行程序所在的目录下的
+\VimDQuote{uninstall-gui}程序来卸载。你可以从开始菜单中选取它来运行。运行这个卸载程序
+会移除大部分文件，快捷菜单中的菜单项和桌面上的快捷方式。还有一些文件需
+要Windows下次启动时才会被删掉。
+
+   卸载程序会问你是不是要整个删除\VimDQuote{vim}目录。这个目录通常也是你的vimrc配置文件
+所在。所以小心一点。
+
+或者，如果你是从几个zip压缩文件里安装的Vim, 最好的办法是运行\VimDQuote{uninstal}程序
+(注意我没有少拼一个l). 它跟\VimDQuote{install}程序在同一个目录中。典型地：\VimDQuote{c:\VimBS{}vim\VimBS{}vim61}. 
+这也可以从控制面板里的\VimDQuote{安装/卸载}程序里卸载。
+
+   不过这个卸载办法只是删除了Vim相关的注册表项。你还是要手工删除相关文件。
+选择\VimDQuote{vim\VimBS{}vim61}目录整个删除即可。如果你改了这个目录下的什么文件，最好还是
+先检查一下。
+
+   \VimDQuote{vim}目录里可能有你的vimrc配置文件和你创建的其它一些运行时文件。看一下你
+是不是要留住它们。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+目录：\VimFileName{toc}\\
+版权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

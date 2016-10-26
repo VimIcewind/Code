@@ -1,0 +1,847 @@
+\VimNewChapter
+\VimBookMark{第02章　\ChapterTwoTitle}{usr_02.txt}
+\VimFileNameDest{usr\VimTT{\_}02.txt}{ \VimDocVer  最后修改：2010年07月20日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{Vim第一步\\}
+\begin{flushright}
+\small\CJKfamily{kai}
+合抱之木，生于毫末；九层之台，起于累土\VimMyFootnote{译注：累通垒，通假}；千里之行，始于足下
+
+---老子《道德经》
+\end{flushright}
+
+本章仅提供可以让你开始用Vim编辑文件的必要技巧。所用的方法可能既不是最好的也不是
+最快的。它只是让你有一个开端。你最好花些时间去实际应用一下这些命令，它们是进一步
+学习的基础。
+
+\VimSecList{02.1}{\ChapterTwoSectionOneTitle}
+\VimSecList{02.2}{\ChapterTwoSectionTwoTitle}
+\VimSecList{02.3}{\ChapterTwoSectionThreeTitle}
+\VimSecList{02.4}{\ChapterTwoSectionFourTitle}
+\VimSecList{02.5}{\ChapterTwoSectionFiveTitle}
+\VimSecList{02.6}{\ChapterTwoSectionSixTitle}
+\VimSecList{02.7}{\ChapterTwoSectionSevenTitle}
+\VimSecList{02.8}{\ChapterTwoSectionEightTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{03}  \ChapterThreeTitle\\
+前一章：& \VimFileName{01}  \ChapterOneTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{02.1}{\ChapterTwoSectionOneTitle}
+
+命令：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+gvim file.txt
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_21}{view_21}\hypertarget{view_21}{}\fbox{\textcolor{red}{Review}}\\
+可以启动Vim.
+
+在UNIX下你可以直接在命令行上键入该命令，但如果你用的是Microsoft Windows,
+就需要在一个MS-DOS命令行窗口中键入。
+
+   上面的命令使Vim开始编辑一个名为file.txt的文件。因为这是一个新文件，所以你会看到一个
+空的窗口。屏幕上看起来大致是这样：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++---------------------------------------+
+|#                                      |
+|~                                      |
+|~                                      |
+|~                                      |
+|~                                      |
+|"file.txt" [New file]                  |
++---------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_22}{view_22}\hypertarget{view_22}{}\fbox{\textcolor{red}{Review}}\\
+                (\VimDQuote{\#} 代表当前光标位置。)
+
+上波浪线(\VimTT{\~})表示所在行并不是文件内容的一部分。换句话说，Vim将文件之外
+的部分显示为波浪线。在窗口的底部，一个消息行显示说当前正在编辑的文件叫file.txt,
+它是一个新文件。显示的消息总是临时性的，系统中显示的其它消息会
+覆盖掉前面的消息。
+
+
+\VimSubSection{VIM命令}
+
+gvim命令使编辑器打开一个新的窗口进行编辑。如果你用的是命令：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+vim file.txt
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_23}{view_23}\hypertarget{view_23}{}\fbox{\textcolor{red}{Review}}\\
+就会在当前的命令行窗口中打开编辑程序。或者说，你在运行xterm的话，编辑用的窗口
+就是你当前的xterm窗口。如果你用的是Microsoft Windows下的MS-DOS命令行窗口，
+编辑器就在该命令行窗口中打开。两种情况下窗口中显示的内容都是一样的，但是用gvim的
+话可以使用额外的功能，如菜单等。
+
+%======...
+\VimSepartor
+
+\VimSecDest{02.2}{\ChapterTwoSectionTwoTitle}
+
+Vim编辑器是一个模式编辑器。这意味着在不同状态下编辑器有不同的行为模式。两个基本
+的模式是Normal模式和Insert模式。在Normal模式下你键入的每一个字符都被视为一个
+命令。而在Insert模式下键入的字符都作为实际要输入的文本内容。
+
+   刚启动时Vim工作于Normal模式。要进入Insert模式你需要使用\VimDQuote{i}命
+令(i意为Insert). 接下来就可以直接输入了。别怕出错，错了还可以
+修改。比如下面这首程序员的打油诗：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+iA very intelligent turtle
+Found programming UNIX a hurdle
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_24}{view_24}\hypertarget{view_24}{}\fbox{\textcolor{red}{Review}}\\
+\VimDQuote{turtle}之后你按下回车键另起一行。最后按下\VimSpecialChar{<Esc>}键退
+出Insert模式回到Normal模式。现在你的Vim窗口中有了这样的两行内容：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++---------------------------------------+
+|A very intelligent turtle              |
+|Found programming UNIX a hurdle        |
+|~                                      |
+|~                                      |
+|                                       |
++---------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_25}{view_25}\hypertarget{view_25}{}\fbox{\textcolor{red}{Review}}\\
+现在是什么模式？
+
+要知道你现在所处的工作模式是什么，打开显示模式的开关：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set showmode
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_26}{view_26}\hypertarget{view_26}{}\fbox{\textcolor{red}{Review}}\\
+你会看到按下冒号键之后当前光标跑到窗口的最后一行去了。那是使用冒号命令的地方
+(顾名思义，冒号命令就是总是以冒号打头的命令). 最后按下回车键结束整个命令(所有
+的冒号命令都以这种方式表明命令的结束).
+
+   现在，如果你键入了\VimDQuote{i}命令Vim就会在窗口底部显示\VimTT{--}INSERT\VimTT{--}. 这
+表明你目前处于Insert模式。
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++---------------------------------------+
+|A very intelligent turtle              |
+|Found programming UNIX a hurdle        |
+|~                                      |
+|~                                      |
+|-- INSERT --                           |
++---------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果按下\VimSpecialChar{<Esc>}键返回到Normal模式刚才显示出来的模式\VimDQuote{\VimTT{--}INSERT\VimTT{--}}就会消失
+\VimMyFootnote{译注：Normal模式并不会显示\VimTT{--}NORMAL\VimTT{--}, 作为默认的工作模式它不显示任何字串}
+
+
+\VimSubSection{模式之灾}
+
+Vim新手最头痛的问题就是模式---经常忘记自己置身于何种模式，或者不经意敲了哪个字
+符就切换到别的模式去了。不管你当前所处的模式是什么，按下\VimSpecialChar{<Esc>}都
+会让你回到Normal模式(即使已经在Normal模式下). 有时需要按两次
+\VimSpecialChar{<Esc>}, 如果Vim以一声蜂鸣回答你，那说明你已经是在Normal模式了
+\VimMyFootnote{译注：在google的新闻组上还有人写了一首诗来表达这种困扰，可惜我再没找到它了}
+
+%======...
+\VimSepartor
+
+\VimSecDest{02.3}{\ChapterTwoSectionThreeTitle}
+
+回到Normal模式后，你就可以用下面的命令来移动光标：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+h   左\VimToRight{\VimCommonDest{hjkl}}
+j   下
+k   上
+l   右
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+人们一开始会认为这些字符是随意选取的。毕竟有谁拿l来代表right呢？但事实上，这些
+字符都是精心挑选的：在编辑器中移动光标是十分常用的操作，这些字符在键盘上都分布
+在你右手周围。这样的安排可以使你最快最方便地使用它们(尤其是对那些用十个手指而
+不是二指禅用户而言)
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        同时你还可以用箭头键来移动光标。不过这样做实际上会大大降低你的效率。
+        因为用这些键你需要不停地在字母区和箭头键之间频繁转换。想象一下要是你
+        在一小时内这样做一百次会占用你多少时间？
+           另外，并不是每个键盘上都安排有箭头键，或者都把它们放在最常见的位置，
+        所以使用hjkl还是大有好处。
+} %end VimCaution
+
+记住这些命令的一个办法是通过它们在键盘上的布局：h在左边，l在右边，j指向下面。
+
+\begin{center}
+\begin{tabular}{c|c|c}
+&k& \\ \hline
+h&&l \\ \hline
+&j& \\
+\end{tabular}
+\end{center}
+
+但学习这些命令的最好办法不是使用什么记忆法，而是练习。你可以用\VimDQuote{i}命令来
+在Insert模式下输入一些内容，然后用hjkl命令将光标移到别处再插入另外的内容，不要忘了要
+用\VimSpecialChar{<Esc>}来回到Normal模式。\VimCommonSrc{vimtutor}也是学习这些命令的一个好去处。
+
+对于日本的用户来说，Hiroshi Iwatani有如下建议：
+\begin{VimVBDisplay}[xrightmargin=-2cm,commandchars=\\\{\}]
+                Komsomolsk
+                    ^
+                    |
+   Huan Ho      <--- --->  Los Angeles
+(Yellow river)      |
+                    v
+                  Java (the island, not the programming language)
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_27}{view_27}\hypertarget{view_27}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{02.4}{\ChapterTwoSectionFourTitle}
+
+要删除一个字符，只需要将光标移到该字符上按下\VimDQuote{x}. (这是在追
+忆古老的打字机时代，在打字机上删除字符就是用xxxx来覆盖它) 把光标移到上面例子中
+的第一行，键入xxxxxxx(7个x) 来删除\VimDQuote{A very }. 结果如下：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++---------------------------------------+
+|intelligent turtle                     |
+|Found programming UNIX a hurdle        |
+|~                                      |
+|~                                      |
+|                                       |
++---------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_28}{view_28}\hypertarget{view_28}{}\fbox{\textcolor{red}{Review}}\\
+现在你可以键入其它内容了，比如：
+% vim: no special highlight in verbatim
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+iA young <Esc>
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_29}{view_29}\hypertarget{view_29}{}\fbox{\textcolor{red}{Review}}\\
+首先键入的命令是i(进入Insert模式), 接着插入\VimDQuote{A young}, 然后退
+出Insert模式(最后的\VimSpecialChar{<Esc>}). 结果是：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++---------------------------------------+
+|A young intelligent turtle             |
+|Found programming UNIX a hurdle        |
+|~                                      |
+|~                                      |
+|                                       |
++---------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_30}{view_30}\hypertarget{view_30}{}\fbox{\textcolor{red}{Review}}\\
+删除一行
+
+删除一整行内容使用\VimDQuote{dd}命令。删除后下面的行会移上来填补空缺：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++---------------------------------------+
+|Found programming UNIX a hurdle        |
+|~                                      |
+|~                                      |
+|~                                      |
+|                                       |
++---------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_31}{view_31}\hypertarget{view_31}{}\fbox{\textcolor{red}{Review}}\\
+删除换行符
+
+在Vim中你可以把两行合并为一行，也就是说两行之间的换行符被删除了：命令是
+\VimDQuote{J}. 
+   比如下面的两行：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+A young intelligent
+turtle
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_32}{view_32}\hypertarget{view_32}{}\fbox{\textcolor{red}{Review}}\\
+将光标移到第一行上然后按\VimDQuote{J}:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+A young intelligent turtle
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_33}{view_33}\hypertarget{view_33}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{02.5}{\ChapterTwoSectionFiveTitle}
+
+如果你误删了过多的内容。显然你可以再输入一遍，但是命令\VimDQuote{u}
+更简便，它可以撤消上一次的操作\VimMyFootnote{译注：不要误解为它只能删除最后一次的操作，
+它也可以删除上上次，上上上上...次的操作}。实际看一下它的效果，用\VimDQuote{dd}命令来删除
+前面例子中的第一行内容，\VimDQuote{u}命令会把它找回来。
+   另一个例子：将光标移到第一行的A上：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+A young intelligent turtle
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_34}{view_34}\hypertarget{view_34}{}\fbox{\textcolor{red}{Review}}\\
+现在用命令xxxxxxx来删除\VimDQuote{A young}. 结果如下：
+% 注意下面的行开头有一个空格
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+ intelligent turtle
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_35}{view_35}\hypertarget{view_35}{}\fbox{\textcolor{red}{Review}}\\
+键入\VimDQuote{u}来撤消最后的一次删除。最后被删除的是字符g, 所以撤消操作恢复了这个字符：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+g intelligent turtle
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_36}{view_36}\hypertarget{view_36}{}\fbox{\textcolor{red}{Review}}\\
+下一个u命令将恢复倒数第二次被删除的字符：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+ng intelligent turtle
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_37}{view_37}\hypertarget{view_37}{}\fbox{\textcolor{red}{Review}}\\
+再下一次是字符u, 如此这般：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+ung intelligent turtle
+oung intelligent turtle
+young intelligent turtle
+ young intelligent turtle
+A young intelligent turtle
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_38}{view_38}\hypertarget{view_38}{}\fbox{\textcolor{red}{Review}}\\
+\VimCaution{
+        \VimCautionTitle{备注：}
+        如果你按下\VimDQuote{u}两次结果是两次找回了同样的字符，那说明你的Vim配置成Vi兼容
+        模式了。在\VimCommonSrc{not-compatible}可以找到这一问题的对策。
+           这个例子假设你的Vim使用的是Vim的方法。如果你更喜欢老的Vi编辑器的做法，
+        你就要留心两者在这方面的细微差别。
+} %end VimCaution
+
+\VimSubSection{重做}
+
+如果你撤消了多次，你还可以用\VimSpecialChar{CTRL-R}(重做)来反转撤消的动作。换句话说，它是对撤消
+的撤消。实际按两次\VimSpecialChar{CTRL-R}试试它的效果，字符A和它后面的空格又出现了：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+young intelligent turtle
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_39}{view_39}\hypertarget{view_39}{}\fbox{\textcolor{red}{Review}}\\
+撤消命令还有另一种形式，\VimDQuote{U}命令，它一次撤消对一行的全部操作。第二次使用该命令
+则会撤消前一个\VimDQuote{U}的操作。
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+A very intelligent turtle
+\textcolor{black}{
+  xxxx                          删除very}
+
+A intelligent turtle
+\textcolor{black}{
+              xxxxxx            删除turtle}
+
+A intelligent
+\textcolor{black}{
+                                用"U"恢复该行}
+A very intelligent turtle
+\textcolor{black}{
+                                用"u"撤消"U"}
+A intelligent
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimDQuote{U}命令本身也造成了一次改变，这种改变同样可以用\VimDQuote{u}命令和
+\VimSpecialChar{CTRL-R}来撤消和重做。看起来这很容易把人搞糊涂，不过别担心，用
+\VimDQuote{u}和\VimSpecialChar{CTRL-R}你可以找回任何一个操作状态。请参考
+\VimSecSrc{32.2}了解该主题的更多信息。
+
+%======...
+\VimSepartor
+
+\VimSecDest{02.6}{\ChapterTwoSectionSixTitle}
+
+Vim有一大堆命令来改变文本。请参考\VimCommonSrc{\VimTT{Q\_in}}和下面的内容，这
+里仅列出一些最常用的。
+
+\VimSubSection{追加}
+
+\VimDQuote{i}命令可以在当前光标之前插入文本。但如果你想在当前行的末尾添加一些
+内容时怎么办呢？你必需在光标之后插入文本。答案是用\VimDQuote{a}命令来代替
+\VimDQuote{i}. 
+
+   比如，要把
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+and that's not saying much for the turtle.
+\textcolor{black}{
+改变为}
+and that's not saying much for the turtle!!!
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+把光标移到行尾的句点上，然后用\VimDQuote{x}来删除这个点号。现在光标被置于
+行尾turtle的e上了。键入命令：
+% vim: no special highlight in verbatim
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+a!!!<Esc>
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_40}{view_40}\hypertarget{view_40}{}\fbox{\textcolor{red}{Review}}\\
+来在e的后面追加三个感叹号：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+and that's not saying much for the turtle!!!
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_41}{view_41}\hypertarget{view_41}{}\fbox{\textcolor{red}{Review}}\\
+另起一行
+
+\VimDQuote{o}命令可以在当前行的下面另起一行，并使当前模式转为Insert模式。这样你可以在
+该命令之后直接输入内容。
+   假设光标位于下面两行中第一行的某处：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+A very intelligent turtle
+Found programming UNIX a hurdle
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_42}{view_42}\hypertarget{view_42}{}\fbox{\textcolor{red}{Review}}\\
+现在键入命令\VimDQuote{o}并输入下面的内容：
+% vim: no special highlight in verbatim
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+oThat liked using Vim<Esc>
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_43}{view_43}\hypertarget{view_43}{}\fbox{\textcolor{red}{Review}}\\
+结果将是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+A very intelligent turtle
+That liked using Vim
+Found programming UNIX a hurdle
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_44}{view_44}\hypertarget{view_44}{}\fbox{\textcolor{red}{Review}}\\
+\VimDQuote{O}命令(注意是大写的字母O)将在当前行的上面另起一行。
+
+\VimSubSection{使用命令计数}
+
+假设你要向上移动9行。这可以用\VimDQuote{kkkkkkkkk}或\VimDQuote{9k}来完成。事实
+上，很多命令都可以接受一个数字作为重复执行同一命令的次数。比如刚才的例子，要在
+行尾追加三个感叹号，当时用的命令是\VimDQuote{a!!!\VimSpecialChar{<Esc>}}. 另一个
+办法是用\VimDQuote{3a!\VimSpecialChar{<Esc>}}命令。3说明该命令将被重复执行3次。
+同样，删除3个字符可以用\VimDQuote{3x}. 指定的数字要紧挨在它所要修饰的命令前面。
+
+%======...
+\VimSepartor
+
+\VimSecDest{02.7}{\ChapterTwoSectionSevenTitle}
+
+要退出Vim, 用命令\VimDQuote{ZZ}. 该命令保存当前文件并退出Vim.
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        Vim不会象其它的编辑器那样，自动为被编辑的文件生成一个备份。如果你用
+        \VimDQuote{ZZ}, Vim就会提交你对该文件所做出的修改。并且无法撤消。当然你也可以
+        配置你的Vim让它也可以自动生成一个备份文件。请参考\VimSecSrc{07.4}. 
+} %end VimCaution
+
+\VimSubSection{放弃编辑}
+
+有时你会在做了一连串修改之后突然意识到最好是放弃所有的修改重新来过。别担心。
+Vim中有一个命令可以丢弃所有的修改并退出：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:q!
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_45}{view_45}\hypertarget{view_45}{}\fbox{\textcolor{red}{Review}}\\
+别忘了在命令之后加回车。
+
+对于喜欢把事情弄出个究竟的人来说，这个命令由3部分组成：冒号(:), 用以进入冒号
+命令行模式；q命令，告诉编辑器退出；最后是强制命令执行的修饰符(!)
+\VimMyFootnote{译注：注意千万不要以为Vim的基本命令可以象这样任意组合成一个新的命
+令} \VimMyFootnote{译注：规律：!表示强制命令执行，强制执行的结果要视具体的命令而
+定，如w!是覆盖已经存在的文件}.
+
+   这里强制命令执行的修饰符是必需的，因为Vim对隐含地放弃所有修改感到不妥。如果
+你只是用\VimDQuote{:q}来退出，Vim会显示下面的错误消息并且拒绝不负责任地退出：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+E37: No write since last change (use ! to override)
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_46}{view_46}\hypertarget{view_46}{}\fbox{\textcolor{red}{Review}}\\
+指定了强制执行的修饰符等于你告诉Vim, "我知道也许我这样做很蠢，但是我已经长大了
+我知道我在做什么你就让我蠢一次吧".
+
+如果你在放弃所有修改后还想以该文件的初始内容作为开始继续编辑，还可以用
+\VimDQuote{:e!}命令放弃所有修改并重新载入该文件的原始内容。
+%======...
+\VimSepartor
+
+\VimSecDest{02.8}{\ChapterTwoSectionEightTitle}
+
+你想做的任何操作都可以在Vim的帮助文件里找到答案，别怕问问题！
+   命令
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+会带你到帮助文件的起始点。
+如果你的键盘上有一个\VimSpecialChar{<F1>}键的话你也可以直接按\VimSpecialChar{<F1>}. 
+
+   如果你没有指定一个具体的帮助主题，\VimDQuote{:help}命令会显示上面提到的帮助
+文件的起点。Vim的作者聪明地(也许是懒惰地)设计了它的帮助系统：帮助窗口也是一个
+普通的编辑窗口。你可以使用跟编辑其它文件时一样的命令来操作帮助文件。比如
+用hljk移动光标。
+
+   退出帮助窗口也跟退出其它文件编辑窗口一样，使用\VimDQuote{ZZ}即可。这只会关
+闭帮助窗口，而不是退出Vim.
+
+浏览帮助文件时，你会注意到有一些内容用两个小栅栏围了起来(比如
+\VimCommonSrc{help}). 这表明此处是一个超链接。如果你把光标置于两个小栅栏之间的
+任何位置然后按下\VimSpecialChar{CTRL-]}(跳转到一个标签的命令), 帮助系统就会带
+你到那个指定的主题。(因为一些此处不便讨论的原因，在Vim的术语中这种超链接叫标签
+。所以\VimSpecialChar{CTRL-]}可以跳转到当前光标之下的那个word所对应的链接中
+\VimMyFootnote{
+译注：基本上，这与HTML语言中的超链接在概念和功能上是一样的，只不过HTML语言中对超
+链接的定义是\\
+<a href=\VimDQuote{http://www.w3.org/2001/HTML}>HTML</a>\\而在Vim中对超链接
+目的地的描述是通过tag文件中的一个条目，这个条目用一种搜索或定位命令的形式告
+诉Vim目的地在哪里}。
+
+   几次跳转之后，你可能想回到原来的某个地方，\VimSpecialChar{CTRL-T}(弹出标签)可以回到前一个
+位置。用命令\VimSpecialChar{CTRL-O}(跳转到较早的位置)也可以。
+
+   帮助窗口的开始有一个关于*help.txt*的说明。在星号\VimDQuote{*}之间的字符被帮助系统
+定义为一个标签的目的地(超链接的目的地).
+
+   参考\VimSecSrc{29.1}可以了解更多关于标签使用的细节。
+
+要查看关于某个特殊主题的帮助，使用下面的命令形式：
+\begin{VimVBexcmdNoAdjustSpace}
+:help {subject}
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_47}{view_47}\hypertarget{view_47}{}\fbox{\textcolor{red}{Review}}\\
+比如要得到关于\VimDQuote{x}命令的帮助，就可以使用：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help x
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_48}{view_48}\hypertarget{view_48}{}\fbox{\textcolor{red}{Review}}\\
+要查找关于如何删除的内容，使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help deleting
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_49}{view_49}\hypertarget{view_49}{}\fbox{\textcolor{red}{Review}}\\
+要得到所有Vim命令的索引，使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help index
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_50}{view_50}\hypertarget{view_50}{}\fbox{\textcolor{red}{Review}}\\
+如果你要得到关于某个控制字符的帮助(比如，\VimSpecialChar{CTRL-A}), 你需要用前辍\VimDQuote{CTRL-}来
+代表控制键：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help CTRL-A
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_51}{view_51}\hypertarget{view_51}{}\fbox{\textcolor{red}{Review}}\\
+Vim编辑器有很多模式\VimMyFootnote{译注：不光是前面提到的Insert模式和Normal模式}。默认情况下
+帮助系统显示的是Normal模式下某个命令的帮助。比如，下面的命令显示Normal模式下
+\VimSpecialChar{CTRL-H}命令的帮助：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help CTRL-H
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_52}{view_52}\hypertarget{view_52}{}\fbox{\textcolor{red}{Review}}\\
+要查找其它模式下的帮助，使用一个模式前辍。如果你想要看的是Insert模式下某个
+命令的帮助，使用\VimDQuote{i\VimTT{\_}}前辍。对于\VimSpecialChar{CTRL-H}来说是这样：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help i_CTRL-H
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_53}{view_53}\hypertarget{view_53}{}\fbox{\textcolor{red}{Review}}\\
+启动Vim编辑器时，你可以使用一些命令行参数。这些参数都以-开始。比如说要查找
+-t参数的功能，使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help -t
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_54}{view_54}\hypertarget{view_54}{}\fbox{\textcolor{red}{Review}}\\
+Vim编辑器也有众多的选项来让用户自己进行定制。如果你想得到关于某个选项的帮助，你
+需要把它用单引号括起来。比如要找\VimOption{number}选项，就可以用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help 'number'
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_55}{view_55}\hypertarget{view_55}{}\fbox{\textcolor{red}{Review}}\\
+关于各种模式都要用哪些前辍可以在\VimCommonSrc{help-context}中找到。
+
+特殊键用尖括号中一个简单的描述性名字表示。比如要查找Insert模式下的上
+箭头键的功能，可以用：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help i_<Up>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_56}{view_56}\hypertarget{view_56}{}\fbox{\textcolor{red}{Review}}\\
+如果你看到了象下面这样的错误信息还是不明究竟：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+E37: No write since last change (use ! to override)
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_57}{view_57}\hypertarget{view_57}{}\fbox{\textcolor{red}{Review}}\\
+你可以把它的错误ID号作为一个帮助主题来得到更进一步的信息：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help E37
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\hypertarget{v71_newadd_helpsummary}{}
+\VimSubSection{关于帮助的小结}
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_58}{view_58}\hypertarget{view_58}{}\fbox{\textcolor{red}{Review}}\\
+以上是通用帮助入口。在该帮助页中向下滚动可以查看所有的帮助文件，包括本地安装的帮助文
+件(比如不是随Vim安装包发行的).
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help usr_toc.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_59}{view_59}\hypertarget{view_59}{}\fbox{\textcolor{red}{Review}}\\
+用户手册的目录\VimMyFootnote{译注：7.1版所带的帮助中错写成了：user-toc.txt}
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help :subject
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_60}{view_60}\hypertarget{view_60}{}\fbox{\textcolor{red}{Review}}\\
+冒号命令行命令\VimDQuote{subject}, 比如下面的：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help :help
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_61}{view_61}\hypertarget{view_61}{}\fbox{\textcolor{red}{Review}}\\
+就是关于如何通过冒号命令行获得帮助的命令。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help abc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_62}{view_62}\hypertarget{view_62}{}\fbox{\textcolor{red}{Review}}\\
+以上是关于normal模式命令\VimDQuote{abc}的帮助。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help CTRL-B
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_63}{view_63}\hypertarget{view_63}{}\fbox{\textcolor{red}{Review}}\\
+以上是关于normal模式控制键\VimSpecialChar{<C-B>}的帮助。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help i_abc
+:help i_CTRL-B
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_64}{view_64}\hypertarget{view_64}{}\fbox{\textcolor{red}{Review}}\\
+以上是关于相同主题在插入模式的帮助。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help v_abc
+:help v_CTRL-B
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_65}{view_65}\hypertarget{view_65}{}\fbox{\textcolor{red}{Review}}\\
+以上是关于相同主题在Visual模式的帮助。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help c_abc
+:help c_CTRL-B
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_66}{view_66}\hypertarget{view_66}{}\fbox{\textcolor{red}{Review}}\\
+以上是关于相同主题在冒号命令行模式的帮助\VimMyFootnote{译注：Jian Zhou指出：c\_xx只
+关乎按键(keystroke)相关的帮助主题，而不包括象c\_abc这样的命令或关键字的帮助。但
+原文如此，所以译文改为\VimDQuote{相同主题}来避免可能带来的误解，如果你追求
+细节之精准，Jian Zhou的理解是对的。当前help的组织的确是依此原则。插入模
+式和Visual模式的帮助亦有类似问题}。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help 'subject'
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_67}{view_67}\hypertarget{view_67}{}\fbox{\textcolor{red}{Review}}\\
+以上是关于选项\VimOption{subject}的帮助。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help subject()
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_68}{view_68}\hypertarget{view_68}{}\fbox{\textcolor{red}{Review}}\\
+以上是关于函数\VimDQuote{subject}的帮助。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help -subject
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_69}{view_69}\hypertarget{view_69}{}\fbox{\textcolor{red}{Review}}\\
+以上是关于命令行选项\VimMyFootnote{译注：注意这里\VimDQuote{命令行}一词指从命令
+解释器shell启动vim时所带参数，不是指进入Vim后的冒号命令行}\VimDQuote{-subject}. 
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help +subject
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_70}{view_70}\hypertarget{view_70}{}\fbox{\textcolor{red}{Review}}\\
+以上是关于编译时特性\VimDQuote{+subject}的帮助。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help EventName
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_71}{view_71}\hypertarget{view_71}{}\fbox{\textcolor{red}{Review}}\\
+以上是关于引发自动命令的事件\VimDQuote{EventName}的帮助。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help digraphs.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_72}{view_72}\hypertarget{view_72}{}\fbox{\textcolor{red}{Review}}\\
+以上是到帮助文件\VimDQuote{digraphs.txt}的开头。这对其它帮助文件同样适用。
+
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help pattern<Tab>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_73}{view_73}\hypertarget{view_73}{}\fbox{\textcolor{red}{Review}}\\
+以上是查找一个以\VimDQuote{pattern}开始的帮助标记。重复按\VimSpecialChar{<Tab>}查看其它匹
+配的帮助标记。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:help pattern<Ctrl-D>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_74}{view_74}\hypertarget{view_74}{}\fbox{\textcolor{red}{Review}}\\
+以上是同时列出匹配\VimDQuote{pattern}的所有可能的帮助主题。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:helpgrep pattern
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_75}{view_75}\hypertarget{view_75}{}\fbox{\textcolor{red}{Review}}\\
+以上是在所有帮助文件中搜索全部文本查找指定的\VimDQuote{pattern}. 并且定
+位到第一个匹配的位置。用下面的命令可以跳转到其它的匹配项：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:cn
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_76}{view_76}\hypertarget{view_76}{}\fbox{\textcolor{red}{Review}}\\
+下一个匹配项。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:cprev
+:cN
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_77}{view_77}\hypertarget{view_77}{}\fbox{\textcolor{red}{Review}}\\
+前一个匹配项。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:cfirst
+:clast
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_78}{view_78}\hypertarget{view_78}{}\fbox{\textcolor{red}{Review}}\\
+第一个/最后一个匹配项。
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:copen
+:cclose
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_79}{view_79}\hypertarget{view_79}{}\fbox{\textcolor{red}{Review}}\\
+打开/关闭快速修改窗口；在该窗口中按\VimSpecialChar{<Enter>}可以跳到当前光标所意指的
+条目。
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{03}  \ChapterThreeTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

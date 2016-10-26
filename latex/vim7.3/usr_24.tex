@@ -1,0 +1,838 @@
+\VimNewChapter
+\VimBookMark{第24章　\ChapterTwentyFourTitle}{usr_24.txt}
+\VimFileNameDest{usr\VimTT{\_}24.txt}{ \VimDocVer  最后修改：2006年07月23日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{快速键入\\}
+
+对于键入文字的工作，Vim也提供了一些方法来减少击键，避免错误。
+插入模式下的补齐功能可以重复输入已经录入的word. 以较短的word缩写来代替键入
+整个长的word. 也可以录入你键盘上本不存在对应键的字符。
+
+\VimSecList{24.1}{\ChapterTwentyFourSectionOneTitle}
+\VimSecList{24.2}{\ChapterTwentyFourSectionTwoTitle}
+\VimSecList{24.3}{\ChapterTwentyFourSectionThreeTitle}
+\VimSecList{24.4}{\ChapterTwentyFourSectionFourTitle}
+\VimSecList{24.5}{\ChapterTwentyFourSectionFiveTitle}
+\VimSecList{24.6}{\ChapterTwentyFourSectionSixTitle}
+\VimSecList{24.7}{\ChapterTwentyFourSectionSevenTitle}
+\VimSecList{24.8}{\ChapterTwentyFourSectionEightTitle}
+\VimSecList{24.9}{\ChapterTwentyFourSectionNineTitle}
+\VimSecList{24.10}{\ChapterTwentyFourSectionTenTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{25}  \ChapterTwentyFiveTitle\\
+前一章：& \VimFileName{23}  \ChapterTwentyThreeTitle\\
+目　录：& \VimFileName{toc} \\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{24.1}{\ChapterTwentyFourSectionOneTitle}
+
+\VimSpecialChar{<BS>}键已经提到过，它删除光标之前的字符。\VimSpecialChar{<Del>}删除光标所在处(光标之后)的字符。
+
+   如果你发现整个word键入有误，可以使用\VimSpecialChar{CTRL-W}:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+The horse had fallen to the sky
+                               \VimSpecialChar{CTRL-W}
+The horse had fallen to the
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果发现整行键入的内容都弄乱了，可以使用\VimSpecialChar{CTRL-U}删除它来重新开始。同时这会保留
+光标之后的字符并且保持原有的缩进。只有第一个非空白字符之后的内容才会被删除。
+在下例中光标位于\VimDQuote{fallen}的\VimDQuote{f}上时按下\VimSpecialChar{CTRL-U}:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+The horse had fallen to the
+              \VimSpecialChar{CTRL-U}
+fallen to the
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+继续键入几个word之后才发现前面某个word有误时，就要靠移动光标进行定位，
+然后更正它。比如你键入了以下内容：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+The horse had follen to the ground
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果要把\VimDQuote{follen}改为\VimDQuote{fallen}. 而当前光标在行尾，你需要用以下命令：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{black}]
+\makebox[\InsideBoxFiveCmColumn][l]{}\Void{                   } \textcolor{blue}{<Esc>4blraA}
+\makebox[\InsideBoxFiveCmColumn][l]{退出Insert模式}\Void{     } \VimSpecialChar{<Esc>}
+\makebox[\InsideBoxFiveCmColumn][l]{后退4个word}\Void{        } 4b
+\makebox[\InsideBoxFiveCmColumn][l]{将光标移到"o"上}\Void{    } l
+\makebox[\InsideBoxFiveCmColumn][l]{把"o"改为"a"}\Void{       } ra
+\makebox[\InsideBoxFiveCmColumn][l]{回到Insert模式}\Void{     } A
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+另一个办法是：
+\begin{VimVBList}[commandchars=\\\{\}]
+	\textcolor{VimExampleColor}{<C-Left><C-Left><C-Left><C-Left><Right><Del>a<End>}
+
+\makebox[\InsideBoxFiveCmColumn][l]{后退4个word} \VimSpecialChar{<C-Left><C-Left><C-Left><C-Left>}
+\makebox[\InsideBoxFiveCmColumn][l]{移到"o"上} \VimSpecialChar{<Right>}
+\makebox[\InsideBoxFiveCmColumn][l]{删除"o"} \VimSpecialChar{<Del>}
+\makebox[\InsideBoxFiveCmColumn][l]{插入一个"a"} a
+\makebox[\InsideBoxFiveCmColumn][l]{将光标移到行尾} \VimSpecialChar{<End>}
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+这里用的是特殊键来进行光标移动，当前的Insert模式保持不变。与一个一般的无模式编辑
+器没有两样。也很好记，不过它更费时间(你需要不断地把手在字母键区和光标键之间移动，
+另外，要不瞄一眼的话你也很难一次按准\VimSpecialChar{<End>}键).
+   特殊键用于定义一个不离开Insert模式进行操作的映射时很有用。可以避免你多键入
+额外的命令。
+   下面是一个在Insert模式下可用特殊键的小计：
+\begin{VimVBList}[commandchars=\\\{\}]
+\VimSpecialChar{<C-Home>}       到文件头
+\VimSpecialChar{<PageUp>}       向上滚屏
+\VimSpecialChar{<Home>}         到行首
+\VimSpecialChar{<S-Left>}       向左移动一个word
+\VimSpecialChar{<C-Left>}       向左移动一个word
+\VimSpecialChar{<S-Right>}      向右移动一个word
+\VimSpecialChar{<C-Right>}      向右移动一个word
+\VimSpecialChar{<End>}          到行尾
+\VimSpecialChar{<PageDown>}     向下滚屏
+\VimSpecialChar{<C-End>}        到文件尾
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+除此之外在\VimCommonSrc{ins-special-specified}还列出了一些特殊键。
+
+%======...
+\VimSepartor
+
+\VimSecDest{24.2}{\ChapterTwentyFourSectionTwoTitle}
+
+键入)字符时要是能看出来它与前面的哪个(字符匹配就太好了。要使Vim具有此功能
+只需：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set showmatch
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你再键入\VimDQuote{(example)}, 一旦按下了)字符Vim就会把光标移到前面的(字符上，停留半
+秒钟，然后回到)字符之后的位置。
+   如果没有找到相匹配的(字符，Vim会以蜂鸣警告。这样你就可以知道可能在哪里漏
+了一个(字符，或者多输入了一个)字符。
+   对[]和\{\}这样成对的括号也是一样。不需要等到半秒之后才能键入下一
+个字符，Vim一旦你发现你在闭括号之后又有了新的输入，光标就会立刻回到当前插入位
+置让你继续编辑。
+   等待时间的长短可以由选项\VimOption{matchtime}来控制。比如说让Vim等待一秒半钟：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set matchtime=15
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+时间单位是十分之一秒。
+
+%======...
+\VimSepartor
+
+\VimSecDest{24.3}{\ChapterTwentyFourSectionThreeTitle}
+
+Vim可在编辑时自动补全一个词\VimMyFootnote{译注：对于中文用户是补全一个句子，Vim尚无法做到识别
+中文意义上的词}。首先键入一个词前面的部分\VimMyFootnote{译注：前面的部分到底是几个字母，
+往下看}，然后按下\VimSpecialChar{CTRL-P}, Vim会据此补全整个词。
+
+   假如你以编辑一个C程序希望缩写如下一个语句：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+total = ch_array[0] + ch_array[1] + ch_array[2];
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+已经键入了以下部分：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+total = ch_array[0] + ch_
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+此时，你可以使用\VimSpecialChar{CTRL-P}告诉Vim去补全ch\VimTT{\_}的其余部分。Vim会
+搜索以此开头的所有word, 此例中它查找以\VimDQuote{ch\VimTT{\_}}开头的word, 结果
+是ch\VimTT{\_}array. \VimSpecialChar{CTRL-P}就依此补全这个变量名的剩余部分：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+total = ch_array[0] + ch_array
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+再键入一些内容后当前行变成这样(以空格结束):
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+total = ch_array[0] + ch_array[1] + 
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+此时再按下\VimSpecialChar{CTRL-P}的话Vim还是搜索以光标前的第一个word开头的word. 但这里光标前
+是空格，所以它会往前查找第一个word, \VimDQuote{ch\VimTT{\_}array}. 再按下\VimSpecialChar{CTRL-P}会继续下一个word:
+\VimDQuote{total}. 第三次按\VimSpecialChar{CTRL-P}会继续往回找，如果实在没东西可找了，它就返回你原来输入
+的那一部分的word, 此例中是空。第4次按下\VimSpecialChar{CTRL-P}又会循环往前查找，又是\VimDQuote{ch\VimTT{\_}array}. 
+
+使用\VimSpecialChar{CTRL-N}可以往前查找word来补全。因为查找达到文件头尾时回绕过去循环进行，所以
+\VimSpecialChar{CTRL-N}和\VimSpecialChar{CTRL-P}往往会找到相同的word来补全，只不过查找的顺序
+相反。提示：\VimSpecialChar{CTRL-N}意为Next-match\VimMyFootnote{译注：下一个匹配}, CTLR-P意
+为Previous-match\VimMyFootnote{译注：前一个匹配}. 
+
+Vim会尝试多种办法来补全一个word. 默认情况下，它会查找以下这些地方：
+\begin{enumerate}
+\renewcommand{\labelenumi}{\arabic{enumi}.}
+\item{当前文件}
+\item{在其它窗口打开的文件}
+\item{其它载入缓冲区的文件(隐藏的缓冲区)}
+\item{没有载入的文件(非活动的缓冲区)}
+\item{Tag文件}
+\item{当前文件中所有被\#include语句引入的头文件}
+\end{enumerate}
+
+\VimSubSection{选项}
+
+可以用\VimOption{complete}选项来定制Vim在补全word时所用的策略。
+
+查找时会隐含地使用\VimOption{ignorecase}选项。设置了该选项时，会在搜索匹配的word时忽略
+大小写的不同。
+
+对于自动补全有一个选项十分有用，它就是\VimOption{infercase}. 它使搜索匹配的word时忽略
+剩余部分的大小写(当然还得\VimOption{ignorecase}被设置了才行), 但继续保留已键入的部分的
+大小写。这样对于键入了\VimDQuote{For}时Vim会查找到\VimDQuote{fortunately}这样的匹配，但最终的结果
+是\VimDQuote{Fortunately}. 
+
+
+\VimSubSection{补全特殊的文档元素}
+
+如果你自己清楚要找的东西，你可以用以下命令来补全这样一些特殊的文档元素：
+\begin{VimVBList}[commandchars=\\\{\}]
+\VimSpecialChar{CTRL-X CTRL-F}      文件名
+\VimSpecialChar{CTRL-X CTRL-L}      整行内容
+\VimSpecialChar{CTRL-X CTRL-D}      宏定义(也包括那些在include文件里定义的宏)
+\VimSpecialChar{CTRL-X CTRL-I}      当前文件和被当前文件include的文件
+\VimSpecialChar{CTRL-X CTRL-K}      来自一个字典文件的word
+\VimSpecialChar{CTRL-X CTRL-T}      来自一个thesaurus的word
+\VimSpecialChar{CTRL-X CTRL-]}      tags
+\VimSpecialChar{CTRL-X CTRL-V}      Vim的命令行
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+键入这些特殊命令后再使用\VimSpecialChar{CTRL-N}可以往下查找符合的匹配，
+\VimSpecialChar{CTRL-P}则往上查找。
+
+   关于这些命令的更多信息请参考：\VimCommonSrc{ins-completion}. 
+
+
+\VimSubSection{补全文件名}
+
+我们以\VimSpecialChar{CTRL-X} \VimSpecialChar{CTRL-F}来作为一个例子。这个命令查找文件名。它会查找当前目录下的
+文件，看哪些文件名以你眼下键入的word开头。
+   比如说你的当前目录下有这几个文件：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{black}]
+main.c  sub_count.c  sub_done.c  sub_exit.c
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+现在在插入模式下你键入了：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+The exit code is in the file sub
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+此时，按下\VimSpecialChar{CTRL-X} \VimSpecialChar{CTRL-F}命令。Vim会查看当前
+目录下哪些文件以\VimDQuote{sub}开头。第一个符合条件的是sub\VimTT{\_}count.c. 
+如果这不是你要的那个文件名，按\VimSpecialChar{CTRL-N}选下一个，
+是sub\VimTT{\_}done.c. 再按\VimSpecialChar{CTRL-N}得到的是sub\VimTT{\_}exit. 结
+果如下：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+The exit code is in the file sub_exit.c
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果文件名以\VimTT{/}开头(\VimTT{Unix})或者是\VimTT{C:\VimBS{}(MS-Windows)}的
+话查找的范围会扩大到对应的文件系统。比如按下\VimDQuote{/u}和
+\VimSpecialChar{CTRL-X} \VimSpecialChar{CTRL-F}. 这会匹配到\VimDQuote{/usr}(
+在\VimTT{Unix}上): 
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+the file is found in /usr/
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在再按下\VimSpecialChar{CTRL-N}就会回到\VimDQuote{/u}. 如果你要的正是
+\VimDQuote{/usr/}并且想继续找它下面的内容，再用一次\VimSpecialChar{CTRL-X}
+\VimSpecialChar{CTRL-F}:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+the file is found in /usr/X11R6/
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+当然，实际的结果要看你的文件系统中的具体内容。文件匹配的依据是字母顺序。
+\VimMyFootnote{译注：简单说如果键入了\VimDQuote{file\VimTT{\_}}
+\VimSpecialChar{CTRL-X}
+\VimSpecialChar{CTRL-F}而当前目录下只有\VimDQuote{file\VimTT{\_}a},
+\VimDQuote{file\VimTT{\_}b}两个文件，那么\VimDQuote{file\VimTT{\_}a}将是第一个
+被匹配的，然后是\VimDQuote{file\VimTT{\_}b}}
+
+\VimSubSection{程序源码中的自动补全}
+
+程序源码往往具有良好的结构。这为更加智能化的补齐提供了可能。在Vim中这叫Omni补
+全。其它编辑器中它被称为智能感应(intellisense), 但这词已经作为一个商标被注册了。
+
+Omni补全的关键一击是\VimSpecialChar{CTRL-X CTRL-O}. 显然这
+个O代表Omni, 所以这记起来也很容易。我们以一段C源码作个例子：
+\begin{VimVBCodeSippetNoAdjustSpace}[formatcom=\color{VimHelpHeaderColor}]
+{
+    struct foo *p;
+    p->
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+假设光标在"->"之后。现在键入\VimSpecialChar{CTRL-X CTRL-O}. 
+Vim会提供结构\VimDQuote{foo}的成员作为待选的输入列表。这跟原来通过
+\VimSpecialChar{CTRL-P}做的补全大不一样---它会用任何可能的匹配字来补全，但显然
+在这里只有结构\VimDQuote{foo}的成员才可能是期望的输入。
+
+%% %%%%%%%%%% 下面这一段是7.1版本才有 %%%%%%%%%%%
+\hypertarget{v71_newadd_omni}{}要让Omni补齐跑起来你需要做一些预先设置。
+至少要确保文件类型插件是打开的。你的vimrc文件应该包含下面的配置：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+filetype plugin on
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_149}{view_149}\hypertarget{view_149}{}\fbox{\textcolor{red}{Review}}\\
+或者是：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+filetype plugin indent on
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_150}{view_150}\hypertarget{view_150}{}\fbox{\textcolor{red}{Review}}\\
+%% %%%%%%%%%% 上面这一段是7.1版本才有 %%%%%%%%%%%
+
+对C代码来说要做的为你的源码创建一个tags文件并且设置好\VimOption{tags}选项。在
+帮助主题\VimCommonDest{ft-c-omni}中对此有详细说明。对其它类型的文件要做的也是
+类似的工作，请参考下面的\VimCommonDest{compl-omni-filetypes}. 这一功能只对特定
+的文件才能生效。可以通过检查\VimOption{omnifunc}选项来获知它当前是否生效。
+
+%======...
+\VimSepartor
+
+\VimSecDest{24.4}{\ChapterTwentyFourSectionFourTitle}
+
+如果按下了\VimSpecialChar{CTRL-A}, 编辑器会插入你上一次在insert模式下录入的内容。
+
+   假如你有一个文件以下面的行开头：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+"file.h"
+/* Main program begins */
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+你编辑这个文件并在第一行开头插入了\VimDQuote{\#include }:
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+#include "file.h"
+/* Main program begins */
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+然后用\VimDQuote{j\^{}}命令到了下一行的开头。现在要想在此也插入\VimDQuote{\#include}. 使用：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+i CTRL-A
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+结果将是：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+#include "file.h"
+#include /* Main program begins */
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+因为前一次你在insert模式下已经键入过文字\VimDQuote{\#include }所以这里按
+\VimSpecialChar{CTRL-A}会重复插入它。现在按键入其余部分
+\VimDQuote{main.h}\VimSpecialChar{<Enter>} 完成该行的编辑：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+#include "file.h"
+#include "main.h"
+/* Main program begins */
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+\VimSpecialChar{CTRL-\MVAt}命令基本与\VimSpecialChar{CTRL-A}一样，不同是它在插入
+之后会退出Insert模式。如果实际的编辑任务就是简单地插入上一次录入过的内容的话，
+它倒是比\VimSpecialChar{CTRL-A}省事一些。
+
+%======...
+\VimSepartor
+
+\VimSecDest{24.5}{\ChapterTwentyFourSectionFiveTitle}
+
+\VimSpecialChar{CTRL-Y}命令会插入当前光标之上的一行中相同位置字符。如果你要复
+制上一行中的内容，这一命令就十分有用了，例如，你有如下的C代码：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+b_array[i]->s_next = a_array[i]->s_next;
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+现在你要键入同样的一行内容，只不过要把\VimDQuote{s\VimTT{\_}next}替换为
+\VimDQuote{s\VimTT{\_}prev}. 开始新行的内容，按14次\VimSpecialChar{CTRL-Y}, 
+一直到\VimDQuote{next}中\VimDQuote{n}的位置：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+b_array[i]->s_next = a_array[i]->s_next;
+b_array[i]->s_
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+现在键入\VimDQuote{prev}:
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+b_array[i]->s_next = a_array[i]->s_next;
+b_array[i]->s_prev
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+继续按\VimSpecialChar{CTRL-Y}重复上一行中同列的字符直到下一个\VimDQuote{next}:
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+b_array[i]->s_next = a_array[i]->s_next;
+b_array[i]->s_prev = a_array[i]->s_
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+现在再键入\VimDQuote{prev;}完成整行内容。
+
+\VimSpecialChar{CTRL-E}与\VimSpecialChar{CTRL-Y}十分相似，不过它插入的是当前
+行之下的那一行中同列的字符\VimMyFootnote{译注：提示：想一想
+\VimSpecialChar{CTRL-E}, \VimSpecialChar{CTRL-Y}在Normal模式下的功能}。
+
+%======...
+\VimSepartor
+
+\VimSecDest{24.6}{\ChapterTwentyFourSectionSixTitle}
+
+命令\VimSpecialChar{CTRL-R} \{register\}可以在当前位置插入指定寄存器的内容。
+这可以避免手工键入一个过长的word. 比如要键入以下行：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+r = VeryLongFunction(a) + VeryLongFunction(b) + VeryLongFunction(c)
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+假设函数是在另一个文件中定义的。打开那个文件并把光标置于该函数名上
+\VimMyFootnote{译注：注意并不必需把光标置于该函数名的开头}，把它复制到寄存
+器v中：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+"vyiw
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+其中\VimDQuote{v是指定寄存器的特殊记法，}yiw"命令是复制一个word本身。现在回到刚才的文件，
+键入该行开头的几个字母：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+r =
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在可以使用\VimSpecialChar{CTRL-R} v来插入函数的名字：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+r = VeryLongFunction
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+接下来就是继续键入非函数名的字符，然后仍用\VimSpecialChar{CTRL-R} v插入函数名。
+   你可能已经想到补全功能可以做同样的事，不过使用寄存器有另一个优点就是如果
+有很多word都以相同的字符开头时它会比补全功能快，因为它不需要连续按\VimSpecialChar{CTRL-N}或
+\VimSpecialChar{CTRL-P}来遍历到你要的word.
+
+如果寄存器的内容中包含了象\VimSpecialChar{<BS>}这样的特殊字符，它们的功能就会象直接从键盘键入
+一样\VimMyFootnote{译注：也就是说，\VimSpecialChar{<BS>}就是删除前面的一个字符}。如果你真正想要做的就是插入
+这样一个特殊字符，用\VimSpecialChar{CTRL-R} \VimSpecialChar{CTRL-R} \{register\}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{24.7}{\ChapterTwentyFourSectionSevenTitle}
+
+缩写简单说就是以短代长。比如\VimDQuote{ad}代表\VimDQuote{advertisement}. Vim可以让你输入短的缩写
+然后自动扩展为长的全名。
+
+   下面的命令告诉Vim你想在每次键入\VimDQuote{ad}时都自动扩展为\VimDQuote{advertisement}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:iabbrev ad advertisement
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在，每次你键入\VimDQuote{ad}, 完整的word \VimDQuote{advertisement}就会被插入到当前位置。Vim根据你
+键入一个非word字符来判断进行缩写替换的时机，比如一个空格：
+% vim: no special highlight in verbatim
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{black}{
+已经键入的部分          键入后你会看到的部分}
+I saw the a             I saw the a
+I saw the ad            I saw the ad
+I saw the ad<Space>     I saw the advertisement<Space>
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+
+仅仅键入了\VimDQuote{ad}可并不会发生缩写替换。这样你才可以输入象\VimDQuote{add}这样的word, 进行缩写
+替换时只检查一整个的word是否符合一个缩写的定义。
+
+\VimSubSection{缩写--"育"繁于简}
+\VimMyFootnote{译注：前一版中育字没有加双引号，宋旭朝朋友指出应该为"寓繁于简",
+时隔N日。我也猛的一个惭愧怎么犯这种低级错误，再一回忆这里选择"育"意为键入短的
+缩写"繁育"出它所代表的更多的内容。对一份并未正式出版的技术手册也表现出对语言文
+字的精准要求，让我感动让我开心。}
+
+%%  宋旭朝 指出应该为"寓繁于简"
+%%  这里没有寓的成份，但"育"也不合适，最好是驭，用
+
+可以定义这样的缩写：它可以扩展为多个word, 比如下面的命令可以定义\VimDQuote{JB}扩展为
+\VimDQuote{Jack Benny}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:iabbrev JB Jack Benny
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+作为一个程序员，我经常使用下面两个不太常见的缩写：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:iabbrev #b /****************************************
+:iabbrev #e <Space>****************************************/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这两个缩写用于创建一个看起来象矩形文字块的注释。注释以\#b开头，构画出第一行。
+接下来键入注释的内容，最后用\#e完成底行。
+   注意\#e缩写要扩展的内容开头处有一个空格。或者说，开头的两个字符是空格-星号。
+通常情况下Vim会忽略缩写和它的扩展全名之间的空格。这里我键入7个字符
+\VimTT{<, S, p, a, c, e, >}就是为了避免空格被忽略掉。
+
+\VimCaution{
+  \VimCautionTitle{备注：}
+  可以用\VimDQuote{:iab}代替完整的命令名\VimDQuote{:iabbrev}, 瞧，缩写定义本身就应用了缩写！
+} %end VimCaution
+
+\VimSubSection{更正打字错误}
+
+有些词被打字员拼写错误的频繁很高，比如把\VimDQuote{the}拼成\VimDQuote{teh}. 缩写的一个副作用是
+可以更正这些错误，看下面：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:abbreviate teh the
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+你完全可以定义一个错误率较高的词的一个列表，每行一个，专用于更正这些拼错的词。
+
+\VimSubSection{列出已定义的缩写}
+
+\VimDQuote{:abbreviations}命令可以列出当前定义的所有缩写：
+\begin{VimVBList}[commandchars=\\\{\}]
+:abbreviate
+i  #e             ****************************************/
+i  #b            /****************************************
+i  JB            Jack Benny
+i  ad            advertisement
+!  teh           the
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+第一列中的\VimDQuote{i}表明这是一个用于\VimTT{Insert}模式下的缩写。
+这样的缩写只在\VimTT{Insert}模式下
+有效。此外还可以有下面的字符代表该缩写发生作用的工作模式：
+\begin{VimVBList}[commandchars=\\\{\}]
+\makebox[\InsideBoxTenCmColumn][l]{c       命令行模式} :cabbrev
+\makebox[\InsideBoxTenCmColumn][l]{!       同时适用于Insert模式和命令行模式} :abbreviate
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+命令行模式下的缩写用处并不大，用的最多的还是\VimDQuote{:iabbrev}命令。这也避免了象下面的
+命令中\VimDQuote{ad}被替换：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit ad
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{删除缩写}
+
+\VimDQuote{:unabbreviate}命令可以用于删除一个缩写。假设你已定义了下面的缩写：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:abbreviate \VimAt{}f fresh
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+就可以用命令
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:unabbreviate \VimAt{}f
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+来删除它。
+当你键入这个命令时，你会发现在该命令中\VimTT{\VimAt{}f}还是被替换成了
+\VimDQuote{fresh}\VimMyFootnote{译注：这是它
+临死前的最后一次替换}. 不要管它，\VimTT{Vim}知道你的意思(除非\VimDQuote{fresh}本身又被定义为
+了一个缩写，不过这种事也太少见了).
+   还有一个命令可以移除所有的缩写：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:abclear
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:unabbreviate}和\VimDQuote{:abclear}也有几种变体专用于Insert模式(\VimDQuote{:iunabbeviate}和
+\VimDQuote{:iabclear})和命令行模式(\VimDQuote{:cunabbreviate}和\VimDQuote{:cabclear}).
+
+\VimSubSection{嵌套缩写}
+
+定义一个缩写时要注意一件事：作为缩写替换结果的字串不应该再被某个缩写
+扩展。比如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:abbreviate \VimAt{}a adder
+:imap dd disk-door
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_151}{view_151}\hypertarget{view_151}{}\fbox{\textcolor{red}{Review}}\\
+你一键入\VimAt{}a就会被替换为\VimDQuote{adisk-doorer}\VimMyFootnote{译注：而且
+这里的dd后面也不需要跟一个非word字符才会被扩展，它在一个word内部也可马上被扩
+展}. 你不是想要这个吧。
+\VimDQuote{:noreabbrev}命令可以避免在定义缩写时再被其它的缩写所扩展：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:noreabbrev \VimAt{}a adder
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+不过话说回来，缩写结果里本身又碰巧包含了另一个缩写的情况毕竟少见。
+
+%======...
+\VimSepartor
+
+\VimSecDest{24.8}{\ChapterTwentyFourSectionEightTitle}
+
+\VimSpecialChar{CTRL-V}命令可以保证你键入的下一个字符被原封不动地被录入。也就是说，该字符所
+具有的任何特殊意义都被忽略。比如：
+% vim: no special highlight in verbatim
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-V <Esc>
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这会插入一个\VimTT{escape}字符。而不是让你离开\VimTT{Insert}模式。(不要
+在CTRl-V后面加空格，上面示例中的空格只是为了提高可读性)\VimMyFootnote{译注：从技
+术上来讲，\VimTT{escape}字符只是一个\VimTT{ASCII}为\VimTT{27}的字符而已，只不
+过它被多数应用软件赋予了\VimDQuote{撤消}或\VimDQuote{退出}这样的功能含义}. 
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+	在MS-Windows上\VimSpecialChar{CTRL-V}是粘贴命令的快捷键。此时应用
+	\VimSpecialChar{CTRL-Q}来替代它。对Unix来说，\VimSpecialChar{CTRL-Q}
+	又不能在某些终端上正常工作，因为它也有特殊的意思\VimMyFootnote{译注：
+	\VimSpecialChar{CTRL-Q}在Unix类系统的终端上的功能是恢复被
+        \VimSpecialChar{CTRL-S}停止的终端输入流，有时候不小心按了某个键后终端
+        好像死了一样没有任何响应，有可能就是因为被\VimSpecialChar{CTRL-S}锁死
+        的缘故}。
+} %end VimCaution
+
+你也可以使用\VimSpecialChar{CTRL-V} \{digits\}来插入一个由\{digits\}指定
+其ASCII码的字符。比如，ASCII为127的字符是\VimSpecialChar{<Del>}(但不需要按下
+\VimSpecialChar{<Del>}键！). 插入\VimSpecialChar{<Del>}字符可以：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-V 127
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+用这种方法你可以插入\VimTT{0}到\VimTT{255}的所有字符。如果你键入的数字少于两个，
+那么\VimTT{Vim}会在遇到一个非数字字符时终止这个命令。要避免非得键入一个非数字
+字符才能让这个命令结束，你可以在数字前加上一个或两个\VimTT{0}来凑足\VimTT{3}个
+数。
+
+   现在的3个命令都会插入一个\VimSpecialChar{<Tab>}和一个点号：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+CTRL-V 9.
+CTRL-V 09.
+CTRL-V 009.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+要用十六进制来表示你的\VimTT{ASCII}, 在\VimSpecialChar{CTRL-V}后面附加一个
+\VimDQuote{x}:
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-V x7f
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+同样可以键入所有的\VimTT{256}个字符\VimTT{(ASCII}为\VimTT{255}的字符用
+\VimSpecialChar{CTRL-V} xff). 你也可以用\VimDQuote{o}让\VimTT{Vim}把接下来的
+数字视为\VimTT{8}进制的，接下来的两个方法还可以让你键入一个\VimTT{16bit}或
+\VimTT{32bit}的数字(比如，用来指定一个\VimTT{Unicode}字符):
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-V o123
+CTRL-V u1234
+CTRL-V U12345678
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_152}{view_152}\hypertarget{view_152}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{24.9}{\ChapterTwentyFourSectionNineTitle}
+
+有一些字符在键盘上没有对应的键。比如表示版权的字符。要在Vim中输入这些字符可以
+使用digraphs, 它用两个字符来表示一个有意义的符号。要输入一个
+{\small\copyright}\VimMyFootnote{译注：你自己实验时所能看到的具体符号与encoding设置
+和字体都有关，我在Windows和Ubutnu上encoding设为utf-8时都可以看到还算过得去的版
+权符号}符号，可以通过连续键入三个键：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-K Co
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_153}{view_153}\hypertarget{view_153}{}\fbox{\textcolor{red}{Review}}\\
+命令
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:digraphs
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_154}{view_154}\hypertarget{view_154}{}\fbox{\textcolor{red}{Review}}\\
+可以让你查看都有哪些digraphs可用。
+
+Vim会显示一个digraph的列表。下面是一个示例性的内容：
+\hypertarget{v73_bugfix_improve_digraph}{}
+\begin{samepage}
+
+\VimNewFooterInVerbatim
+\begin{VimVBDisplay}[xleftmargin=-2cm,xrightmargin=-2cm,commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\makebox[2.5cm][l]{AC \textvisiblespace 159\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{NS \textvisiblespace 160\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{!I \textexclamdown 161\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{Ct \textcentoldstyle 162\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{Pd \pounds 163\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{Cu \textcurrency 164\VimFooterMarkInVerbatim{}}\Void{
+}Ye \textyen 165\VimFooterMarkInVerbatim{}\Void{
+
+
+}
+\makebox[2.5cm][l]{BB \textbrokenbar 166\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{SE \S 167\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{': \textasciidieresis 168\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{Co \textcopyright 169\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{-a \textordfeminine 170\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{<< {\tiny<<} 171\VimFooterMarkInVerbatim{}}\Void{
+}NO \textlnot 172\VimFooterMarkInVerbatim{}\Void{
+
+}
+\makebox[2.5cm][l]{-- - 173\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{Rg \textregistered{} 174\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{'m \textasciimacron{} 175\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{DG \textdegree{} 176\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{+- \textpm{} 177\VimFooterMarkInVerbatim{}}\Void{
+}\makebox[2.5cm][l]{2S \texttwosuperior{} 178\VimFooterMarkInVerbatim{}}\Void{
+}3S \textthreesuperior{} 179\VimFooterMarkInVerbatim{}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_155}{view_155}\hypertarget{view_155}{}\fbox{\textcolor{red}{Review}}\\
+\VimFooterTextInVerbatim{译注：全称是APC(Application Program Command)，是应用程序使
+用的控制串的开口分隔符，控制串由串终结符ST(String Terminator)关闭。命令串的解
+释依赖于相关的应用程序。以上是我能查到的关于这个鲜为人知的控制命令的资料，
+在Unicode定义中，它通常没有相应的图形显示，这里用一个可见的空格代表该字符。} % 159
+\VimFooterTextInVerbatim{译注：代表一个不可见的空格，通常缩写为NBSP(No-break space)
+，Unicode定义中有5种具体的字符属于这种空格，用途近于普通空格，用一个可见的空格
+代表该字符。} %160
+\VimFooterTextInVerbatim{译注：反转的感叹号} % 161
+\VimFooterTextInVerbatim{译注：代表分的货币符号} %162
+\VimFooterTextInVerbatim{译注：代表镑的货币符号} %163
+\VimFooterTextInVerbatim{译注：一般性的货币符号} %164
+\VimFooterTextInVerbatim{译注：人民币货币符号} %165
+\VimFooterTextInVerbatim{译注：分隔栏} %166
+\VimFooterTextInVerbatim{译注：文章的段/节符号} %167
+\VimFooterTextInVerbatim{译注：分音符号} %168
+\VimFooterTextInVerbatim{译注：版权符号} %169
+\VimFooterTextInVerbatim{译注：一个阴性的序数词，相应的阳性符号是\textordmasculine. 在西班牙语中有用
+，英语中几乎不会用到，英语中对等的是1st, 2nd} %170
+\VimFooterTextInVerbatim{译注：双尖号引用左标记，典型的\VimLaTeX命令应是
+\VimBS{}guillemotleft，由于排版上因这一个符号引起太大副作用，这里用两个小于号
+代替} %171
+\VimFooterTextInVerbatim{译注：逻辑上表示非的符号} %172
+\VimFooterTextInVerbatim{译注：软连字符，主要用作排版中的断词处理} %173
+\VimFooterTextInVerbatim{译注：注册商标} %174
+\VimFooterTextInVerbatim{译注：长音符号} %175
+\VimFooterTextInVerbatim{译注：温度单位} %176
+\VimFooterTextInVerbatim{译注：加减符号} %177
+\VimFooterTextInVerbatim{译注：平方符号} %178
+\VimFooterTextInVerbatim{译注：立方符号} %179
+\end{samepage}
+
+举例来说，上例的意思是如果你键入\VimSpecialChar{CTRL-K} Pd结果是输
+入了字符\pounds\VimMyFootnote{译注：取决于encoding的设置，Windows和Ubutnu上设
+为utf-8时都可看到该字符的正确字形}。该字符ASCII为163(十进制).
+
+   Pd代表Pound. 大多数的Digraphs都有一个颇具提示意味的缩写名。看一下它的列表内
+容你就能明白其中的规律。
+
+   你可以交换Digraphs的第一个和第二个字符，如果交换后的这个二字符的组合并没有
+碰巧是另一个Digraphs时，结果将是一样的，\VimSpecialChar{CTRL-K} dP就跟
+\VimSpecialChar{CTRL-K} Pd一样。因为\VimDQuote{dP}并不是Vim已定义的一
+个Digraphs.
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        Digraphs的工作依赖于Vim所使用的字符集。MS-DOS就与MS-Windows不同。
+        最好经常用\VimDQuote{:digraphs}看看到底有哪些可用的Digraphs.
+} %end VimCaution
+
+你也可以定义你自己的digraphs. 比如：
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:digraph a" |d
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% 下面的\"{a}  不是一个错误，而是有意实现的特殊字符效果：a头上有两点
+这个定义是说\VimSpecialChar{CTRL-K} a"会实际插入一个\"{a}\VimMyFootnote{译注：实
+际插入的字符与当前的encoding设置有关。这里用|d代表ASCII为228的字符，在冒号命令
+行上，可以用CTRL-V(MS-DOS/Windows上是CTRL-Q)228来输入，由于a"通常已定义所以试用这一命
+令往往会遭遇参数无效的错误，换用一个未定义的键组合如a-可以试出这一命令的效果。
+}字符。你也可以用一个十进制的数来代表要插入的字符。下面的命令效果是一样的：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:digraph a" 228
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+关于Digraphs的更多内容请参考：\VimCommonSrc{digraphs}
+
+   插入特殊的另一种办法是使用键映射。参考\VimSecSrc{45.5}了解详细信息。
+
+%======...
+\VimSepartor
+
+\VimSecDest{24.10}{\ChapterTwentyFourSectionTenTitle}
+
+Insert模式所提供的命令功能是十分有限的。在Normal模式下可就丰富多了。通常情况下
+你要用Normal模式下的一个命令时都要先用\VimSpecialChar{<Esc>}来退出Insert模式，执行
+完Normal模式下的命令时再用\VimDQuote{i}或\VimDQuote{a}重新进入Insert模式。
+
+   针对这种情形Vim提供了一个快速的办法。使用\VimSpecialChar{CTRL-O}
+\{command\}你可以在Insert模式下执行任何一个Normal模式下的命令。比如，要删除从
+当前光标到行尾的字符：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-O D
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这种快捷办法只允许你一次执行一个Normal模式的命令。但是你可以为这个命令指定一个
+寄存器名或命令计数。下面是一个复杂一点的例子：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+CTRL-O "g3dw
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这个命令会删除3个单词，并在寄存器g中记下它们。
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{25}  \ChapterTwentyFiveTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

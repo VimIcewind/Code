@@ -1,0 +1,110 @@
+\VimNewChapter
+\VimBookMark{附录四　Vim中文本行内跳转到指定百分比的列}{inline_goto_column_by_percent.tex}
+\begin{center}
+\VimBookChapter{Vim中文本行内跳转到指定百分比的列}
+作者：\<slimzhao@hotmail.com>\\
+\end{center}
+
+[
+译注：本文缘于我在中科院自动化所作Vim讲座
+\VimInlineURL{http://fsa.ia.ac.cn/?q=node/115}时一位朋友提出的一个问题，
+我当时的答复未能让他完全满意，次日找到这个办法时，却无法联系到这位朋友，只好写在
+博客里寄望他能看到：\VimInlineURL{http://blog.chinaunix.net/u/8681/showart\_1226043.html}
+]
+
+下面是对该文的转录：
+\VimSepartor
+
+昨晚在中科院自动化所的Vim讲座结束后，一个朋友问了我一个这样的问题：如何
+在超长的行中移动光标，他特别希望能指定一个数字百分比来移动到特定的列上，
+因为普通的jk命令都是以文本行为单位移动光标，对于需
+要超过一屏来显示的行来说，光标无法移到同一个文本行的下一个屏幕行上。下
+面图示中的红框说明了什么是屏幕行。文本行是以换行符区分的，屏幕行则是因
+为窗口不能完全显示当前行的所有内容而折返到下一行显示。
+
+\begin{figure}[h]
+\mbox{
+\includegraphics[width=0.7\textwidth]{inline_goto_column_by_percent_1.png}
+%\includegraphics{1.jpg}
+}
+\end{figure}
+我对这个问题给出了两个方法：
+
+{\setlength{\parindent}{0mm}
+1. 使用gj, gk两个命令可以基于屏幕行移动，而且也可以使用数字前辍，如3gj,
+同时还可用g0移到当前屏幕行的开头，用\VimTT{g\$}移到当前屏幕行的末尾。
+
+2. 重新格式化长行，把它变成你指定文本宽度的一系列短行，命令是gqq, 这会
+重新格式化当前行，相关的选项formatoptions很重要，里面的m标志控制
+了vim在格式化时是否也允许在多字节字符处断行，如果没有这个标志vim只
+会在单词的边界处断行，显然这个词不是我们汉语中平常所说的词，中文的每个字
+符它都一视同仁。另一个相关的选项是textwidth, 比如要格式化下面的文本：
+}
+
+白日依山尽黄河入海流欲穷千里目更上一层楼
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set textwidth=10
+gqq
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_240}{view_240}\hypertarget{view_240}{}\fbox{\textcolor{red}{Review}}\\
+内容就变成了
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+白日依山尽
+黄河入海流
+欲穷千里目
+更上一层楼
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+通过这一方法，我们可以为三字经、五言七律断行。
+
+{\setlength{\parindent}{0mm}
+3. 但是，这位朋友还是希望能像使用\VimTT{10\%}这样的命令一样在行内的水平方向上让光
+标在指定百分比处定位，据我所知，vim中并没有内建这样的支持。下面是通过键
+映射实现的这一功能：
+}
+
+\begin{VimVBexcmd}[xleftmargin=-3.5cm, xrightmargin=-3.5cm, label=定义键映射,commandchars=\\\{\}]
+:nnoremap <expr> g<Bar> '<Esc>'.float2nr(round((col('$')-1) * min([100, v:count])/ 100.0)) .'<Bar>'
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_241}{view_241}\hypertarget{view_241}{}\fbox{\textcolor{red}{Review}}\\
+这个命令只在支持带表达式的键映射版本中才可用，而且要支持浮点数类型，至少
+得是7.2版，该版本开始才支持浮点数。
+
+整个命令中最值得解释的是开头的\VimSQstr{\VimSpecialChar{<Esc>}}, 键映射在执行时，输入的数字前
+辍并不会被丢弃，而在这个键映射中，我们把数字前辍看成是百分比，真正要定位的
+列是根据这个数字计算出来的，这样我们希望在映射的右边部分，也就是真正要执
+行的动作部分重新指定一个数字前辍。但前面你已经指定的数字百分比却在干扰你
+，所以这里用\VimSQstr{\VimSpecialChar{<Esc>}}把已经输入的数字前辍给"消
+耗"掉。接下来就可以指定一个独立的命令了，这个独立的命令有自己的数字前辍，
+整个float2nr ... 表达式只是根据输入的百分比数字计算出对应的列。
+
+映射中不能直接用|, 想表达|, 你得用\VimSpecialChar{<Bar>}. 
+
+根据vim中命令的设计风格，g前辍在一个命令之前会对其行为略加修饰，这里定义一个键映射g| 是比较合适的。
+
+50g| 将会总是定位在当前行的半中腰处。
+
+如果我没有理解错的话，这应该是这位朋友最终所坚持要求的。
+\begin{figure}[h]
+\advance\leftskip-3.5cm
+\advance\rightskip-3.5cm
+\mbox{
+\includegraphics[width=1.5\textwidth]{inline_goto_column_by_percent_2.png}
+}
+\end{figure}
+
+第2行共100个字符，使用80g| 会跳到第80列。
+
+第3行共110个字符，使用80g| 会跳到第88列。
+
+使用round函数和float2nr只是让结果可以四舍五入。
+
+对于中英文混杂的情况，原始的|命令也好，这里定义的g|命令也好，单位都是"列"， 一个汉字占两列。
+
+这位朋友，你看到了吗？

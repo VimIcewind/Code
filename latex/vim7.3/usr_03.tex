@@ -1,0 +1,891 @@
+\VimNewChapter
+\VimBookMark{第03章　\ChapterThreeTitle}{usr_03.txt}
+\VimFileNameDest{usr\VimTT{\_}03.txt}{ \VimDocVer  最后修改：2006年06月21日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar}
+
+\VimBookChapter{移动}
+\begin{flushright}
+\small\CJKfamily{kai}
+下章预告：联通
+
+\end{flushright}
+
+在你插入或删除文本之前，光标当然要先移动到正确的位置上，Vim有众多的命令来移动
+光标。本章将介绍这些命令中最重要的一些。此外，你可以在\VimCommonSrc{Q\VimTT{\_}lr}找到这些命令的完
+整列表。
+
+\VimSecList{03.1}{\ChapterThreeSectionOneTitle}
+\VimSecList{03.2}{\ChapterThreeSectionTwoTitle}
+\VimSecList{03.3}{\ChapterThreeSectionThreeTitle}
+\VimSecList{03.4}{\ChapterThreeSectionFourTitle}
+\VimSecList{03.5}{\ChapterThreeSectionFiveTitle}
+\VimSecList{03.6}{\ChapterThreeSectionSixTitle}
+\VimSecList{03.7}{\ChapterThreeSectionSevenTitle}
+\VimSecList{03.8}{\ChapterThreeSectionEightTitle}
+\VimSecList{03.9}{\ChapterThreeSectionNineTitle}
+\VimSecList{03.10}{\ChapterThreeSectionTenTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{04}  \ChapterFourTitle\\
+前一章：& \VimFileName{02}  \ChapterTwoTitle\\
+目　录：& \VimFileName{toc} \\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{03.1}{\ChapterThreeSectionOneTitle}
+
+使用\VimDQuote{w}命令可以将光标向前移动一个word. 象大多数其它的Vim命令一样，你可以
+在\VimDQuote{w}前面指定一个数字前辍以向前移动指定个数的word. 比如\VimDQuote{3w}将
+光标向前移动3个words. 请看下面的命令示意：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+This is a line with example text}
+  --->-->->----------------->
+   w  w  w    3w
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_80}{view_80}\hypertarget{view_80}{}\fbox{\textcolor{red}{Review}}\\
+注意如果当前光标已经在一个word的首字符上时\VimDQuote{w}命令还是会将光标移动到下一个word的首字符上。
+   \VimDQuote{b}\VimMyFootnote{译注：助记：backward}命令则将光标向后移动到前一个word的
+首字符上：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+This is a line with example text}
+<----<--<-<---------<---
+   b   b b    2b      b
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_81}{view_81}\hypertarget{view_81}{}\fbox{\textcolor{red}{Review}}\\
+同样，\VimDQuote{e}\VimMyFootnote{译注：助记：end of word}命令会将光标移动到下
+一个word的最后一个字符\VimMyFootnote{译注：与命令\VimDQuote{w}不同，如果当
+前光标在当前word上的位置不是最后一个字符，则\VimDQuote{e}命令会把光标移动到当
+前word的最后一个字符上}.象\VimDQuote{w}有一个反方向的命令\VimDQuote{b}与之对应
+一样，\VimDQuote{e}命令有\VimDQuote{ge}, 它将光标移动到前一个word的最后一个字
+符上\VimMyFootnote{译注：严格说，它不是\VimDQuote{e}行为的完全反向版，不管当前
+光标在当前word中的位置，它都会移动到前一个word的最后一个字符上}:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+This is a line with example text}
+   <-   <--- ----->   ---->
+   ge    ge     e       e
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_82}{view_82}\hypertarget{view_82}{}\fbox{\textcolor{red}{Review}}\\
+如果光标已经位于当前行的最后一个word, 则\VimDQuote{w}会移动到下一行的第一
+个word上去。所以使用\VimDQuote{w}就可以在整个文本段中移动，速度要
+比\VimDQuote{l}快多了。\VimDQuote{b}也一样，只是方向相反。
+
+有一些被认为是non-word的特殊字符，比如\VimDQuote{.}, \VimDQuote{-}或
+\VimDQuote{)}充当了word边界的作用。要改变Vim对word边界的定义，请查看
+\VimOption{iskeyword}选项。还可以以空白为分界的WORDs为单位进行移动。这种WORD与
+通常意义上的word的边界不同。所以此处用了大写的WORD来区分于word. 它的移动命令也
+是相应字母的大写形式，如下所示：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+       ge      b          w                             e
+       <-     <-         --->                          --->
+\textcolor{VimHelpHeaderColor}{
+This is-a line, with special/separated/words (and some more).}
+   <----- <-----         -------------------->         ----->
+     gE      B                   W                       E
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_83}{view_83}\hypertarget{view_83}{}\fbox{\textcolor{red}{Review}}\\
+混合使用这种不同大小写的命令，你可以更快地在文本中前后移动。
+
+%======...
+\VimSepartor
+
+\VimSecDest{03.2}{\ChapterThreeSectionTwoTitle}
+
+\VimDQuote{\$}命令将光标移动到当前行行尾。如果你的键盘上有一个
+\VimSpecialChar{<End>}键，它的作用也一样。
+
+\VimDQuote{\^{}}命令将光标移动到当前行的第一个非空白字符上\VimMyFootnote{译注：
+汉字的空格不被视为空白字符}. \VimDQuote{0}命令
+则总是把光标移动到当前行的第一个字符上。\VimSpecialChar{<Home>}键也是如此。图示
+如下：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+          ^
+     <------------
+\textcolor{VimHelpHeaderColor}{
+.....This is a line with example text}
+<-----------------   --------------->
+        0                  $
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_84}{view_84}\hypertarget{view_84}{}\fbox{\textcolor{red}{Review}}\\
+(\VimDQuote{.....} 在这里代表空白)
+
+   \VimDQuote{\$}命令还可接受一个计数，就象其它的移动命令一样。但是移动到一行的
+行尾多于一次没有任何意义。所以它的功能被赋予为移动到下一行的行尾。如
+\VimDQuote{1\$}会将光标移动到当前行行尾，\VimDQuote{2\$}则会移动到下一行的行尾
+，如此类推。
+
+   \VimDQuote{0}命令却不能接受类似这样的计数，因为\VimDQuote{0}本身就是一个数
+字，所以合起来\VimDQuote{0}会成为你前面指定的计数的一部分，另外，并不象其它命
+令一样可以举一反三，命令\VimDQuote{\^{}}前加上一个计数并没有任何效果
+\VimMyFootnote{译注：没有任何效果是说它与单个的\VimDQuote{\^{}}命令一样，并不
+是说光标根本不动}。
+
+%======...
+\VimSepartor
+
+\VimSecDest{03.3}{\ChapterThreeSectionThreeTitle}
+
+一个最有用的移动命令是单字符搜索命令。命令\VimDQuote{fx}在当前行上查找下一个字
+符x. 提示：\VimDQuote{f}意为\VimDQuote{find}. 
+
+   例如，光标位于下行的开头，假如你要移动到单词human中的字符h上去。只要执行命
+令\VimDQuote{fh}就可以了：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+To err is human.  To really foul up you need a computer.}
+---------->--------------->
+    fh           fy
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_85}{view_85}\hypertarget{view_85}{}\fbox{\textcolor{red}{Review}}\\
+上图同时展示了命令\VimDQuote{fy}会将光标定位于单词really的尾部。
+
+   该命令可以带一个命令计数；命令\VimDQuote{3fl}会把光标定位于\VimDQuote{foul}
+的\VimDQuote{l}上：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+To err is human.  To really foul up you need a computer.}
+          --------------------->
+                   3fl
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_86}{view_86}\hypertarget{view_86}{}\fbox{\textcolor{red}{Review}}\\
+\VimDQuote{F}命令向左方向搜索\VimMyFootnote{译注：规律：一个命令的大写字母形式
+会做同样的事情，但是方向相反}:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+To err is human.  To really foul up you need a computer.}
+          <---------------------
+                    Fh
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_87}{view_87}\hypertarget{view_87}{}\fbox{\textcolor{red}{Review}}\\
+\VimDQuote{tx}命令形同\VimDQuote{fx}命令，只不过它不是把光标停留在被搜索字符上
+，而是在它之前的一个字符上。提示：\VimDQuote{t}意为\VimDQuote{To}. 该命令的反
+方向版是\VimDQuote{Tx}:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+To err is human.  To really foul up you need a computer.}
+           <------------  ------------->
+                Th              tn
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_88}{view_88}\hypertarget{view_88}{}\fbox{\textcolor{red}{Review}}\\
+这4个命令都可以用\VimDQuote{;}来重复。以\VimDQuote{,}也是重复同样的命令，但是
+方向与原命令的方向相反\VimMyFootnote{译注：这意味着\VimDQuote{Fx}本身是向左搜
+索，用\VimDQuote{,}重复时因为反转了命令的方向，所以又变为向右搜索了}。无论如何
+，这4个命令都不会使光标跑到其它行上去。即使当前的句子还没有结束
+\VimMyFootnote{译注：对于中文用户来说，\VimDQuote{fx}中的x也可以是一个汉字，按
+下\VimDQuote{f}命令之后，打开中文输入法，输入一个汉字，注意只能是一个汉字，这
+要求你的Vim能将一个汉字当作一个字符来识别，在Windows平台上的预编译版本就可以做
+到这一点，其它几个以单字符为操作对象的同类命令也一样}
+
+%======...
+\VimSepartor
+
+\VimSecDest{03.4}{\ChapterThreeSectionFourTitle}
+
+写程序的时候很容易被层层嵌套的()给弄糊涂。此时使用命令"\verb|%|\VimMyFootnote{译注：本文
+第一版中此处显示为“，感谢钱震(\<qzhen@flotu.org>)指出}"就太方便了：它跳转到与当
+前光标下的括号相匹配的那一个括号上去。如果当前光标在\VimDQuote{(}上，它就向前
+跳转到与它匹配的\VimDQuote{)}上，如果当前在\VimDQuote{)}上，它就向后自动跳转到
+匹配的\VimDQuote{(}上去\VimMyFootnote{译注：这种跳转当然可以跨行进行}:
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+            %
+         <----->
+\textcolor{VimHelpHeaderColor}{
+if (a == (b * c) / d)}
+   <---------------->
+            %
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_89}{view_89}\hypertarget{view_89}{}\fbox{\textcolor{red}{Review}}\\
+这对方括号\verb|[]|和花括号\{\}同样适用。(具体可以处理哪些括号可以由
+\VimOption{matchpairs}选项来定义\VimMyFootnote{译注：比如，还可以加
+入尖括号<>, 这对HTML, XML的编写很有用})
+
+如果当前光标并没有停留在一个可用的括号字符上，\VimDQuote{\VimTT{\%}}也会向前为
+它找到一个。所以如果当前光标位于上例中的行首，\VimDQuote{\VimTT{\%}}命令还是会
+向前先找到第一个\VimDQuote{(},然后找到与它匹配的\VimDQuote{)}:
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+\textcolor{VimHelpHeaderColor}{
+if (a == (b * c) / d)}
+---+---------------->
+           %
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_90}{view_90}\hypertarget{view_90}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{03.5}{\ChapterThreeSectionFiveTitle}
+
+如果你是一个C或\VimCPP{}程序员，你应该很熟悉下面形式的编译器错误信息：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+prog.c:33: j   undeclared (first use in this function)
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_91}{view_91}\hypertarget{view_91}{}\fbox{\textcolor{red}{Review}}\\
+这行信息告诉你可能你要在第33行修改一些东西。那么你怎么找到第33行呢？一个办法是
+用命令\VimDQuote{9999k}\VimMyFootnote{译注：这个命令中的9999的意思是尽可能多地
+往上跳行，对于C/\VimCPP{}源程序来说，一般来说不会这么多行的源代码被放置在单个
+的源文件中，如果文件中当前行之前实际没有这么多行，Vim将会把光标置于第一行上。
+这是作者谐趣的说法}然后用命令\VimDQuote{32j}向下跳转32行。这可不是个好办法，但
+是也能对付。一个更好的办法是用\VimDQuote{G}命令\VimMyFootnote{译注：助记：G意
+为Go}。指定一个命令计数，这个命令就会把光标定位到由命令计数指定的行上。比如
+\VimDQuote{33G}就会把光标置于第33行上。
+(\VimFileName{30}中有更好的办法让你遍
+历编译器的错误信息列表，
+请参考:make命令的相关信息)
+
+   没有指定命令计数作为参数的话\VimMyFootnote{译注：一般人的概念是参数出现在命
+令的后面，但Vim中的参数通指出现在命令之前或之后对命令起附加补充作用的所有信息，
+并且也不象你在使用命令行或写程序时的函数调用一样，这里的参数可能不以空格和逗号
+来分隔}, \VimDQuote{G}会把光标定位到最后一行上。\VimDQuote{gg}命令是跳转到第一
+行的快捷的方法。\VimDQuote{1G}效果也是一样，但是敲起来就没那么顺手了。
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+    |   first line of a file   ^
+    |   text text text text    |
+    |   text text text text    |  gg
+7G  |   text text text text    |
+    |   text text text text
+    |   text text text text
+    V   text text text text    |
+        text text text text    |  G
+        text text text text    |
+        last line of a file    V
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+另一个移动到某行的方法是在命令\VimDQuote{\VimTT{\%}}之前指定一个命令计数
+\VimMyFootnote{译注：这里的命令前辍数字计数可不意味着对同一个命令重复执行N次}. 
+比如\VimDQuote{50\VimTT{\%}}将会把光标定位在文件的中间\VimMyFootnote{译注：意思很直观，文件
+的50\%处}. \VimDQuote{90\VimTT{\%}}跳到接近文件尾的地方\VimMyFootnote{译
+注：Vim对百分比的计算是以行为单位，不是字节数，如何跳转到以字节数为百分比或为偏移
+的字符上去？:goto 3}。
+
+上面的这些命令都假设你只是想跳转到文件中的某一行上，不管该行当前是否显示在屏幕
+上。但如果你只是想移动到目前显示在屏幕上的那些行呢？下图展示了达到这一目标的几
+个命令：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+        +---------------------------+
+H -->   | text sample text          |
+        | sample text               |
+        | text sample text          |
+        | sample text               |
+M -->   | text sample text          |
+        | sample text               |
+        | text sample text          |
+        | sample text               |
+L -->   | text sample text          |
+        +---------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_92}{view_92}\hypertarget{view_92}{}\fbox{\textcolor{red}{Review}}\\
+提示：\VimDQuote{H}意为Home, \VimDQuote{M}为Middle, \VimDQuote{L}为Last.
+
+%======...
+\VimSepartor
+
+\VimSecDest{03.6}{\ChapterThreeSectionSixTitle}
+
+要知道你当前在文件中的位置，共有三种方法：
+
+1.  使用\VimSpecialChar{CTRL-G}命令。你会得到一些类似于下面的信息行(假设\VimOption{ruler}选项已关闭):
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+"usr_03.txt" line 233 of 650 --35%-- col 45-52
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_93}{view_93}\hypertarget{view_93}{}\fbox{\textcolor{red}{Review}}\\
+    这行信息显示了你正在编辑的文件名，当前光标所在行的行号，总的行数，
+    以及当前行所在文件中的百分比和当前光标所在的列的信息。
+       有时候你会看到两个以-分隔的数字来表示列，如\VimDQuote{col 2-9}. 这意味着你的光标
+    位于第二个字符上，因为第一个字符是一个跳格键，占了8个字符的位置，所以屏幕
+    上看起来该列位置是9.
+
+2.  设置\VimOption{number}选项\VimMyFootnote{译注：译者建议大家总是打开该选项}。
+这会在每行的前面显示一个行号：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set number
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_94}{view_94}\hypertarget{view_94}{}\fbox{\textcolor{red}{Review}}\\
+将行\VimMyFootnote{译注：上一版中"将行"两个字漏掉了，感谢
+\<xyzguy@126.com>指出错误}号关闭，可以用命令
+\VimMyFootnote{译注：规律：no放置在boolean选项前面表示关闭该选项}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set nonumber
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+    因为\VimOption{number}是一个布尔值选项，所以在它前面放一个\VimDQuote{no}表示
+关闭该选项。一个布尔值选项只有两种可能的值：开或关。
+
+     Vim有很多选项。除布尔值选项外还有数字类型的选项和字符串类型的选项。你会在接
+下来的例子中看到这些选项。
+
+3.  设置\VimOption{ruler}选项。这会在Vim窗口的右下角显示当前光标位置
+
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set ruler
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+使用\VimOption{ruler}选项有一个好处就是它不会占据太多的屏幕空间，你可以留出地方来给
+文本内容\VimMyFootnote{译注：网络上有很多文档，以Vim查看时如果set number, 则每
+行会超出屏幕少许，从而被折叠放到下一行上，看起来很不方便，这时就可以使用:set
+nonumber ruler, 如果还是坚持想打开number, 可以考虑重新格式化文本，请参考
+\VimCommonSrc{gq}}
+
+%======...
+\VimSepartor
+
+\VimSecDest{03.7}{\ChapterThreeSectionSevenTitle}
+
+\VimSpecialChar{CTRL-U}命令会使文本向下滚动半屏。也可以想象为在显示文本的窗口
+向上滚动了半屏。不要担心这种容易混淆的解释，不是只有你一个人搞不清楚。
+
+   \VimSpecialChar{CTRL-D}命令将窗口向下移动半屏，所以相当于文本向上滚动了半屏：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+                               +----------------+
+                               | some text      |
+                               | some text      |
+                               | some text      |
++---------------+              | some text      |
+| some text     |  CTRL-U  --> |                |
+|               |              | 123456         |
+| 123456        |              +----------------+
+| 7890          |
+|               |              +----------------+
+| example       |  CTRL-D -->  | 7890           |
++---------------+              |                |
+                               | example        |
+                               | example        |
+                               | example        |
+                               | example        |
+                               +----------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_95}{view_95}\hypertarget{view_95}{}\fbox{\textcolor{red}{Review}}\\
+要一次滚动一行可以使用\VimSpecialChar{CTRL-E}(向上滚动)和
+\VimSpecialChar{CTRL-Y}(向下滚动). 提示：\VimSpecialChar{CTRL-E} 意为Extra.
+(如果你在用MS-Windows兼容的映射键，\VimSpecialChar{CTRL-Y}可能被映射为重做而
+不是向下滚屏).
+
+要向前滚动一整屏(实际上是整屏去两行)使用命令\VimSpecialChar{CTRL-F}. 另外
+\VimSpecialChar{CTRL-B}是它的反向版。很幸运\VimSpecialChar{CTRL-F}是向前
+\VimMyFootnote{译注：助记：Forward}，\VimSpecialChar{CTRL-B}是向后
+\VimMyFootnote{译注：助记：Backward}，好记吧！
+
+一个经常遇到的问题是你用\VimDQuote{j}命令向下移动了若干行后当前光标已经处于屏幕的底端了。
+而你又想查看当前行前后的几行内容。\VimDQuote{zz}命令会把当前行置为屏幕正中央：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++------------------+             +------------------+
+| some text        |             | some text        |
+| some text        |             | some text        |
+| some text        |             | some text        |
+| some text        |   zz  -->   | line with cursor |
+| some text        |             | some text        |
+| some text        |             | some text        |
+| line with cursor |             | some text        |
++------------------+             +------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_96}{view_96}\hypertarget{view_96}{}\fbox{\textcolor{red}{Review}}\\
+\VimDQuote{zt}命令会把当前行置于屏幕顶端\VimMyFootnote{译注：\VimDQuote{zt}中
+的t意为top, z字取其象形意义模拟一张纸的折叠及变形位置重置，广泛用作折叠类命令
+的前辍，特别注意zt不是Zhuan Tie(转贴)的缩写\Smiley}，\VimDQuote{zb}则把当前行置于屏幕底
+端\VimMyFootnote{译注：助记：\VimDQuote{b}意为bottom}。此外还有一些与滚屏相关的
+命令，请参考\VimCommonSrc{\VimTT{Q\_sc}}. 若要一直保持当前行的前后都有一些内容
+显示在屏幕上，请参考\VimOption{scrolloff}选项。
+
+%======...
+\VimSepartor
+
+\VimSecDest{03.8}{\ChapterThreeSectionEightTitle}
+
+\VimDQuote{/string}命令可用于搜索一个字符串。比如要找到单词\VimDQuote{include}, 使用命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/include
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_97}{view_97}\hypertarget{view_97}{}\fbox{\textcolor{red}{Review}}\\
+你可能会注意到按下\VimDQuote{/}键后光标跳到了\VimMyFootnote{译注：Vim中有几种
+情况光标会自动从一种模式跳到另一种模式，位置也因之改变}Vim窗口的最后一行，就象
+冒号命令行，你要查找的内容在这里键入。在键入的过程中还可以用箭头键和删除键
+进行移动和修改。
+
+    最后按下回车键执行命令。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        字符 .*[]\^{}\%/?\~{}\$ 有特殊意义，如果你要找的东西包括这些内容，要在这些
+        字符前面放置一个反斜杠。见下文。
+} %end VimCaution
+
+要查找上次查找的字符串的下一个位置。使用\VimDQuote{n}命令。比如首先用下面命令找到光标之后
+的第一个 \VimSharp{}include:
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/#include
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_98}{view_98}\hypertarget{view_98}{}\fbox{\textcolor{red}{Review}}\\
+接下来按几次\VimDQuote{n}. 你就会移动到接下来的几个\VimSharp{}include中去。如果你知道你要找
+的确切位置是目标字符串的第几次出现，还可以在\VimDQuote{n}之前放置一个命令计数。\VimDQuote{3n}会去
+查找目标字符串的第3次出现。在\VimDQuote{/}命令前使用命令计数则不行
+\VimMyFootnote{译注：这句话很容易引起误导，因为在normal模式下，先键入一个数字
+然后键入/继续输入要查找的字符，回车后可以向前找到第N个匹配处，其中N正是键入的
+数字，我估计这里说/之前的命令计数不生效是说，在第一次键入/text进行搜索之后，接
+下来按n或N只会找到下一个或前一个匹配，而不受/之前的N所影响，如：\\
+a 1 b\\
+a 2 b\\
+a 3 b\\
+a 4 b\\
+a 5 b\\
+a 6 b\\
+如果normal模式下当前光标位于第一行的数字1上，则2/\VimBS{}d这个
+命令会直接找到数字3, 中间的数字2被跳过去了，但按下来再按n查找下一个数字时，却
+不会再跳过4了}。
+
+\VimDQuote{?}命令与\VimDQuote{/}的工作相同，只是搜索方向相反\VimMyFootnote{译
+注：规律：Vim命令一般都会对应有一个功能相同但方向相反的命令}:
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+?word
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_99}{view_99}\hypertarget{view_99}{}\fbox{\textcolor{red}{Review}}\\
+\VimDQuote{N}命令会重复前一次查找，但是与最初用\VimDQuote{/}或\VimDQuote{?}指
+定的搜索方向相反。所以在\VimDQuote{/}命令之后的\VimDQuote{N}命令是向后搜索，而
+\VimDQuote{?}之后的\VimDQuote{N}命令是向前搜索。
+
+
+\VimSubSection{忽略大小写}
+
+通常情况下你要准确地键入你要查找的东西。如果你并不关心目标字符中字母的大小写，
+可以通过设置\VimOption{ignorecase}选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set ignorecase
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_100}{view_100}\hypertarget{view_100}{}\fbox{\textcolor{red}{Review}}\\
+现在你再去搜索\VimDQuote{word}, 它就会同时匹配\VimDQuote{Word}和
+\VimDQuote{WORD}. 要回到对大小写的精确匹配，可以重设：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set noignorecase
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{命令历史记录}
+
+假设你做过3次搜索：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/one
+/two
+/three
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_101}{view_101}\hypertarget{view_101}{}\fbox{\textcolor{red}{Review}}\\
+现在我们按下\VimDQuote{/}来搜索，先别按回车键。如果此时你按下上箭头键，Vim会把
+\VimDQuote{/three}放在命令行上，此时按下回车键就可查找\VimDQuote{three}. 如果
+你不按回车键，而是继续按上箭头键，Vim就会把命令变为\VimDQuote{/two}. 下一次是
+\VimDQuote{/one}. 
+
+   你同样可以用下箭头键来向下查找用过的搜索。
+
+如果你知道你用过的某个搜索字串的开头，你就可以在键入这个开头部分之后再按上箭头键。
+比如上例中\VimDQuote{/o\VimSpecialChar{<Up>}}\VimMyFootnote{译注：\VimSpecialChar{<Up>}代表你按下了上箭头键}Vim就会把\VimDQuote{/one}放在命令行上。
+
+以\VimDQuote{:}开始的命令也有一个历史记录。它让你找到用过的冒号命令重复执行它。这两个
+命令历史记录是相互独立的。
+
+
+\VimSubSection{在文本中查找下一个WORD}
+
+假设你在当前文件中有一个word是\VimDQuote{TheLongFunctionName}, 你想查找它的下一次出现
+在哪。当然可以用\VimDQuote{/TheLongFunctionName}, 但这要敲太多次键盘。万一哪个
+字符敲错了Vim就找不到你真正想要的东西。
+
+   有一个便捷的方法：把光标定位于这个word上，然后按下\VimDQuote{*}键。Vim将会取当前
+光标所在的word并以它为目标字符串进行搜索\VimMyFootnote{译注：问题：但如果要匹配一小片
+包含了几个word的文本呢？如何避免手工键入？答案：Visual select, yank,
+:let \VimAt{}/=\VimAt{}", n}。
+
+   \VimDQuote{\VimSharp{}}命令是\VimDQuote{*}的反向版。还可以在这两个命令前加
+一个命令计数：\VimDQuote{3*}查找当前光标下的word的第三次出现。
+
+\VimSubSection{查找整个WORD}
+
+如果你用\VimDQuote{/the}来查找Vim也会匹配到\VimDQuote{there}. 要查找作为独立单
+词的\VimDQuote{the}使用如下命令：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/the\>
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_102}{view_102}\hypertarget{view_102}{}\fbox{\textcolor{red}{Review}}\\
+\VimDQuote{\VimBS>}\VimMyFootnote{译注：感谢\<qujianning@gmail.com>指正，
+原来少了\VimTT{>} }是一个特殊的记法，它只匹配一个word的结束处。近似地，
+\VimDQuote{\VimBS<}匹配到一个word的开始处\VimMyFootnote{译注：一个word的结束处
+和开始处仅指一个位置，本身不占据任何字符宽度，或者说，它占据的字符宽度是0}。这
+样查找作为一个word的\VimDQuote{the}就可以用：
+\begin{VimVBnormalcmdNoAdjustSpace}
+/\<the\>
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_103}{view_103}\hypertarget{view_103}{}\fbox{\textcolor{red}{Review}}\\
+这个命令就不会匹配到\VimDQuote{there}或\VimDQuote{soothe}.注意\VimDQuote{*}和
+\VimDQuote{\VimSharp{}}命令会在内部使用这些标记word开始和结束的特殊标记来查找
+整个的word(你可以用\VimDQuote{g*}和\VimDQuote{g\VimSharp{}}命令来同时匹配那些
+包含在其它word中的字串。)
+
+\VimSubSection{高亮显示搜索结果}
+
+如果你在编辑一段源程序时看到了一个叫\VimDQuote{nr}的变量。你想查看一下这个变量
+都被用在了哪些地方。简单的办法是把光标移到\VimDQuote{nr}上然后用\VimDQuote{*}
+命令和\VimDQuote{n}命令一个一个地查找所有的匹配。
+
+   不过还有更好的办法。使用下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set hlsearch
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_104}{view_104}\hypertarget{view_104}{}\fbox{\textcolor{red}{Review}}\\
+现在你要再查找\VimDQuote{nr}, Vim就会以某种形式高亮显示所有符合的匹配。对于想
+查看一个变量被用在哪些地方，这个办法太棒了，不需任何其它的命令
+\VimMyFootnote{译注：如何排除函数外别处同名变量的干扰呢？答：
+\VimCommonSrc{/\VimBS{}\%<3l} 限定}
+
+   看得眼花的时候还可以关闭这一功能：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set nohlsearch
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_105}{view_105}\hypertarget{view_105}{}\fbox{\textcolor{red}{Review}}\\
+不过你要在下次搜索时再次使用这一功能就又得打开它。如果你只是想去掉当前的高亮显
+示，可以使用下面的命令\VimMyFootnote{译注：这里说的去掉当前的高亮只是使被匹配
+的文本不再以区别于普通文本的形式显示，既不是删除相应的文本，也不是改变
+\VimOption{hlsearch}选项的值}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:nohlsearch
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_106}{view_106}\hypertarget{view_106}{}\fbox{\textcolor{red}{Review}}\\
+这不会重置\VimOption{hlsearch}选项的值。它只是关闭了该语法项高亮显示。一旦你再
+次执行一个搜索命令，被匹配到的目标就又会以高亮形式显示了。\VimDQuote{n}和
+\VimDQuote{N}命令也一样会引起高亮显示。
+
+\VimSubSection{调理搜索命令}
+
+有一些选项用来改变搜索命令的工作方式。下面是一些最常用的：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set incsearch
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_107}{view_107}\hypertarget{view_107}{}\fbox{\textcolor{red}{Review}}\\
+这使得你在键入目标字符串的过程中Vim就同时开始了搜索工作。使用这种方法可以让
+你在尚未完全键入字串时就能找到目标。你可以选择按回车跳转到当前匹配到的位置
+或者键入字串的其它部分继续搜索：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set nowrapscan
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_108}{view_108}\hypertarget{view_108}{}\fbox{\textcolor{red}{Review}}\\
+该设置会使搜索过程在文件结束时就停止。或者，在你反向搜索时在到达文件开头时
+停止。\VimOption{wrapscan}选项的默认值是开，这样搜索在到达文件的头尾时都会绕向另一个方向
+继续进行。
+
+
+\VimSubSection{小插曲}\VimMyFootnote{译注：感谢
+来自\<qujianning@gmail.com>的建议，才把原来的INTERMEZZO换掉}
+
+如果你觉得前面讲到的这些选项确实好用，好到你每次打开Vim都要去设置一遍，那就说
+明是时候把这些设置命令放到Vim启动文件里了。
+   修改该文件时请遵照\VimCommonSrc{not-compatible}里的建议。通过下面的命令可以找到它的位置：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:scriptnames
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_109}{view_109}\hypertarget{view_109}{}\fbox{\textcolor{red}{Review}}\\
+例如，象这样去编辑该文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit ~/.vimrc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_110}{view_110}\hypertarget{view_110}{}\fbox{\textcolor{red}{Review}}\\
+接下来你就可以在里面添加你自己的命令设置了，就象你在Vim里进行设置时所用的命令一样。
+如：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+Go:set hlsearch<Esc>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_111}{view_111}\hypertarget{view_111}{}\fbox{\textcolor{red}{Review}}\\
+\VimDQuote{G}命令先移动到文件末尾。\VimDQuote{o}另辟一行进行编辑，在该行上键入你的\VimDQuote{:set}命令。
+然后用\VimSpecialChar{<Esc>}来退出插入模式。最后保存文件：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+ZZ
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_112}{view_112}\hypertarget{view_112}{}\fbox{\textcolor{red}{Review}}\\
+下次启动Vim时，\VimOption{hlsearch}选项就是打开的了。
+
+%======...
+\VimSepartor
+
+\VimSecDest{03.9}{\ChapterThreeSectionNineTitle}
+
+Vim用正则表达式来描述要查找的目标。正则表达式在描述一个搜索模式方面功能超强，
+语法紧凑。但是，要运用这种强大的功能是要付出代价的，因为正则表达式用起来还是
+需要一些技巧的。
+
+   本节中我们将只涉及一些最基本的内容。关于该主题更多的内容请查看
+\VimFileName{27}.你也可以在
+\VimCommonSrc{pattern}找到它的完整描述。
+
+
+\VimSubSection{一行的开头与结尾}
+
+\^{} 字符匹配一行的开头。在标准的美语键盘上你会发现它在数字键\VimMyFootnote{译
+注：不是小键盘哦}6的上面。象\VimDQuote{include}这样的模式可以匹配出现在一行中
+任何位置的include这个单词。但是模式\VimDQuote{\^{}include}就只匹配出现在一
+行开头的include.
+
+   \$字符匹配一行的末尾。所以\VimDQuote{was\$}只匹配位于一行末尾的单词was.
+
+下面我们用字符\VimDQuote{x}来标记模式\VimDQuote{the}匹配到下行中的哪些地方：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+the solder holding one of the chips melted and the}
+xxx                       xxx                  xxx
+
+而使用\VimDQuote{/the\$}时匹配的结果则是：
+
+\textcolor{VimHelpHeaderColor}{
+the solder holding one of the chips melted and the}
+                                               xxx
+
+用\VimDQuote{\^{}the}找到的则是：
+\textcolor{VimHelpHeaderColor}{
+the solder holding one of the chips melted and the}
+xxx
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_113}{view_113}\hypertarget{view_113}{}\fbox{\textcolor{red}{Review}}\\
+你也可以试一下\VimDQuote{/\^{}the\$}会怎么样，它只会匹配到一行的内容仅包含\VimDQuote{the}的情况。有空白
+字符也不行，所以如果有一行的内容是\VimDQuote{the }, 那么这个匹配同样不会成功。
+
+
+\VimSubSection{匹配任何的单字符}
+
+\VimDQuote{.}(英文句点)这个字符可以匹配到任何字符。比如\VimDQuote{c.m}可以匹配任何前一个字符是c后
+一个字符是m的情况，不管中间的字符是什么\VimMyFootnote{译注：对于中文用户，如果你用h命
+令移动光标时单位是一个汉字，那么\VimDQuote{.}可以匹配一整个汉字，另外，严格说
+，\VimDQuote{.}(英文句点)匹配除换行符外的任何字符}。如：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+We use a computer that became the cummin winter.}
+         xxx             xxx      xxx
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_114}{view_114}\hypertarget{view_114}{}\fbox{\textcolor{red}{Review}}\\
+匹配特殊字符
+
+如果你要查找的东西本身就是一个\VimDQuote{.}(英文句点)号呢，这时你就要想办法去掉
+\VimDQuote{.}(英文句点)号在正则表达式里的特殊意义了：放一个反斜杠在它前面。
+   如果你查找\VimDQuote{ter.}, 找到的是如下的匹配：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+We use a computer that became the cummin winter.}
+              xxxx                          xxxx
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_115}{view_115}\hypertarget{view_115}{}\fbox{\textcolor{red}{Review}}\\
+而查找\VimDQuote{ter\VimBS{}.}你就准确找到上面的第2处。
+
+%======...
+\VimSepartor
+
+\VimSecDest{03.10}{\ChapterThreeSectionTenTitle}
+
+当你用\VimDQuote{G}命令从一个地方跳转到另一个地方时，Vim会记得你起跳的位置。这个
+位置在Vim中是一个标记。使用下面的命令可以使你跳回到你刚才的出发点：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+\VimBacktick{}\VimBacktick{}
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这个符号看起来象是一个反方向的单引号，或者，叫它开单引号\VimMyFootnote{译注：相对地，
+\VimSQ{}就是一个闭单引号，提示：在标准键盘布局上，字符\VimBacktick{}位于
+数字1的左边}
+
+再次使用上面的这个命令你就会又跳回来了。这是因为\VimBacktick{}也是一个跳转命令，所以上次
+跳转时的起跳位置现在被标记为了\VimBacktick{}. 
+
+更一般地说，只要你执行一个命令使光标定位于当前行之外的某行上去，这都叫一个跳转
+。包括\VimDQuote{/}和\VimDQuote{n}这些搜索命令(不管被找到的东西离当前位置有多
+远). 但是字符搜索命令\VimDQuote{fx}和\VimDQuote{tx}, 或者是以word为单位的移动
+光标位置的命令\VimDQuote{w}和\VimDQuote{e}不叫跳转。
+
+   同时，\VimDQuote{j}和\VimDQuote{k}命令并不被视为一个跳转，即使你在它们之前
+加了命令计数让当前光标跳到老远的地方也是如此。
+
+\VimBacktick\VimBacktick{}命令可以在两点之间来回跳转。
+\VimSpecialChar{CTRL-O}命令是跳转到你更早些时间停置光标的位置(提示：O意
+为older). \VimSpecialChar{CTRL-I}则是跳回到后来停置光标的更新的位置(提示：I在键
+盘上位于O前面). 考虑一下以下面顺序执行这3个命令会怎样：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+33G
+/^The
+CTRL-O
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_116}{view_116}\hypertarget{view_116}{}\fbox{\textcolor{red}{Review}}\\
+首先你会跳转到33行\VimMyFootnote{译注：在讲述与光标有关的主题时，有时用
+\VimDQuote{你}跳转到某某处，当然都是指光标的跳转}，然后向下搜索以
+\VimDQuote{The}开头的目标。接下来的\VimSpecialChar{CTRL-O}会让你跳回到33行。
+再一个\VimSpecialChar{CTRL-O}又让你跳回到执行\VimDQuote{33G}命令之前的位置。
+现在再用\VimSpecialChar{CTRL-I}命令的话你又会再次回到第33行。再一个
+\VimSpecialChar{CTRL-I}又会让你回到刚才找到的匹配
+\VimDQuote{\VimTT{/\VimTT{\^}The}}的那一行：
+\begin{VimVBDisplayNoAdjustSpace}
+      |  example text   ^             |
+ 33G  |  example text   |  CTRL-O     | CTRL-I
+      |  example text   |             |
+      V  line 33 text   ^             V
+      |  example text   |             |
+/^The |  example text   |  CTRL-O     | CTRL-I
+      V  There you are  |             V
+         example text
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_117}{view_117}\hypertarget{view_117}{}\fbox{\textcolor{red}{Review}}\\
+\VimCaution{
+        \VimCautionTitle{备注：}
+        使用\VimSpecialChar{CTRL-I} 与按下\VimSpecialChar{<Tab>}键一样。
+} %end VimCaution
+
+\VimDQuote{:jumps}命令会列出关于你曾经跳转过的位置的列表。你最后一个跳转的位置
+被特别以一个\VimDQuote{>}号标记。
+
+
+\VimSubSection{具名标记}
+
+Vim允许你在文本中定义你自己的标记。命令\VimDQuote{ma}将当前光标下的位置名之为
+标记\VimDQuote{a}. 从a到z一共可以使用26个自定义的标记。定义后的标记在屏幕上也看
+不出来。不过Vim在内部记录了它们所代表的位置。
+
+   要跳转到一个你定义过的标记，使用命令\VimBacktick\{mark\}, \{mark\}就是你定
+义的标记的名字。就象这样：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+\VimBacktick{}a
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_118}{view_118}\hypertarget{view_118}{}\fbox{\textcolor{red}{Review}}\\
+命令\VimSQ{}mark(单引号，或者叫呼应单引号)会使你跳转到mark所在行的行首。这与
+\char18mark略有不同，\char18mark会精准地把你带到你定义mark时所在的行和列。
+
+标记对于编辑那些有两块内容相互关联的文件十分有用。想象一下你在文件开头有一段文
+字需要时时参考，但实际上要修改编辑的地方却在文件结尾处的情形。
+
+   你可以移动到文件开始处并在此放置一个名为s(start)的标记：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+ms
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_119}{view_119}\hypertarget{view_119}{}\fbox{\textcolor{red}{Review}}\\
+然后你可以转移到你需要编辑的地方并在此命名一个叫e(end)的标记：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+me
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_120}{view_120}\hypertarget{view_120}{}\fbox{\textcolor{red}{Review}}\\
+现在你就可以在两地之间自由移动了，若要参考文件开头的部分：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+'s
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_121}{view_121}\hypertarget{view_121}{}\fbox{\textcolor{red}{Review}}\\
+然后你可以用\VimSQ{}\VimSQ{}命令跳转回刚才正在编辑的地方，或者用\VimSQ{}e跳转
+到定义标记e的文件结尾处。
+
+   这里用s代表文件开头\VimMyFootnote{译注：start}，用e代表文件结尾
+\VimMyFootnote{译注：end}可并不说它们有任何特别之处，只是为了方便记忆而已。
+
+你也可以使用下面这个命令来查看关于标记的列表：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:marks
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_122}{view_122}\hypertarget{view_122}{}\fbox{\textcolor{red}{Review}}\\
+在这个列表里你会看到一些特别的标记。象下面这些：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+'       进行此次跳转之前的起跳点
+"       上次编辑该文件时光标最后停留的位置
+[       最后一次修改的起始位置
+]       最后一次修改的结束位置
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{04}  \ChapterFourTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

@@ -1,0 +1,3044 @@
+\VimNewChapter
+\VimBookMark{第41章　\ChapterFortyOneTitle}{usr_41.txt}
+\VimFileNameDest{usr\VimTT{\_}41.txt}{ \VimDocVer  最后修改：2010年07月20日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{Vim脚本\\}
+\begin{flushright}
+\small\CJKfamily{kai}
+语言是它所属文明的标志
+\end{flushright}
+
+
+Vim脚本语言用于Vim的初始化配置文件，语法高亮配置文件，以及诸多其它的地方。
+
+\VimSecList{41.1}{\ChapterFortyOneSectionOneTitle}
+\VimSecList{41.2}{\ChapterFortyOneSectionTwoTitle}
+\VimSecList{41.3}{\ChapterFortyOneSectionThreeTitle}
+\VimSecList{41.4}{\ChapterFortyOneSectionFourTitle}
+\VimSecList{41.5}{\ChapterFortyOneSectionFiveTitle}
+\VimSecList{41.6}{\ChapterFortyOneSectionSixTitle}
+\VimSecList{41.7}{\ChapterFortyOneSectionSevenTitle}
+\VimSecList{41.8}{\ChapterFortyOneSectionEightTitle}
+\VimSecList{41.9}{\ChapterFortyOneSectionNineTitle}
+\VimSecList{41.10}{\ChapterFortyOneSectionTenTitle}
+\VimSecList{41.11}{\ChapterFortyOneSectionElevenTitle}
+\VimSecList{41.12}{\ChapterFortyOneSectionTwelveTitle}
+\VimSecList{41.13}{\ChapterFortyOneSectionThirteenTitle}
+\VimSecList{41.14}{\ChapterFortyOneSectionFourteenTitle}
+\VimSecList{41.15}{\ChapterFortyOneSectionFivteenTitle}
+\VimSecList{41.16}{\ChapterFortyOneSectionSixteenTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{42}  \ChapterFortyTwoTitle\\
+前一章：& \VimFileName{40}  \ChapterFortyTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{41.1}{\ChapterFortyOneSectionOneTitle}
+\VimToRight{\VimCommonDest{vim-script-intro script}}
+
+你与Vim脚本的第一次亲密接触将是Vim初始化配置文件，Vim在启动时读取该文件并执行
+其中的命令，你可以在此文件中设置你偏好的选项。
+也可使用任何的冒号命令(以一个冒号开始的命令；
+有时这些命令也被叫做Ex命令或命令行命令).
+
+   语法定制文件本质上也是Vim脚本，
+只是其中的选项集中为某种特定文件类型设置了特殊的值，为这种类型的文件在编辑、浏
+览方面提供额外的便利。也可以在一个独立的Vim脚本文件中定义一个复杂的宏，当然你
+可以随自己喜好扩展Vim脚本的其它应用。
+
+让我们以一个例子开始Vim脚本的介绍：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:let i = 1
+:while i < 5
+:  echo "count is" i
+:  let i += 1
+:endwhile
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        冒号\VimDQuote{:}在此并不是必需的。只有你在Vim编辑环境中要使用此类命令时它们才是
+        必需的，在Vim脚本文件中，冒号可要可不要。不过本文中将总是包含这些可选
+        的冒号，以利于行文的清晰并且使它们区别于普通模式下的命令。\\
+        \VimCautionTitle{备注：}
+	你可以从此处复制这些行然后以\VimAt{}"命令来执行
+\hypertarget{v73_bugfix_41_txt_improve_1}{}\VimMyFootnote{译注：如
+果你是从这份PDF手册里复制文字然后到Vim中执行，需要代之以\VimAt{}*, 因
+为"是Vim内部的默认寄存器，这份手册被设计为通过Vim本身来浏览，所以此处的"复制"一词
+是假设以Vim的命令y来进行复制的，如果是通过PDF手册来复制，很可能你是通过系统
+剪贴板，它对应的寄存器是*. 另外，输出命令结果的同时会列出这些命令本身。以我的
+经验命令本身还会和命令的结果交叉输出，这是因为上述命令中有跨越多行的while结构
+，如果把while结构跨越的4行内容合并为一行如
+\newline
+:while i < 5 | echo "count is" i | let i += 1 | endwhile
+\newline
+则可以避免输出命令本身。感谢\<yangshuai@gmail.com>指出此处可能带来的困惑}。
+} %end VimCaution
+
+上例的执行结果如下：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+count is 1
+count is 2
+count is 3
+count is 4
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+第一行的\VimDQuote{:let}命令为一个变量赋值，其一般形式如下：
+\begin{VimVBCodeSippetNoAdjustSpace}
+:let {variable} = {expression}
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+本例中变量名为\VimDQuote{i}, 表达式是一个简单的数字值1.
+
+\VimDQuote{:while}命令开始一个循环。其一般形式如下：
+\begin{VimVBCodeSippetNoAdjustSpace}
+:while {condition}
+:  {statements}
+:endwhile
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:while}语句和与它相匹配的\VimDQuote{:endwhile}之间的语句块在条件满足时被执行。
+此处的条件是\VimDQuote{i < 5}. 该表达式在变量i的值小于5时为真。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        如果你不幸写了一个停不下来的循环，可以按
+下\VimSpecialChar{CTRL-C}键(在MS-Windows下按\VimSpecialChar{CTRL-Break})中断它。
+} %end VimCaution
+
+    \VimDQuote{:echo}命令打印显示其参数的值。本例中要显示的参数是字符串
+\VimDQuote{count is}和变量i的值。变量i为1时，将显示：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+count is 1
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+接下来是一个\VimDQuote{:let i += 1}命令。该命令与\VimDQuote{:let i = i + 1}完
+全等效。变量i将被赋的值是表达式\VimDQuote{i \VimTT{+} 1}. 即将变量i的值加1.
+
+给出上面的例子主要是为了介绍其中的命令，实际中我们往往可以写一段等效但更紧凑的代码：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:for i in range(1, 4)
+:  echo "count is" i
+:endfor
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_167}{view_167}\hypertarget{view_167}{}\fbox{\textcolor{red}{Review}}\\
+这里就不介绍\VimCommonDest{:for}语句和\VimCommonDest{range()}函数是如何工作的
+了。后面会有关于它们的专门主题，如果你实在忍不住好奇就跟链接跳过去。
+
+\VimSubSection{数字值的三种表示法}
+
+数字值可以是十进制，十六进制或八进制。一个十六进制数字以\VimDQuote{0x}或\VimDQuote{0X}打头。
+如\VimDQuote{0x1f} 值为十进制的31. 一个八进制数字以0打头。\VimDQuote{017}值为
+十进制的15. 注意：不要在使用十进制数字时以0打头，这样的数字序列将被解释为一
+个八进制数\VimMyFootnote{译注：从技术上说，:echo 092这样的数字序列虽然以0开头，
+但由于9不是一个合法的八进制数字，所以Vim仍会把它视为一个十进制数，但:echo 011却
+只得到9, 遵循这里的告诫总是安全的}。
+
+   \VimDQuote{:echo}命令将总是以十进制输出。如：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:echo 0x7f 036}
+127 30
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+在一个数字值的前面放一个减号将使它成为负数。前辍的减号同样可用于十进制，
+十六进制和八进制。减号同样是减法表达式的操作符\VimMyFootnote{译注：
+此处放在数字前面的减号与作为表达式操作符的减号对程序语言具有不同的语意。
+但为理解上的方便可以将它统一看作是减号}。将下式与上例比较：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:echo 0x7f -036}
+97
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+表达式中的空格将被忽略。而且，
+好的程序风格鼓励使用这样的空格去分隔不同的词法元素。这样可增强表达式的易读性。
+比如下例中在减号与数字之间放入一个空格可以避免将其看作一个负数：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+:echo 0x7f - 036
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_168}{view_168}\hypertarget{view_168}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{41.2}{\ChapterFortyOneSectionTwoTitle}
+
+一个变量名由ASCII字母，数字和下划线组成。并且不能以数字打头。合法的变量名形如
+\VimMyFootnote{译注：Vim脚本中变量沿用了经典的计算机语言中变量的词法定义，
+如C/\VimCPP{}/Java等。如果读者已熟知正则表达式，这一定义可表示为
+\VimDQuote{[a-zA-Z\VimTT{\_}][a-zA-Z0-9\VimTT{\_}]*}}:
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+counter
+_aap3
+very_long_variable_name_with_underscores
+FuncLength
+LENGTH
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+非法的变量名形如"foo\VimTT{+}bar", "6var".
+这些变量都是全局变量\VimMyFootnote{译注：通过本文的介绍，
+读者将发现这些全局变量的概念与典型的程序语言中全局变量有所不同，
+作为一个编辑器的伴生语言，这里的全局变量还指在Vim的一个运行期内，不同窗口、不
+同缓冲区、不同的函数和不同的脚本文件中均可引用的同一变量}。欲查看当前已经定义
+的所有变量，可以使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+可以在任意地方使用全局变量。这意味着在一个脚本文件中引用的名为\VimDQuote{count}的变量，
+同样可以被另一个脚本文件所引用。这样的应用至少会引起理解上的混乱，
+实际情况往往更糟。可以在变量名前前辍以\VimDQuote{s:}使该变量局部有效于当前的脚本文件。
+如一个脚本文件中含有如下代码：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:let s:count = 1
+:while s:count < 5
+:  source other.vim
+:  let s:count += 1
+:endwhile
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+由于变量\VimDQuote{s:count}是局部于该脚本的，所以在另一个脚本如
+\VimDQuote{other.vim}无论如何也不会触及到该变量的值。即使\VimDQuote{other.vim}
+也用到了一个名为\VimDQuote{s:count}的变量。那也是一个不同于前者的变量。局部于脚
+本\VimDQuote{other.vim}自己。关于局部于脚本的变量的更多内容，请参看
+\VimCommonSrc{script-variable}
+
+Vim脚本引入了几种不同的变量，参见\VimCommonSrc{internal-variables}. 其中最常用的是：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+b:name          局部于一个缓冲区的变量
+w:name          局部于一个窗口的变量
+g:name          全局变量(同样适用于函数中)
+v:name          Vim的预定义变量
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{删除变量}
+
+变量是占用内存空间的程序实体。Vim脚本中的变量可由\VimDQuote{:let}命令显示出来。
+删除一个变量可用\VimDQuote{:unlet}命令，如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:unlet s:count
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令删除了一个局部于脚本的变量\VimDQuote{s:count}以释放占用的内存。
+如果不知道是否存在某变量，而且想在它不存在时避免看见错误信息，可以使用!号：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:unlet! s:count
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+一个脚本执行完毕时，其中的局部变量并不会自动释放。下次执行该脚本时，
+仍可继续使用该局部变量。如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:if !exists("s:call_count")
+:  let s:call_count = 0
+:endif
+:let s:call_count = s:call_count + 1
+:echo "called" s:call_count "times"
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+\VimDQuote{exists()}函数检查一个变量是否已经被定义。
+它的参数是以欲检查的变量的名字为内容的字符串。
+而不是变量本身\VimMyFootnote{译注：从程序语言的角度看，
+变量名组成的字符串只是一个普通的字符串，
+碰巧它的内容是程序符号表中某变量的名字。而变量是指对应于内存中某处的值。
+根据变量类型的不同和程序对该变量类型的解释。该值可以有不同的解释。}!
+如果使用以下命令：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:if !exists(s:call_count)
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+那么变量s:call\VimTT{\_}count的值将会作为exists()函数将检查的变量的名字。
+这显然不是你要的结果。
+
+警示符!对一个值取反。如果当前值为true, 则以!取反后结果值为false. 反之，
+值为false, 取反后为true. 该操作符可读为\VimDQuote{not}. 如此表达式"if
+!exists()\VimDQuote{可看作}if not exists()".  Vim眼中任何0之外的都是真值，
+只有0是假值\VimMyFootnote{译注：与C语言的观点一样}
+
+\VimCaution{
+\VimCautionTitle{备注：}
+Vim在需要数字的上下文中会自动把字符串转为数字值。此时如果字符串的首字符不是一个数字则转换后就结果就是0. 所以：
+:if "true"
+中的\VimDQuote{true}会被解释为0, 结果是false!
+} %end VimCaution
+
+\VimSubSection{字符串变量和常数}
+
+到目前为止所讨论的变量值还只限于数值类型的。字符串同样可用于变量值。
+数字和字符串是Vim脚本所支持的两种基本的数据类型。变量的类型是动态确定的。
+每次以\VimDQuote{:let}命令为变量被赋值时均会根据值的类型确定变量的类型。
+关于变量类型请参考\VimSecSrc{41.8}. 
+
+为一个变量赋予一个字符串值，可以使用一个字符串常数。有两种情况，
+第一种是字符串以双引号引起来：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let name = "peter"
+:echo name
+\textcolor{VimHelpHeaderColor}{
+peter}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你要在字符串内容本身中包含双引号，要在\VimTT{"}号前加一个\VimBS{}:
+% vim: replace_backslash
+\begin{VimVBexcmdNoAdjustSpace}[commandchars=\\\{\}]
+:let name = "\"peter\""
+:echo name
+\textcolor{VimHelpHeaderColor}{
+"peter"}
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+为避免使用反斜杠\VimMyFootnote{译注：再好的打字员也讨厌敲\VimBS{}},
+可以使用引号以避免作为字符串定界符的双引号与作为字符串内容的双引号的冲突
+\VimMyFootnote{译注：这种冲突会让语言解析器摸不着头脑，
+其它一些语言也支持以这种方式使双引号成为字符串内容的一部分，如bash, perl,
+php...}:
+
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:let name = '"peter"'
+:echo name
+\textcolor{VimHelpHeaderColor}{
+"peter"}
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+单引号中的内容将完全按字面意思解释。
+负面影响就是这样一来字符串的内容中不能含有单引号了。反斜杠就是反斜杠，
+不再担当以特殊方式解释其后继字符的角色。所以再不能使用特殊字符序列。
+
+双引号中的字符串就不同了。下面是一些在双引号中被另眼看待的字符序列：
+%%
+%% 冯亮指正：下面的t应为\t
+%%
+% vim: angle_bracket_special_key,replace_backslash
+\begin{VimVBListNoAdjustSpace}[commandchars=\\\{\}]
+\t              <Tab>
+\n              <NL>, 断行符
+\r              <CR>, <Enter>
+\e              <Esc>
+\b              <BS>, backspace
+\"              "
+\\              \, backslash
+\<Esc>          <Esc>
+\<C-W>          CTRL-W
+\end{VimVBListNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+最后的两个例子代表了特殊情况。\VimDQuote{\VimBS{}\VimSpecialChar{<name>}}形式的表示法可以看作一个特殊健，
+该特殊健在Vim中以特殊的描述性名字表示。
+
+   参看\VimCommonSrc{expr-quote} 了解字符串中特殊健表示法的完整内容。
+
+%======...
+\VimSepartor
+
+\VimSecDest{41.3}{\ChapterFortyOneSectionThreeTitle}
+
+Vim以一种简单的方法处理丰富的表达式。参见\VimCommonSrc{expression-syntax}了解表达式的定义。
+这里将会描述一些最常用的情形。
+
+前面的数字值，字符串值本身就是表达式，所以凡是需要一个表达式的地方，
+都可以放入一个数字值或字符串。除此之外，表达式还可含有以下语素：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+$NAME          环境变量名
+&name          Vim中的选项名
+\VimAt{}r             Vim中的寄存器名
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+例：
+\begin{VimVBexcmdNoAdjustSpace}[commandchars=\\\{\}]
+:echo "The value of 'tabstop' is" &ts
+:echo "Your home directory is" $HOME
+:if \VimAt{}a > 5
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimTT{\&name}这种语法形式可用于保存一个选项值，为选项设置一个新的值，
+应用新的选项值进行一些操作后，再恢复该选项的初始值。如：
+\begin{VimVBexcmdNoAdjustSpace}[commandchars=\\\{\}]
+:let save_ic = &ic
+:set noic
+:/The Start/,$delete
+:let &ic = save_ic
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这将使模式\VimDQuote{The Start}在选项\VimOption{ignorecase}关闭的情况下被处理，
+操作完成后该选项又恢复了用户设置的值。(另一个保持原始设定不受影响的办法是在正则表达式中加上\VimDQuote{\VimBS{}C}, 参考\VimCommonSrc{/\VimBS{}C}.)
+
+\VimSubSection{数字运算}
+
+组合这些基本元素将会产生有趣的结果。我们以数字的数学运算开始：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+a + b           加
+a - b           减
+a * b           乘
+a / b           除
+a % b           求模
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+运算的优先级使用普遍的数学法则，如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:echo 10 + 5 * 2}
+20
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+使用括号对一个表达式分组以强制运算规则，如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:echo (10 + 5) * 2}
+30
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+字符串可以以\VimDQuote{.}连接起来。如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:echo "foo" . "bar"}
+foobar
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:echo}命令有多个参数时，它以空格分隔显示的多个参数的值。
+本例中整个表达式作为一个参数，所以插入空格。
+
+从C语言中借用的条件表达式形如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+a ? b : c
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+如果\VimDQuote{a}求值为true则使用值\VimDQuote{b}, 否则使用值\VimDQuote{c}. 如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:let i = 4
+:echo i > 5 ? "i is big" : "i is small"
+\textcolor{VimHelpHeaderColor}{
+i is small}
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+该表达式中的三个子表达式均会先被求值。所以上式等价于：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+(a) ? (b) : (c)
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_169}{view_169}\hypertarget{view_169}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{41.4}{\ChapterFortyOneSectionFourTitle}
+
+只有当一个条件被满足时，\VimDQuote{:if}执行与其匹配的\VimDQuote{:endif}语句之间的语句，
+一般形式如下：
+\begin{VimVBCodeSippetNoAdjustSpace}
+:if {condition}
+   {statements}
+:endif
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+只有表达式\{condition\}被求值为true(非0值)时语句\{statement\}才会被执行。
+语句必需符合Vim脚本的语法规则，否则Vim将找不到标志语句块结束的关键字\VimDQuote{:endif}. 
+
+   同样可以有\VimDQuote{:else}. 一般形式如下：
+\begin{VimVBCodeSippetNoAdjustSpace}
+:if {condition}
+   {statements}
+:else
+   {statements}
+:endif
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+第二个语句\{statement\}只有在第一个语句不被执行时才被执行。
+
+        最后要介绍的是\VimDQuote{:elseif}:
+\begin{VimVBCodeSippetNoAdjustSpace}
+:if {condition}
+   {statements}
+:elseif {condition}
+   {statements}
+:endif
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+该关键字代替了两个独立的关键字\VimDQuote{:else}和\VimDQuote{if}, 并且，避免了使用额外的\VimDQuote{:endif}. 
+
+  用在Vim初始化脚本文件中一个有用的例子是检查\VimOption{term}选项的值并依次做一些其它的设置：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:if &term == "xterm"
+:  " Do stuff for xterm
+:elseif &term == "vt100"
+:  " Do stuff for a vt100 terminal
+:else
+:  " Do something for other terminals
+:endif
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+\VimSubSection{逻辑操作}
+
+事实上，在上面的例子中已经用到了这些逻辑操作。下面是最常用的逻辑操作符：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+a == b          等于
+a != b          不等于
+a >  b          大于
+a >= b          大于或等于
+a <  b          小于
+a <= b          小于或等于
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+或条件为真则逻辑操作的结果为1, 否则为0. 如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:if v:version >= 700
+:  echo "congratulations"
+:else
+:  echo "you are using an old version, upgrade!"
+:endif
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+这里\VimDQuote{v:version}是Vim的预定义变量，它含有Vim的版本号。6.0版本的Vim版本号为600.
+6.1版本的Vim版本号为601. 对于一个要在多个版本间共享的脚本，该变量非常有用。
+
+逻辑操作符同时适用于数字值和字符串。当比较两个字符串时，
+使用字符串在数字表达上的差异进行判断。即比较字符串中每个字符的ASCII码。
+这对某些语系可能会造成歧义。
+        拿一个字符串与数字进行比较时，字符串首先被转换为一个数字。
+        这其中有一些机巧，因为如果一个字符串看起来不象一个数字，
+        它就会被转换为数字0. 如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:if 0 == "one"
+:  echo "yes"
+:endif
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+这段脚本执行的结果将是显示\VimDQuote{yes}, 因为\VimDQuote{one}看起来不象一个数字，
+所以它被转换为数字0, 实际进行的是两个数字0之间的比较。
+
+对字符串来说还有两个额外的操作符：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+a =~ b               a包含b
+a !~ b               a中不包含b
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+左边的a作为一个字符串，右边的b被视为一个查找模式，就象在a中搜索b, 如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:if str =~ " "
+:  echo "str contains a space"
+:endif
+:if str !~ '\VimBS{}.$'
+:  echo "str does not end in a full stop"
+:endif
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+注意上例中如何使用单引号来指定一个搜索模式。这非常有用！
+因为在一个以双引号括起来的字符串中，要表达一个真正的反斜杠，
+就必需写连续的两个反斜杠，在写一个搜索模式字符串时，这可能要写很多个反斜杠。
+
+比较两个字符串时选项\VimOption{ignorecase}的设置影响比较操作。如果想摒除该选项的影响，
+可以使用后辍的\VimDQuote{\#}进行大小写敏感的比较，后辍以\VimDQuote{?}进行忽略
+大小写的比较。这样\VimDQuote{==?}操作符将忽略大小写进行字符串的比较。而
+\VimDQuote{!\~{}\#}检查两个字符串是否不相同时，区别对待大小写不同的字母。欲知该
+操作的详情，参见\VimCommonSrc{expr-==}. 
+
+
+\VimSubSection{更多的循环相关操作符}
+
+前面已经提到\VimDQuote{:while}命令。另有两个语句可用于\VimDQuote{:while}和\VimDQuote{:endwhile}之间：
+
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:continue               跳转到loop循环的开始，循环继续
+:break                  向前跳转到":endwhile";循环中断
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:while counter < 40
+:  call do_something()
+:  if skip_flag
+:    continue
+:  endif
+:  if finished_flag
+:    break
+:  endif
+:  sleep 50m
+:endwhile
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:sleep}命令会让Vim小睡片刻。\VimDQuote{50m}指50毫秒\VimMyFootnote{
+译注：1秒等于1000毫秒},如果是:sleep 4, 则让Vim睡眠4秒。
+
+参考下面的\VimSecSrc{41.8}可以了解到\VimCommonSrc{:for}命令还可以支持其它
+类型的循环。
+%======...
+\VimSepartor
+
+\VimSecDest{41.5}{\ChapterFortyOneSectionFiveTitle}
+
+目前为止提到的命令都是被Vim直接执行。\VimDQuote{:execute}命令允许以一个表达式的值作为要
+执行的命令。该命令提供了动态构建一个命令的强大功能。
+
+   使用该命令的一个例子是跳转到一个指定的标签处，该标签的名字为某变量的值：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:execute "tag " . tag_name
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{.}用于连接字符串\VimDQuote{tag }和变量\VimDQuote{tag\VimTT{\_}name}
+的值。假设变量\VimDQuote{tag\VimTT{\_}name}的值为\VimDQuote{get\VimTT{\_}cmd}. 
+则最终被执行的命令是：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:tag get_cmd
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:execute}命令只能用于执行\VimDQuote{冒号命令}.  \VimDQuote{:normal}
+使用可用于执行Normal模式下的命令。不过，它的参数不能是一个表达式而必需是
+在Normal下被逐字解析执行的命令序列。如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:normal gg=G
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令跳转到当前缓冲区的首行并用\VimDQuote{=}操作格式化所有的行。
+
+    要使\VimDQuote{:normal}命令借用表达式的灵活性。可以组合使用\VimDQuote{:execute}. 如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:execute "normal " . normal_commands
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+变量\VimDQuote{normal\VimTT{\_}commands}的值必需是合法的Normal模式命令。
+
+    注意保证\VimDQuote{:normal}的完整命令名都被键入。否则Vim将一直解析到参数列
+表的末尾并终止该命令。如下面命令进入插入模式。命令结束前必需离开插入模式：
+% vim: no special highlight in verbatim, replace_backslash
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:execute "normal Inew text \<Esc>"
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+该命令在当前行的前面插入字符\VimDQuote{new text}. 注意此处如何指定特殊健
+"\VimBS{}\VimSpecialChar{<ESC>}"\VimMyFootnote{译注：
+\<unicell@gmail.com>指出上面的命令行中\VimSpecialChar{<Esc>}前面应该有一个反斜线
+\VimBS{},你是对的！}. 这避免了在脚本中嵌入一个真正的\VimSpecialChar{<Esc>}字符
+\VimMyFootnote{译注：嵌入一个真正的\VimSpecialChar{<Esc>}意味着在文本文件组成的脚本中插
+入一个ASCII值为27的字符，Vim中将以\^{}[的方式将其显示为可见字符。在以COPY \&
+PASTE方式处理此类脚本时，\^{}[将被剪贴板处理为两个字符\^{}和[, 引起脚本错误}。
+
+如果你不想执行字符串中的命令，而只是想求得其表达式的值，可以用eval()函数：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let optname = "path"
+:let optval = eval('&' . optname)
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_170}{view_170}\hypertarget{view_170}{}\fbox{\textcolor{red}{Review}}\\
+\VimDQuote{path}前会被前辍以一个\&字符，所以eval的参数是\VimDQuote{\&path}. 结
+果将是选项\VimOption{path}的值。下面的命令也可以达到同样效果：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:exe 'let optval = &' . optname
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimSecDest{41.6}{\ChapterFortyOneSectionSixTitle}
+
+Vim定义了很多函数以提供丰富的功能。本节中将会有一些使用这些函数的示例。可以在
+\VimCommonSrc{functions}发现函数的完整列表。
+
+一个函数以\VimDQuote{:call}命令调用。被传递的参数放在两个括号中，依序以逗号分隔，如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:call search("Date: ", "W")
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+此例将以参数\VimDQuote{Date: }和\VimDQuote{W}调用search()函数。search()函数以
+第一个参数作为一个搜索模式并以第二个参数作为旗标值修饰搜索操作的某些细则。 旗
+标值\VimDQuote{W}意味着搜索操作在到达文件尾将不会回绕到文件头继续搜索。
+
+一个函数调用也可以出现在一个表达式中，如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let line = getline(".")
+:let repl = substitute(line, '\VimBS{}a', "*", "g")
+:call setline(".", repl)
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+getline()函数从当前文件中得到一行。它的参数以某种方式确定要操作的行。
+本例中使用\VimDQuote{.}, 这一特殊指示符代表光标所在的当前行。
+
+    substitute()函数执行的操作类似于\VimDQuote{:substitute}命令。第一个参数是
+要进行操作的字符串。第二个参数是搜索的模式，第三个参数指定找到的搜索模式将被替
+换为的目标字符串。最后一个参数是操作的旗标修饰符。
+
+    setline()函数将第一个参数指定的某行的内容置为由第二个参数指定的值。本例中当
+前光标下的行的内容被替换为substitute()函数的结果值。所以上述操作等价于：
+\begin{VimVBexcmdNoAdjustSpace}
+:substitute/\a/*/g
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+当你要在调用substitute()前后做更多的操作时使用函数会更有趣。
+
+
+\VimSubSection{函数}
+\VimToRight{\VimCommonDest{function-list}}
+
+很多，很多函数。在此我们将一一点提它们。这些函数将根据其功能分组。
+不过你也可以在\VimCommonSrc{functions}找到一个字母顺序的函数列表。另外，
+当光标停在函数名上时使用\VimSpecialChar{CTRL-]}可以跳转到该函数的详细帮助上。
+
+\hypertarget{v73_bugfix_41_txt_improve_2}{}
+\begin{samepage}
+字符串操作：\VimToRight{\VimCommonDest{string-functions}}
+\VimNewFooterInVerbatim
+\begin{VimVBList}[xrightmargin=-2cm,commandchars=\\\{\}]
+nr2char()     得到一个ASCII值对应的字符
+char2nr()     得到一个字符的ASCII码值
+str2nr()      转换一个字符串为数字
+str2float()   转换一个字符串为浮点数
+printf()      根据%转换符格式化一个字串
+escape()      返回一个字符串以\VimBS{}转义符表达式的形式
+shellescape() 返回一个给shell命令使用的转义字符串
+fnameescape() 返回一个给Vim命令使用的转义后的文件名字符串
+tr()          将给定串的字符从一个字符集合转换到对应的另一个字符集合
+strtrans()    将一个字符串转换为可显示形式\VimFooterMarkInVerbatim{}
+tolower()     将一个字符串转换为小写
+toupper()     将一个字符串转换为大写
+match()       返回一个搜索在一个字符串中出现的位置
+matchend()    同match(), 但从后往前搜索
+matchstr()    同match, 但返回匹配到的目标串
+matchlist()   同matchstr, 同时将匹配的子模式一并返回
+stridx()      一个子串初次出现在母串中的位置
+strridx()     一个子串最后一次出现在母串中的位置
+strlen()      求字符串长度
+substitute()  字符串替换
+submatch()    得到一次":substitute"操作中的匹配到的一个子模式\VimFooterMarkInVerbatim{}
+strpart()     得到一个字符串的子串
+expand()      扩展特殊的关键字
+iconv()       转变文字编码
+byteidx()     返回给定字符在字串中的字节索引
+repeat()      将给定定串重复多次
+eval()        求值一个字符串表达式
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_171}{view_171}\hypertarget{view_171}{}\fbox{\textcolor{red}{Review}}\\
+\VimFootnoteForListEnv{
+\VimFooterTextInVerbatim{译注：如将ASCII为9的TAB键字符显示为\^{}I}
+\VimFooterTextInVerbatim{译注：指用\VimBS{}(\VimBS{})括起来的部分}
+}
+\end{samepage}
+
+列表操作：\VimToRight{\VimCommonDest{list-functions}}
+\begin{VimVBList}[commandchars=\\\{\}]
+get()               得到指定下标的列表项，下标越界也不报错
+len()               得到一个列表中列表项的个数
+empty()             检查一个列表是否为空
+insert()            向列表中新插入一项
+add()               向列表追加一项
+extend()            向列表追加另一列表
+remove()            从列表中移除一或多项
+copy()              浅复制一个列表
+deepcopy()          完全复制一个列表
+filter()            从列表中移除指定项
+map()               根据指定规则改变每个列表项的值
+sort()              将一个列表排序
+reverse()           将一个列表反序
+split()             将一个字串分割为一个列表
+join()              将一个列表中的各项粘合成一个字串
+range()             返回一个数字序列形成的列表
+string()            返回一个列表的字串表示形式
+call()              以一个列表中各项为参数调用一个函数
+index()             返回列表中某个列表项的索引
+max()               求各个列表项的最大值
+min()               求各个列表项的最小值
+count()             统计列表中某一列表项出现的次数
+repeat()            将列表重复多次
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+字典操作：\VimToRight{\VimCommonDest{dict-functions}}
+\begin{VimVBList}[xrightmargin=-2.5cm,commandchars=\\\{\}]
+get()               得到字典中指定健的条目的值，如果指定健不存在也不报告错误
+len()               得到字典条目的个数
+has_key()           检查字典中是否包含某个指定健值的条目
+empty()             检查字典是否为空
+remove()            从字典中移除某个指定健的条目
+extend()            向一个字典中加入另一个字典的条目
+filter()            根据指定条件移除字典中匹配的条目
+map()               按指定规则改变字典中的每个条目
+keys()              得到字典中各个健形成的列表
+values()            得到字典中各个值形成的列表
+items()             得到字典中以每个键-值对组成的列表的列表
+copy()              浅复制一个字典
+deepcopy()          完全复制一个字典
+string()            字典的字符串表示
+max()               求字典中的最大值
+min()               求字典中的最小值
+count()             统计一个值出现在次数
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\begin{samepage}
+浮点数计算：\VimToRight{\VimCommonDest{float-functions}}
+\VimNewFooterInVerbatim
+\begin{VimVBList}[commandchars=\\\{\}]
+float2nr()  	   浮点数转换为整数
+abs()       	   对浮点数求绝对值(同样适用于整数)  
+round()     	   四舍五入\VimFooterMarkInVerbatim{}
+ceil()      	   向上舍入
+floor()     	   向下舍入
+trunc()     	   截除小数点后的部分
+log10()     	   以10为底的对数
+pow()       	   x的y次方幂
+sqrt()      	   求平方根
+sin()       	   三角函数sine
+cos()       	   三角函数cosine
+atan()      	   三角函数arc tangent
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_172}{view_172}\hypertarget{view_172}{}\fbox{\textcolor{red}{Review}}\\
+\VimFootnoteForListEnv{
+\VimFooterTextInVerbatim{译注：这个round执行的是四舍五入。对于-1.5结果为-1, 
+源代码表明其算法为ceil(val + 0.5), 而C标准对ceil函数的规定是：返回不小于输入参
+数的最小整数。}
+}
+\end{samepage}
+
+\begin{samepage}
+变量操作：\VimToRight{\VimCommonDest{var-functions}}
+\VimNewFooterInVerbatim
+\begin{VimVBList}[commandchars=\\\{\}]
+type()            变量的类型，返回0为数字，1为字符串\VimFooterMarkInVerbatim{}
+islocked()        检查变量是否被锁住
+function()        由指定名字的函数返回该函数的引用
+getbufvar()       得到指定缓冲中的变量
+setbufvar()       为指定缓冲区设定变量值
+getwinvar()       得到指定窗口的变量
+\hypertarget{v73_bugfix_41_new_function_1}{}
+gettabvar()       得到指定标签页的变量
+gettabwinvar()    得到指定窗口和标签页中的变量
+setwinvar()       为指定窗口设置变量
+settabvar()       为指定的标签页设置变量
+settabwinvar()    设置指定窗口和标签页中的变量
+garbagecollect()  执行内存的自动垃圾回收
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_173}{view_173}\hypertarget{view_173}{}\fbox{\textcolor{red}{Review}}\\
+\VimFootnoteForListEnv{
+\VimFooterTextInVerbatim{译注：注意其参数要求是变量名没错，但要作为一个普通字
+符串，如:echo type(\VimSQstr{v:version})}
+}
+\end{samepage}
+
+\begin{samepage}
+光标和位置标记操作：\VimToRight{\VimCommonDest{cursor-functions mark-functions}}
+\VimNewFooterInVerbatim
+\begin{VimVBList}[xrightmargin=-2cm,commandchars=\\\{\}]
+col()            得到光标或一个mark所在的列号
+virtcol()        得到光标或一个mark所在屏幕上的列位置
+line()           得到光标或一个mark所在的行号
+wincol()         当前光标在当前窗口坐标中的列号\VimFooterMarkInVerbatim{}
+winline()        当前光标在当前窗口坐标中的行号
+cursor()         将光标置于指定的行列
+getpos()         得到指定的光标或位置标记等的位置信息
+setpos()         设置指定的光标或位置标记等的位置信息
+byte2line()      得到该文件中第N个字节位于第几行
+line2byte()      同上面的相反，求得指定行的首字符位于文件中的字节偏移
+diff_filler()    得到diff模式下指定行前面被填充的行数\VimFooterMarkInVerbatim{}
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_174}{view_174}\hypertarget{view_174}{}\fbox{\textcolor{red}{Review}}\\
+\begin{comment}
+直接在footnote中使用Verbatim环境会有问题，但通过SaveVerbatim/BUseVerbatim却
+可以
+\end{comment}
+\begin{SaveVerbatim}[frame=single,commandchars=\\\{\}]{usr41footnoteVerbatim1}
+1   a                  | 1   a      
+2   b                  | 2   b      
+\VimDiffDel{----------------------}| 3   \VimDiffAdd{x　　　　　　　　　}
+\VimDiffDel{----------------------}| 4   \VimDiffAdd{y　　　　　　　　　}
+3   c                  | 5   c
+\end{SaveVerbatim}
+\VimFootnoteForListEnv{
+\VimFooterTextInVerbatim{译注：如果你打开了\VimOption{number}选项，则得到的值会
+比col(\VimSQstr{.})大8, 因为行号占据了8个字节}
+\VimFooterTextInVerbatim{单从这一句话的解释不大可能理解这个函数，它实际的工作
+如下：\\
+\hrule
+\BUseVerbatim{usr41footnoteVerbatim1}
+\hrule
+左右两个缓冲区被diff-ed, 对于左边的缓冲区，它只有3行，中间显示出来的以-填充的
+行实际上不是缓冲区的内容，如此显示只是为了凸显两个缓冲区的不同之处，它与右边缓
+冲区的第3第4行对应，Vim以这种方式提醒用户左边缓冲区中以-字符填充的行相当于右边窗
+对应的行。该函数返回的即是紧靠指定行的上面Vim填充了几个虚拟的行。如果这样的
+虚拟填充行有多处分散在指定行前面的各处，则只返回紧靠给定行上面的虚拟行数。此例
+中对左边窗口执行:echo diff\_filler(3)将返回2, 因为它上面有2行被填充以便与下边的
+缓冲区进行显示同步。
+}
+}
+\end{samepage}
+
+当前缓冲区中的文本操作：\VimToRight{\VimCommonDest{text-functions}}
+\begin{VimVBList}[xleftmargin=-1.6cm,xrightmargin=-1.6cm,commandchars=\\\{\}]
+getline()        从当前缓冲区中得到指定行的内容，或是存储多行文本的列表
+setline()        将缓冲区某行的内容替换为指定内容
+append()         将指定的行，或指定的列表中的各行追加到当前缓冲区中由参数指定的行之后
+indent()         得到指定行的缩进量
+cindent()        根据C语言风格得到的指定行以空格个数统计的缩进量
+lispindent()     根据Lisp语言风格得到的指定行以空格个数统计的缩进量
+nextnonblank()   返回指定行及指定行之后的第一个非空行
+prevnonblank()   返回指定行及指定行之前的第一个非空行
+search()         查找下一个正则表达式
+searchpos()      查找一个模式的匹配
+searchpair()     在由开始/中间/结束三元素组成的语言结构中查找这三种元素
+searchpairpos()  同searchpair()但返回值为行号和列索引组成的列表
+searchdecl()     得到一个变量的声明所在的行
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\begin{samepage}
+系统函数和文件操作：\VimToRight{\VimCommonDest{system-functions file-functions}}
+\VimNewFooterInVerbatim
+\begin{VimVBList}[commandchars=\\\{\}]
+glob()           扩展文件名通配符
+globpath()       同上，但可以指定一系列的目录
+findfile()       在指定的目录列表中查找文件
+finddir()        在指定的目录列表中查找目录
+resolve()        返回MS-Windows上一个链接所指向的目标
+fnamemodify()    返回文件名的各种形式\VimFooterMarkInVerbatim{}
+pathshorten()    返回一个路径各部分被缩简为单个字母的路径名
+simplify()       不改变路径本身的情况下简化其表示
+executable()     检查一个可执行程序是否存在
+filereadable()   检查文件的可读性
+filewritable()   检查文件是否可写
+getfperm()       返回文件的许可位
+getftype()       返回文件的类型
+isdirectory()    检查一个目录是否存在
+getfsize()       得到文件大小
+getcwd()         返回当前工作目录
+haslocaldir()    判断当前窗口是否设定了本地目录
+tempname()       得到一个临时文件名
+mkdir()          创建新目录
+delete()         删除文件
+rename()         文件更名
+system()         执行一个SHELL命令
+hostname()       当前系统的主机名
+readfile()       将一个文件的各行读入一个列表
+writefile()      将一个列表中的各行写入文件
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_175}{view_175}\hypertarget{view_175}{}\fbox{\textcolor{red}{Review}}\\
+\VimFootnoteForListEnv{
+\VimFooterTextInVerbatim{译注：如全路径名，文件名，扩展名等}
+}
+\end{samepage}
+
+日期和时间函数：\VimToRight{\VimCommonDest{date-functions time-functions}}
+\begin{VimVBList}[commandchars=\\\{\}]
+getftime()       得到指定文件的最后修改时间
+localtime()      获取当前时间
+strftime()       将时间转换为字符串形式
+reltime()        得到当前的或已逝的精确时间值
+reltimestr()     把reltime()返回的值转换为字串表示
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimToRight{\VimCommonDest{buffer-functions window-functions arg-functions}}
+缓冲区、窗口和参数列表：
+\begin{VimVBList}[commandchars=\\\{\}]
+argc()           返回参数列表中的参数个数
+argidx()         参数列表中的当前索引号
+argv()           返回参数列表中指定索引号的参数
+bufexists()      检查一个缓冲区是否存在
+buflisted()      检查一个缓冲区是否存在并且位于缓冲区列表中
+bufloaded()      检查一个缓冲区是否存在并被载入
+bufname()        返回指定缓冲区号所对应的缓冲区名字
+bufnr()          返回指定缓冲区名字所对应的缓冲区号
+tabpagebuflist() 得到指定页签中的缓冲区列表
+tabpagenr()      得到指定页签的编号
+tabpagewinnr()   对指定页签的winnr()函数
+winnr()          返回当前窗口的窗口号
+bufwinnr()       得到指定缓冲区所在的窗口号，没有对应窗口时返回-1
+winbufnr()       返回指定窗口中所编辑的缓冲区的号码
+getbufline()     从指定缓冲区中取得指定行作为列表变量返回
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+命令行函数：\VimToRight{\VimCommonDest{command-line-functions}}
+\begin{VimVBList}[commandchars=\\\{\}]
+getcmdline()     得到当前的命令行
+getcmdpos()      得到命令行中当前光标的位置
+setcmdpos()      设置命令行中当前光标的位置
+getcmdtype()     返回当前命令的类型
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\begin{samepage}
+快速修改和位置列表相关函数：\VimToRight{\VimCommonDest{quickfix-functions}}
+\VimNewFooterInVerbatim
+\begin{VimVBList}[commandchars=\\\{\}]
+getqflist()      将quickfix窗口中各项作为列表返回
+setqflist()      修改一个quickfix列表
+getloclist()     将location窗口中的各项作为列表返回\VimFooterMarkInVerbatim{}
+setloclist()     修改一个location列表
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_176}{view_176}\hypertarget{view_176}{}\fbox{\textcolor{red}{Review}}\\
+\VimFootnoteForListEnv{
+\VimFooterTextInVerbatim{译注：这是vim7.0中新增的函数，一个location窗口是这样的窗口：它
+的buftype是quickfix(set ft?的输出是qf), 跟quickfix窗口唯一的不同是可以同时打开
+多个location窗口，location窗口中每一行的格式跟quickfix窗口类似，或者说类似
+于grep -n pattern files的输出：文件名:行号:该行内容\\典型的location窗口是由
+命令:grep或:helpgrep或:vimgrep产生的。}
+}
+\end{samepage}
+
+插入模式的补全相关函数：\VimToRight{\VimCommonDest{completion-functions}}
+\begin{VimVBList}[commandchars=\\\{\}]
+complete()       设置找到的匹配项
+complete_add()   添加一个匹配项
+complete_check() 检查当前补全是否应该被放弃
+pumvisible()     检查弹出菜单是否已显示
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\begin{samepage}
+折行：\VimToRight{\VimCommonDest{folding-functions}}
+\VimNewFooterInVerbatim
+\begin{VimVBList}[commandchars=\\\{\}]
+foldclosed()         检查指定行是否位于一个处于关闭状态的折行内，若
+                     是返回该折行的首行行号，否非，返回-1
+foldclosedend()      同上，返回的是折行的尾行行号
+foldlevel()          返回指定行的折行层级，没有定义折行时返回0
+foldtext()           生成一个关闭的折行所显示的文本\VimFooterMarkInVerbatim{}
+foldtextresult()     得到一个折叠起来的折行的显示文本
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_177}{view_177}\hypertarget{view_177}{}\fbox{\textcolor{red}{Review}}\\
+\VimFootnoteForListEnv{
+\VimFooterTextInVerbatim{译者：注意你不能用:echo foldtext()来看效果。它只用于为
+\VimOption{foldtext}定制内容显示时使用，你可以用:set
+foldtext=\VimSQstr{<<<}.foldtext().\VimSQstr{>>>}来查看它的效果}
+}
+\end{samepage}
+
+语法和高亮：\VimToRight{\VimCommonDest{syntax-functions highlighting-functions}}
+\begin{VimVBList}[commandchars=\\\{\}]
+clearmatches()   清除由\VimCommonSrc{matchadd()}和\VimCommonSrc{:match}命令定义的所有匹配
+getmatches()     获取由\VimCommonSrc{matchadd()}和\VimCommonSrc{:match}命令定义的所有匹配
+hlexists()       检查一个语法高亮项是否存在
+hlID()           返回一个语法高亮项的ID
+synID()          返回指定位置的语法ID
+synIDattr()      返回某语法ID的指定属性
+synIDtrans()     得到某语法项最终应用了其颜色定义的那种语法的ID
+diff_hlID()      得到diff下指定位置的高亮ID
+matchadd()       定义一个语法高亮的模式(一个匹配)
+matcharg()       得到:match的参数信息
+matchdelete()    删除一个由\VimCommonSrc{matchadd()}或\VimCommonSrc{:match}命令定义的匹配
+setmatches()     恢复由\VimCommonSrc{getmatches()}保存的匹配列表
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_178}{view_178}\hypertarget{view_178}{}\fbox{\textcolor{red}{Review}}\\
+拼写检查：\VimToRight{\VimCommonDest{spell-functions}}
+\begin{VimVBList}[commandchars=\\\{\}]
+spellbadword()   定义当前光标处或其后的拼写有误的字词
+spellsuggest()   返回建议的改正词条
+soundfold()      返回读音近似的词
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_179}{view_179}\hypertarget{view_179}{}\fbox{\textcolor{red}{Review}}\\
+历史列表：\VimToRight{\VimCommonDest{history-functions}}
+\begin{VimVBList}[commandchars=\\\{\}]
+histadd()        向历史列表中加入条目
+histdel()        从历史列表中删除条目
+histget()        从历史列表中得到一个条目
+histnr()         得到历史列表中记录个数
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\begin{samepage}
+交互操作：\VimToRight{\VimCommonDest{interactive-functions}}
+\VimNewFooterInVerbatim
+\begin{VimVBList}[commandchars=\\\{\}]
+browse()         打开一个文件选择对话框
+browsedir()      打开一个目录选择对话框
+confirm()        让用户确认一组选择
+getchar()        让用户输入一个字符
+getcharmod()     得到最后一次输入字符时的修饰键\VimFooterMarkInVerbatim{}
+input()          从用户那要一行内容
+inputlist()      让用户从一个列表中选取其中一项
+inputsecret()    同上，但不回显输入的内容
+inputdialog()    让用户在一个对话框里输入
+inputsave()      保存并清空预输入的内容\VimFooterMarkInVerbatim{}
+inputrestore()   恢复由inputsave()保存下的预输入内容
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_180}{view_180}\hypertarget{view_180}{}\fbox{\textcolor{red}{Review}}\\
+\begin{SaveVerbatim}[frame=single,commandchars=\\\{\}]{usr41footnoteVerbatim2}
+2       shift键
+4       control键
+8       alt (另一个称呼是meta)
+16      鼠标双击
+32      鼠标三击
+64      鼠标四次连续点击
+128     只对Macintosh：命令键
+\end{SaveVerbatim}
+\begin{SaveVerbatim}[framerule=0.1pt,rulecolor=\color{black},frame=single,commandchars=\\\{\}]{usr41footnoteVerbatim3}
+0000-0010    2    shift键
+0000-0100    4    control键
+0000-1000    8    alt (另一个称呼是meta)
+0001-0000    16   鼠标双击
+0010-0000    32   鼠标三击
+0100-0000    64   鼠标四次连续点击
+1000-0000    128  只对Macintosh：命令键
+\end{SaveVerbatim}
+\VimFooterTextInVerbatim{译注：原文是get modifiers for the last typed
+character, 怎么译我都觉得辞不达意，参考手册中对它的解释是：返回一个数字，标明最
+后一次通过getchar()或其它方式输入字符时同时有哪些按键(包括键盘和鼠标), 返回是
+下面的值或它们的加和：\\
+\VimSepartor
+\colorbox{VimVisualBkColor}{\BUseVerbatim{usr41footnoteVerbatim2}}
+\VimSepartor
+
+只有那些字符本身没有包含这些键修饰效果的情况下才会返回对应的键修饰码。所以按
+下Shift-a直接就得到了字符\VimDQuote{A}, 没有键修饰码。
+按键时同时按ALT或CTRL键比较好理解，但是鼠标的动作怎么也能作为修饰译者也没有理
+解。关于上面的\VimDQuote{加和}是这样的：上面这些数字对应的二进制数是：\\
+\VimSepartor
+\colorbox{VimVisualBkColor}{\BUseVerbatim{usr41footnoteVerbatim3}}
+\VimSepartor
+
+每个数字都占用一个独立的位，其余位都是0, 这使得用2+4的和6来表示同时按
+下shift和control键成为可能，其二进制是00000110, 表示两种情况同时满足。
+
+遗憾的是，译者通过调用getchar()函数和getcharmod()并没有试验出预期的结果。
+}
+% vim: no special highlight in verbatim
+\begin{SaveVerbatim}[frame=single,commandchars=\\\{\}]{usr41footnoteVerbatim4}
+call inputsave()|call input("Press <cr> to continue")|call inputrestore()
+\end{SaveVerbatim}
+\VimFooterTextInVerbatimNoLineBreak{译注：搜索了vim中所有的脚本之后，发现调用了inputsave()的语句中
+下面的用法占了绝对的优势：\\
+\colorbox{VimVisualBkColor}{\BUseVerbatim{usr41footnoteVerbatim4}}
+
+但是，在查看了参考手册之后，我仍然对这对inputsave()/inputrestore()不
+得要领，对这两个函数功能的翻译从技术上来说是不负责任的，读者需要自行斟酌。
+}
+\end{samepage}
+
+GUI:\VimToRight{\VimCommonDest{gui-functions}}
+\begin{VimVBList}[commandchars=\\\{\}]
+getfontname()       得到当前使用的字体名
+getwinposx()        返回窗口的X坐标，单位为象素
+getwinposy()        返回窗口的Y坐标，单位为象素
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_181}{view_181}\hypertarget{view_181}{}\fbox{\textcolor{red}{Review}}\\
+Vim服务器：\VimToRight{\VimCommonDest{server-functions}}
+\begin{VimVBList}[commandchars=\\\{\}]
+serverlist()        返回服务器名字列表
+remote_send()       向指定服务器发送命令字符
+remote_expr()       在服务器求值一个表达式
+server2client()     向客户端发送一个回应
+remote_peek()       检查是否收到来自服务器的回应
+remote_read()       从服务器读取回应信息
+foreground()        将Vim窗口移到前台
+remote_foreground() 将Vim服务器窗口移至前台
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+窗口大小和位置相关：\VimToRight{\VimCommonDest{window-size-functions}}
+\begin{VimVBList}[commandchars=\\\{\}]
+winheight()      返回指定窗口的高度，单位为字符
+winwidth()       返回指定窗口的宽度，单位为字符
+winrestcmd()     return command to restore window sizes
+winsaveview()    get view of current window
+winrestview()    restore saved view of current window
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\begin{samepage}
+其它：\VimToRight{\VimCommonDest{various-functions}}
+\VimNewFooterInVerbatim
+\begin{VimVBList}[commandchars=\\\{\}]
+mode()              返回当前的编辑模式
+visualmode()        返回最近一次使用的Visual子模式
+hasmapto()          检查是否有一个键被定义为指定的内容
+mapcheck()          检查一个映射是否存在
+maparg()            返回一个映射的右部，即它所被映射的内容
+exists()            检查一个变量或函数等是否被定义
+has()               检查当前的Vim是否支持某个特性
+cscope_connection() 检查是否存在某个cscope连接
+changenr()          得到最近一次修改的编号
+did_filetype()      检查是否一个设置文件类型的自动命令已被执行过
+eventhandler()      检查当前脚本是否因事件触发而被调用
+libcall()           调用外部共享库中的一个函数
+libcallnr()         同上，但用于返回int的函数
+getreg()            返回寄存器的内容
+getregtype()        返回寄存器中所保存的文本的类型\VimFooterMarkInVerbatim{}
+setreg()            设置一个寄存器的内容和内容的类型
+taglist()           返回匹配的tags列表
+tagfiles()          返回tags文件列表\hypertarget{v73_bugfix_41_new_function_2}{}
+mzeval()            求值\VimCommonSrc{MzScheme}的表达式
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_182}{view_182}\hypertarget{view_182}{}\fbox{\textcolor{red}{Review}}\\
+\VimFootnoteForListEnv{
+\VimFooterTextInVerbatim{
+译注：不是寄存器本身的类型，而是指寄存器中保存了什么
+类型的内容，比如在Visual模式下以字符为单位选择了一些文本保存在寄存器a中，
+则getregtype(\VimSQstr{a})返回的是v, 表示以字符为最小选择单位的内容，而
+在normal模式下用"a3Y命令之后，3行内容被放入了寄存器a中，此
+时getregtype(\VimSQstr{a})返回\VimSQstr{V}, 表示以行为单位。在列选择的Visual方式下选择
+的文本则返回为\VimSpecialChar{<\^{}V\VimSharp>}
+}
+}
+\end{samepage}
+
+%======...
+\VimSepartor
+
+\VimSecDest{41.7}{\ChapterFortyOneSectionSevenTitle}
+
+Vim允许用户自定义函数。基本的函数定义如下：
+\begin{VimVBCodeSippetNoAdjustSpace}
+:function {name}({var1}, {var2}, ...)
+:  {body}
+:endfunction
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+\VimCautionTitle{备注：}
+函数名必需以一个大写字母开始。
+} %end VimCaution
+
+我们来定义一个简单函数，该函数返回两个数中较小的数，
+该函数的定义以以下命令开始：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:function Min(num1, num2)
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+这告诉Vim定义一个名为\VimDQuote{Min}的函数，该函数接受两个参数\VimDQuote{num1}和\VimDQuote{num2}. 
+
+函数体中第一件事就是检查两个参数哪个更小：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:  if a:num1 < a:num2
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+特殊的前辍\VimDQuote{a:}告诉Vim该变量是一个函数参数\VimMyFootnote{译注：a代
+表argument}，下面我们把较小的值赋予变量\VimDQuote{smaller}:
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:  if a:num1 < a:num2
+:    let smaller = a:num1
+:  else
+:    let smaller = a:num2
+:  endif
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+变量\VimDQuote{smaller}是一个局部变量。在一个函数中使用的变量将局部于该函数，
+除非该变量前辍以\VimDQuote{g:}, 或 \VimDQuote{a:}, 或\VimDQuote{s:}. 
+
+\VimCaution{
+\VimCautionTitle{备注：}
+要在一个函数中引用一个全局变量必需前辍以\VimDQuote{g:}. 这样在一个函数
+中引用\VimDQuote{g:today}指对全局变量\VimDQuote{today}的使用。而对
+\VimDQuote{today}存取实际操作的是另一个局部于该函数的变量。
+} %end VimCaution
+
+现在可以使用\VimDQuote{:return}语句返回两个数中较小的值。最后，结束这个函数定义：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:  return smaller
+:endfunction
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+完整的函数定义如下：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:function Min(num1, num2)
+:  if a:num1 < a:num2
+:    let smaller = a:num1
+:  else
+:    let smaller = a:num2
+:  endif
+:  return smaller
+:endfunction
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+喜欢简约风格的人可以用下面的函数实现同样的功能：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:function Min(num1, num2)
+:  if a:num1 < a:num2
+:    return a:num1
+:  endif
+:  return a:num2
+:endfunction
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+一个用户自定义的函数的调用与对Vim内置函数的调用毫无二致，唯一的不同是函数名的
+命令规范，用户自定义函数必需以大写字母开始，上例中的Min函数可以这样应用：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:echo Min(5, 8)
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+直到现在函数才会被执行，函数体被Vim解释，如果其中有误，比如使用了未定义的变量或
+调用了未定义的函数，Vim将会发出一个错误信息。
+而定义函数时这些错误还不能被检测到。
+
+当一个函数执行到\VimDQuote{:endfunction}语句时或者\VimDQuote{:return}以不带参数的形式返回。则函数
+返回值为0.
+
+要重新定义一个已经定义过的函数名，在函数定义命令\VimDQuote{:function}后附一!号
+\VimMyFootnote{译注：Vim中相同函数名的函数将被视为同一个函数，大小写敏感，跟C~
+语言一样}
+
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:function!  Min(num1, num2, num3)
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+\VimSubSection{在函数中使用行号范围}
+
+\VimDQuote{:call}命令可以指定一个函数操作将施于其上的行的范围。此类操作有两种可能的执行期
+语意。当一个函数定义时指定了\VimDQuote{range}关键字时，函数将自己处理给定的行的范围。
+函数被调用时将被调用者以变量\VimDQuote{a:firstline}和\VimDQuote{a:lastline}传入行范围的上下限。
+如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:function Count_words() range
+:  let lnum = a:firstline
+:  let n = 0
+:  while lnum <= a:lastline
+:    let n = n + len(split(getline(lnum)))
+:    let lnum = lnum + 1
+:  endwhile
+:  echo "found " . n . " words"
+:endfunction
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+该函数可以这样调用：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:10,30call Count_words()
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+函数将被调用一次，显示出指定范围的文本行中的单词数。
+使函数作用于一定范围的文本行的另一种方法是定义函数时不指定\VimDQuote{range}关键字。
+这样该函数将于指定范围中每一个文本行被调用一次。如：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:function  Number()
+:  echo "line " . line(".") . " contains: " . getline(".")
+:endfunction
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+如果这样调用该函数：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:10,15call Number()
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+函数Number()将被执行6次。
+
+
+\VimSubSection{可变参数}
+
+Vim允许函数接受个数可变的参数，比如下面的命令中，定义了一个至少有一个参数的
+函数，它最多可接受20个参数：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:function Show(start, ...)
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+变量\VimDQuote{a:1}代表第一个可选参数，\VimDQuote{a:2}指第二个，依此类推。变量
+\VimDQuote{a:0}包含了实际传递的参数的个数。
+如：
+\begin{VimVBCodeSippetNoAdjustSpace}
+:function Show(start, ...)
+:  echohl Title
+:  echo "Show is " . a:start
+:  echohl None
+:  let index = 1
+:  while index <= a:0
+:    echo "  Arg " . index . " is " . a:{index}
+:    let index = index + 1
+:  endwhile
+:  echo ""
+:endfunction
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+该例中使用\VimDQuote{:echohl}命令指定接下来的\VimDQuote{:echo}命令所使用的语法高亮规则。":echohl
+None\VimDQuote{禁止语法高亮。}:echon\VimDQuote{命令象}:echo"命令一样输出参数的
+内容，区别只是它并不象后者一样在输出结束时换行。
+
+你还可以使用a:000变量，它是变长参数定义中的\VimDQuote{...}实参所组成的列表。请参考
+\VimCommonSrc{a:000}
+
+\VimSubSection{显示已定义的函数}
+
+\VimDQuote{:function}命令将显示用户自定义函数的列表：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:function}
+function Show(start, ...)
+function GetVimIndent()
+function SetSyn(name)
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+要想知道一个函数到底做了什么，可以以其函数名作为\VimDQuote{:function}命令的参数：
+% 原文中 endfunction之前有3个空格缩进
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:function SetSyn}
+1     if &syntax == ''
+2       let &syntax = a:name
+3     endif
+   endfunction
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimSubSection{函数调试}
+
+在你遇到错误或进行调试时行号信息是十分可贵的，参考\VimCommonSrc{debug-scripts}
+进一步了解调试模式。也可以通过将\VimOption{verbose}选项设为12或一个更大的数来查
+看所有的函数调用。将它设为15或更多大可以看到每一个被执行的命令行。
+
+
+\VimSubSection{删除函数}
+
+要删除函数Show(), 可用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:delfunction Show
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果此时该函数还不存在，Vim将返回一个错误信息。
+
+\VimSubSection{函数引用}
+
+有时候能够指向函数的变量非常有用。函数function()可以通过指定的函数名返回其引用：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let result = 0         " or 1
+:function! Right()
+:  return 'Right!'
+:endfunc
+:function! Wrong()
+:  return 'Wrong!'
+:endfunc
+:
+:if result == 1
+:  let Afunc = function('Right')
+:else
+:  let Afunc = function('Wrong')
+:endif
+:echo call(Afunc, [])
+\textcolor{VimHelpHeaderColor}{Wrong!}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_183}{view_183}\hypertarget{view_183}{}\fbox{\textcolor{red}{Review}}\\
+\VimCaution{
+\VimCautionTitle{注意：}指向函数的变量首字母必需大写。否则就容易跟内置函数
+起冲突。
+} %end VimCaution
+通过一个指向函数的变量来调用该函数需要用call()函数间接实现，该函数的第一个
+参数就是指向被调函数的变量，第二个参数是要传给被调函数参数的列表。
+
+函数引用跟字典类变量结合使用时尤为有用，下节将会就此详细解说。
+%======...
+\VimSepartor
+
+\VimSecDest{41.8}{\ChapterFortyOneSectionEightTitle}
+
+目前为止我们已经接触不少基本的字串和数字类型的变量了。除此基本类型之
+外Vim还支持两种复合型的变量类型：列表和字典。
+
+一个列表以一种前后有序的格式保存了数据项的序列。这些数据项可以是任何类型的
+值，所以你可以构造出关于数字的列表，关于列表的列表甚至是关于不同类型的项的列表
+。下面的例子创建了一个包含三样东西的列表：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let alist = ['aap', 'mies', 'noot']
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_184}{view_184}\hypertarget{view_184}{}\fbox{\textcolor{red}{Review}}\\
+列表中的各项要用方括号括起来，并以逗号分隔。创建空列表是用这样的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let alist = []
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_185}{view_185}\hypertarget{view_185}{}\fbox{\textcolor{red}{Review}}\\
+add()函数可用于向一个列表中添加内容：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let alist = []
+:call add(alist, 'foo')
+:call add(alist, 'bar')
+:echo alist
+\textcolor{VimHelpHeaderColor}{['foo', 'bar']}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_186}{view_186}\hypertarget{view_186}{}\fbox{\textcolor{red}{Review}}\\
++号可以用来串接两个列表：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:echo alist + ['foo', 'bar']
+\textcolor{VimHelpHeaderColor}{['foo', 'bar', 'foo', 'bar']}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_187}{view_187}\hypertarget{view_187}{}\fbox{\textcolor{red}{Review}}\\
+或者，你还可以用这样的方法来扩展一个列表：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let alist = ['one']
+:call extend(alist, ['two', 'three'])
+:echo alist
+\textcolor{VimHelpHeaderColor}{
+['one', 'two', 'three']}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_188}{view_188}\hypertarget{view_188}{}\fbox{\textcolor{red}{Review}}\\
+注意函数add()的效果不同：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let alist = ['one']
+:call add(alist, ['two', 'three'])
+:echo alist
+\textcolor{VimHelpHeaderColor}{
+['one', ['two', 'three']]}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_189}{view_189}\hypertarget{view_189}{}\fbox{\textcolor{red}{Review}}\\
+add()函数的第二个参数被作为一个数据项被添加到列表中。
+
+\VimSubSection{FOR循环}
+
+列表操作一个好玩之处就是你可以遍历它：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let alist = ['one', 'two', 'three']
+:for n in alist
+:  echo n
+:endfor
+\textcolor{VimHelpHeaderColor}{
+one}
+\textcolor{VimHelpHeaderColor}{
+two}
+\textcolor{VimHelpHeaderColor}{
+three}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_190}{view_190}\hypertarget{view_190}{}\fbox{\textcolor{red}{Review}}\\
+列表\VimDQuote{alist}中的每个元素都会被循环所遍历，其值被赋给变量
+\VimDQuote{n}. for循环的一般形式是：
+\begin{VimVBexcmdNoAdjustSpace}
+:for {varname} in {listexpression}
+:  {commands}
+:endfor
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_191}{view_191}\hypertarget{view_191}{}\fbox{\textcolor{red}{Review}}\\
+要循环指定的次数就需要一个指定长度的列表。range()函数可以创建这样的列表：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:for a in range(3)
+:  echo a
+:endfor
+\textcolor{VimHelpHeaderColor}{
+0}
+\textcolor{VimHelpHeaderColor}{
+1}
+\textcolor{VimHelpHeaderColor}{
+2}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_192}{view_192}\hypertarget{view_192}{}\fbox{\textcolor{red}{Review}}\\
+注意range()函数生成的列表首项是0, 所以最后一项刚好比列表的长度少1.
+
+你甚至可以给range()函数指定一个最大值，步进的长度甚至让它反向步进：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:for a in range(8, 4, -2)
+:  echo a
+:endfor
+\textcolor{VimHelpHeaderColor}{
+8}
+\textcolor{VimHelpHeaderColor}{
+6}
+\textcolor{VimHelpHeaderColor}{
+4}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_193}{view_193}\hypertarget{view_193}{}\fbox{\textcolor{red}{Review}}\\
+下面是一个更有用的例子：遍历一个缓冲区中的文本行：
+% vim: replace_backslash
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:for line in getline(1, 20)
+:  if line =~ "Date: "
+:    echo matchstr(line, 'Date: \zs.*')
+:  endif
+:endfor
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_194}{view_194}\hypertarget{view_194}{}\fbox{\textcolor{red}{Review}}\\
+这段代码会检视第1到20行(包括第20行)的内容并显示其中包含的日期字串。
+
+\VimSubSection{字典}
+
+一个字典存储了关于键-值的成对的二元组。如果你知道了键就能快速地查找它对应的值。
+创建字典是以花括号包含各项的：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let uk2nl = \{'one': 'een', 'two': 'twee', 'three': 'drie'\}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_195}{view_195}\hypertarget{view_195}{}\fbox{\textcolor{red}{Review}}\\
+现在你可以通过在方括号中以键为索引来查找单词了：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:echo uk2nl['two']
+\textcolor{VimHelpHeaderColor}{
+twee}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_196}{view_196}\hypertarget{view_196}{}\fbox{\textcolor{red}{Review}}\\
+定义字典的一般形式是：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmdNoAdjustSpace}
+{<key> : <value>, ...}
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_197}{view_197}\hypertarget{view_197}{}\fbox{\textcolor{red}{Review}}\\
+空字典就是没有任何条目的字典：
+\begin{VimVBexcmdNoAdjustSpace}
+{}
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_198}{view_198}\hypertarget{view_198}{}\fbox{\textcolor{red}{Review}}\\
+字典所能表达的可能性多不胜数。还有一些函数用于相关的操作。比如，你可以象下面这
+样取得字典中各个键然后遍历它们：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:for key in keys(uk2nl)
+:  echo key
+:endfor
+\textcolor{VimHelpHeaderColor}{
+three}
+\textcolor{VimHelpHeaderColor}{
+one}
+\textcolor{VimHelpHeaderColor}{
+two}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_199}{view_199}\hypertarget{view_199}{}\fbox{\textcolor{red}{Review}}\\
+你可能已经注意到上面显示的键并未依序排列。你可以对返回的列表进行排序来达此目的：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:for key in sort(keys(uk2nl))
+:  echo key
+:endfor
+\textcolor{VimHelpHeaderColor}{
+one}
+\textcolor{VimHelpHeaderColor}{
+three}
+\textcolor{VimHelpHeaderColor}{
+two}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_200}{view_200}\hypertarget{view_200}{}\fbox{\textcolor{red}{Review}}\\
+但是你却再也不能取回字典当初定义时各个键的顺序了。如果你真需要一系列次序分明的
+值，应该把它存在列表中为适宜。
+
+\VimSubSection{列表函数}
+
+字典中的各个条目的值通常可以通过放在方括号中的索引取得：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:echo uk2nl['one']
+\textcolor{VimHelpHeaderColor}{e
+en}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_201}{view_201}\hypertarget{view_201}{}\fbox{\textcolor{red}{Review}}\\
+下面的方法效果一样，同时又避免了一堆标点符号：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:echo uk2nl.one
+\textcolor{VimHelpHeaderColor}{e
+en}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_202}{view_202}\hypertarget{view_202}{}\fbox{\textcolor{red}{Review}}\\
+不过这方法只适用于那些仅由ASCII字符，数字和下划线组成的键。赋值也可以采用类似
+的办法：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let uk2nl.four = 'vier'
+:echo uk2nl
+\textcolor{VimHelpHeaderColor}{\{'three': 'drie', 'four': 'vier', 'one': 'een', 'two': 'twee'\}}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_203}{view_203}\hypertarget{view_203}{}\fbox{\textcolor{red}{Review}}\\
+现在来试点出彩的东西：直接定义一个函数并把函数引用存在字典中：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:function uk2nl.translate(line) dict
+:  return join(map(split(a:line), 'get(self, v:val, "???")'))
+:endfunction
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_204}{view_204}\hypertarget{view_204}{}\fbox{\textcolor{red}{Review}}\\
+我们先来这样试一把：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:echo uk2nl.translate('three two five one')
+\textcolor{VimDispAfterCommandColor}{drie twee ??? een}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_205}{view_205}\hypertarget{view_205}{}\fbox{\textcolor{red}{Review}}\\
+第一个不同以往的东西就是\VimDQuote{:function}最后的\VimDQuote{dict}了。它将一
+个函数标注为将从字典中被调用。局部变量\VimDQuote{self}就是指向该字典的。
+
+现在我们来分解这个复杂的return命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+split(a:line)
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_206}{view_206}\hypertarget{view_206}{}\fbox{\textcolor{red}{Review}}\\
+split()函数吃进一个字符串，把它以空白字符为界分隔为各个词组成的列表。此例
+中它的返回值将是这样的：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:echo split('three two five one')
+\textcolor{VimHelpHeaderColor}{['three', 'two', 'five', 'one']}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_207}{view_207}\hypertarget{view_207}{}\fbox{\textcolor{red}{Review}}\\
+这个列表作为map()函数的第一个参数。结果是整个列表被遍历，遍历过程中每个项
+被赋值为第二个参数中的\VimDQuote{v:val}变量，然后第二个参数作为一个表达式的串
+被求值。这是一种替代循环的快捷语法。命令
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let alist = map(split(a:line), 'get(self, v:val, "???")')
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_208}{view_208}\hypertarget{view_208}{}\fbox{\textcolor{red}{Review}}\\
+等价于
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let alist = split(a:line)
+:for idx in range(len(alist))
+:  let alist[idx] = get(self, alist[idx], "???")
+:endfor
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_209}{view_209}\hypertarget{view_209}{}\fbox{\textcolor{red}{Review}}\\
+get()函数会检查字典中是否存在给定键的条目，如果有就返回其对应的值。如果没有，
+则返回一个默认值，此例中指定的默认值是\VimSQstr{???}. 这是一种字典中没有找到给定
+条目时避免返回错误消息的便捷方法。
+
+join()函数反split()之道而行之：它把一个单词序列连成一串，各词之间以空格分隔。
+
+此例中对split(), map()和join()的组合应用以一种十分紧凑的方式实现了对一个文本行
+的过滤。
+
+\VimSubSection{面向对象的编程}
+
+现在你可以把值和函数同时放入字典里了，实际上字典的这种用法已经很象是一个对象了。
+
+上面我们使用字典实现了荷兰语向英语之间的转换。我们还可以做其它语言的转译。下
+面我们就来做一个含有翻译函数的对象，但是没有要翻译的单词：
+\begin{VimVBexcmd}[xrightmargin=-2cm,commandchars=\\\{\}]
+:let transdict = \{\}
+:function transdict.translate(line) dict
+:  return join(map(split(a:line), 'get(self.words, v:val, "???")'))
+:endfunction
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_210}{view_210}\hypertarget{view_210}{}\fbox{\textcolor{red}{Review}}\\
+这跟前面的函数略有不同，使用\VimSQstr{self.words}来查询转译的单词。但是并没有
+一个self.words. 如此我们可以把它看作是一个抽象类。
+
+现在我们可以来创建一个用于转译荷兰语的对象：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let uk2nl = copy(transdict)
+:let uk2nl.words = \{'one': 'een', 'two': 'twee', 'three': 'drie'\}
+:echo uk2nl.translate('three one')
+\textcolor{VimHelpHeaderColor}{
+drie een}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_211}{view_211}\hypertarget{view_211}{}\fbox{\textcolor{red}{Review}}\\
+再来一个德语的翻译器：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let uk2de = copy(transdict)
+:let uk2de.words = \{'one': 'ein', 'two': 'zwei', 'three': 'drei'\}
+:echo uk2de.translate('three one')
+\textcolor{VimHelpHeaderColor}{
+drei ein}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_212}{view_212}\hypertarget{view_212}{}\fbox{\textcolor{red}{Review}}\\
+容易看出copy()函数是用来得到字典\VimDQuote{transdict}的一份拷贝的，然后新得到
+的字典又被修改来添加单词。当然原来的字典保持不变。
+
+我们甚至可以更进一步，自动选择为当前语言选择翻译：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:if $LANG =~ "de"
+:  let trans = uk2de
+:else
+:  let trans = uk2nl
+:endif
+:echo trans.translate('one two three')
+\textcolor{VimHelpHeaderColor}{een twee drie}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_213}{view_213}\hypertarget{view_213}{}\fbox{\textcolor{red}{Review}}\\
+这里变量\VimDQuote{trans}将指向两个对象(字典对象)之一。不需要复制。关于列表和
+字典的对象标识问题请参考\VimCommonSrc{list-identity}和
+\VimCommonSrc{dict-identity}. 
+
+现在你可以使用一种尚未支持的语言。把translate()函数改成什么也不干：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let uk2uk = copy(transdict)
+:function! uk2uk.translate(line)
+:  return a:line
+:endfunction
+:echo uk2uk.translate('three one wladiwostok')
+\textcolor{VimHelpHeaderColor}{
+three one wladiwostok}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_214}{view_214}\hypertarget{view_214}{}\fbox{\textcolor{red}{Review}}\\
+注意!是用来覆写已存在的函数引用的。现在可以在识别不了语言时使用
+\VimDQuote{uk2uk}了：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:if $LANG =~ "de"
+:  let trans = uk2de
+:elseif $LANG =~ "nl"
+:  let trans = uk2nl
+:else
+:  let trans = uk2uk
+:endif
+:echo trans.translate('one two three')
+\textcolor{VimHelpHeaderColor}{one two three}
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_215}{view_215}\hypertarget{view_215}{}\fbox{\textcolor{red}{Review}}\\
+要想进一步的了解该主题请参考\VimCommonSrc{Lists}和\VimCommonSrc{Dictionaries}. 
+%======...
+\VimSepartor
+\VimSecDest{41.9}{\ChapterFortyOneSectionNineTitle}
+
+先看一段代码：
+
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:try
+:   read ~/templates/pascal.tmpl
+:catch /E484:/
+:   echo "Sorry, the Pascal template file cannot be found."
+:endtry
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+上例中如果文件不存在\VimDQuote{:read}命令就会失败。这时代码会更友好地提示用户
+而不是给出一个错误信息。
+
+由\VimDQuote{:try}和\VimDQuote{:endtry}之间的命令所产生的错误都会被转为
+异常。Vim中的异常是一个字符串。如果异常是由错误所引起的那么这个字符串的
+内容就是错误信息。每条错误信息都对应一个数字。此例中我们捕捉到的错误含有
+\VimDQuote{E484:}. 该错误号是固定不变的(相对而言，错误信息本身很可能会有
+不同，比如文档被译为其它语言).
+
+如果\VimDQuote{:read}引发了另外的错误，那么\VimDQuote{E484:}这个模式匹配不
+到它了。这时异常就不会被捕捉到，结果是仍按普通的错误进行处理。
+
+或许你会尝试下面的代码：
+
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:try
+:   read ~/templates/pascal.tmpl
+:catch
+:   echo "Sorry, the Pascal template file cannot be found."
+:endtry
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+这会捕捉到所有的错误。但如此一来你也就看不到那些有用的错误信息了，比如象
+\VimDQuote{E21: Cannot make changes, \VimOption{modifiable} is off}. 
+
+另一个有用的异常机制是\VimDQuote{:finally}命令：
+
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:let tmp = tempname()
+:try
+:   exe ".,$write " . tmp
+:   exe "!filter " . tmp
+:   .,$delete
+:   exe "$read " . tmp
+:finally
+:   call delete(tmp)
+:endtry
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+这段代码会通过一个\VimDQuote{filter}命令来过滤自当前光标所在行到文件尾的内容，
+该命令跟有一个文件名作为参数。无论过滤程序是否能正常执行，只要\VimDQuote{:try}和
+\VimDQuote{:finally}之间的代码产生了错误，或者用户通过\VimSpecialChar{CTRL-C}
+撤消了操作，\VimDQuote{:call delete(tmp)}这个命令都会被执行。这就保证了不会
+留下弃之不用的临时文件。
+
+关于异常处理的更多信息请参考 \VimCommonSrc{exception-handling}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{41.10}{\ChapterFortyOneSectionTenTitle}
+
+此处列出一些与Vim脚本相关的注意事项。这些相关事项也会在该文档的其它地方提及。
+但这里将对此作一总结：
+
+行结束符与具体的系统有关。对Unix而言是一个单个的\VimSpecialChar{<NL>}字符
+\VimMyFootnote{译注：NL代表New Line.其ASCII值为10, 在计算机语言中通常表
+达为\VimDQuote{\VimBS{}n}}. 对MS-DOS, Windows或OS/2此类系统，用的
+是\VimSpecialChar{<CR>}\VimSpecialChar{<LF>}\VimMyFootnote{译注：CR代表Carriage Return回车，LF代
+表Line Feed, 送纸，这一术语源自计算机的史前时代打字机的操作。当一个打印行已到打
+印纸右边缘时，打字机用于打字的笨重铁头先是回到当前打印行的最左边。进行这一操作
+时打印纸不动。然后打字机将打印纸向前送出一行。开始下一行的打印。回车换行两个独
+立的操作源于物理世界中机械操作的局限。对于显示在显示器上的文本行而言。回车换行
+经常被理解为一个操作}. 当使用一些以\VimSpecialChar{<CR>}为结束的mapping时这一约
+定就显得十分重要了。参见\VimCommonSrc{:source\VimTT{\_}crnl}
+
+
+\VimSubSection{空白符}
+
+Vim脚本中的空白行是允许的，在执行脚本时这些空白行将被忽略。
+
+一行文本实际内容之前的任意个空白字符(空格键和跳格键)总是被忽略掉。而在命令与
+其参数之间的多个空白字符将总被看作单个的空格字符，
+作为命令与参数或参数之间的分隔符，一个命令行中最后一个可见字符之后的空白字符
+可能被忽略也可能不被忽略，视情况而定，继续往下看。
+
+如下的\VimDQuote{:set}命令中用到了\VimDQuote{=}符号：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set cpoptions    =aABceFst
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+出现在\VimDQuote{=}号之前的空白字符会被忽略。而\VimDQuote{=}之后可不能再出现空格！
+
+要把空格作为要设置的值的一部分，必需使用\VimDQuote{\VimBS{}}:
+\begin{VimVBexcmdNoAdjustSpace}
+:set tags=my\ nice\ file
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+如果上面的命令写作：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set tags=my nice file
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_216}{view_216}\hypertarget{view_216}{}\fbox{\textcolor{red}{Review}}\\
+%%
+%% 冯亮指正：上面空格前要有\
+%% Jian Zou (jianzou@gmail.com) 指出：第二个ex命令中不应有\, 以作为对比。
+%% jerry.chou.cn@gmail.com 重复报告这个错误。(2009-12-18)
+%%
+
+Vim将会报告一个错误，因为该命令将被解释为
+\VimMyFootnote{译注：假如nice与file碰巧是Vim中的选项名，将不会有错误报告，但这
+时该命令的意义变为：将tags的值设为my, 同时查看nice和file两个选项的当前设置值(
+如果它们不是布尔变量set ts=2 enc), 或者将这两个选项设置为true(如果它们是布尔变
+量如:set ts=2 number)}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set tags=my
+:set nice
+:set file
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{注释}
+
+双引号\VimDQuote{标志着注释的开始。}之后的任何字符(包括"自身)直到行尾都被视为注释，不过
+凡事都有例外，下面的例子中有些命令根本不考虑注释，它将命令名至行尾的所有内容都
+看作是命令的一部分。此类情况除外，一个注释可以出现在一行脚本中的任何位置。
+
+有些命令却根本不{\Large\CJKfamily{li}屌}\VimMyFootnote{译注：文鼎简报宋是一款文明的字体，
+编译时竟然报告说找不到这个字，我只好用换作别的字体}注释
+\VimMyFootnote{译注：注意这些命令不是不要，而是根本不能注释。注释对于此类命令而言是
+语法陷阱}，如：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmdNoAdjustSpace}[commandchars=\\\{\}]
+:abbrev dev development         " shorthand
+:map <F3> o#include             " insert include
+:execute cmd                    " do it
+:!ls *.c                        " list C files
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+被定义的缩略词\VimOption{dev}的内容将是\VimSQ{}development      "
+shorthand\VimSQ{}. 而\VimSpecialChar{<F3>}将被映射为自o\#include至行尾的全部内容
+，包括\VimSQ{}" insert include\VimSQ{}.  \VimDQuote{execute}命令会引发一个错误。\VimDQuote{!}命令会把此后的所有内容一鼓脑送到shell. 因为一个不匹配的双引号，
+此处也将引发一个错误\VimMyFootnote{译注：这一错误是由shell解释该命令行时发生的，而不是Vim处理
+该命令行时发生的，Vim对该命令行的处理将只是简单地把它送给shell}。
+
+\VimDQuote{:map}, \VimDQuote{:abbreviate}, \VimDQuote{:execute}和
+\VimDQuote{!}命令之后不允许注释(此外还有少数几个命令也是如此). 不过对
+\VimDQuote{:map}, \VimDQuote{:abbreviate}和\VimDQuote{:execute}命令有一个变通
+办法：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmdNoAdjustSpace}[commandchars=\\\{\}]
+:abbrev dev development|" shorthand
+:map <F3> o#include|" insert include
+:execute cmd                    |" do it
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimDQuote{|}字符用于分隔多个命令。此处被分隔的第二个命令的全部内容就是一个注释。
+
+注意在被定义的缩写和映射键中使用\VimDQuote{|}时字符\VimDQuote{|}不要有任何空白
+，因为对此类命令而言\VimDQuote{|}之前的任意东西都被视为命令的一部分。由于这些
+命令的这一特性。下面命令中的不可见空白字符实际上也是命令的一部分：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map <F4> o#include  
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+为避免此类问题，可以在编辑你的Vim初始化文件时打开\VimOption{list}选项
+
+%% %%%%%%%%% 下面这段只在7.1版本中有 %%%%%%%%%%
+\hypertarget{v71_newadd_unix_comment}{}
+在Unix系统上还有一个特殊的方法来注释一行，这样可以让Vim脚本变成一个可执行脚本：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+#!/usr/bin/env vim -S
+echo "this is a Vim script"
+quit
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_217}{view_217}\hypertarget{view_217}{}\fbox{\textcolor{red}{Review}}\\
+\VimDQuote{\VimSharp}命令本身会列出行号。后面跟着的感叹号把它的行为改成啥也不
+做，所以你可以在这里指定一个shell命令来解释下面的脚本。
+参考\VimCommonSrc{:\VimSharp!}、\VimCommonSrc{-S}. 
+%% %%%%%%%%% 上面这段只在7.1版本中有 %%%%%%%%%%
+
+\VimSubSection{缺陷}
+
+问题还不止于此：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map ,ab o#include
+:unmap ,ab 
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+此处的unmap命令将不能正常工作，因为它要unmap的字符序列是\VimDQuote{,ab }. 而这
+个字符序列并未被map命令映射。Vim将报告一个错误，当然很难弄明白原因，因为
+\VimDQuote{:unmap ,ab }结尾的空白字符是不可见的。
+
+在\VimOption{unmap}命令中使用一个注释时也会引发同样的问题：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:unmap ,ab     " comment
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+此处的注释部分被忽略。而且Vim实际要unmap的东西是\VimDQuote{,ab     }, 当然这一映射
+不存在。这个命令可以这样表达：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:unmap ,ab|" comment
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{恢复视图}
+
+有时候你在编辑过程经常希望到文本的另一位置作一些修改后，回到刚刚离开的地方。
+如果能精确地重现离开某位置时的现场那真是太棒了。
+
+下面的例子将把当前行的内容复制到文件的最开始处，然后恢复此操作之前的屏幕
+现场：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+map ,p ma"aYHmbgg"aP\VimBacktick{}bzt\VimBacktick{}a
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+映射的,p按键序列将执行下列操作：
+\begin{VimVBList}[xrightmargin=-2cm,commandchars=\\\{\}]
+\textcolor{VimExampleColor}{
+ma"aYHmbgg"aP\VimBacktick{}bzt\VimBacktick{}a}
+ma                      在当前位置设置标签a
+"aY                     将当前行的内容复制到寄存器a中
+Hmb                     当光标定位到当前窗口的第一行并在此设置标签b
+gg                      定位到文件的第一行
+"aP                     把刚才复制的文本行放到第一行的前面
+\VimBacktick{}b                      回到刚才离开时显示窗口的第一行
+zt                      把该行置为当前窗口的首行，就象离开时一样
+\VimBacktick{}a                      将光标定位到进行整个操作之前的位置
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{包}
+
+为避免你在自己定义函数名时与其它的函数名发生冲突，可以使用下面的方案：
+\begin{itemize}
+\item{在每个函数名的前面以一个唯一的字符串作为函数名的前辍。
+
+我自己经常使用一个代表某种意义的缩写词。如\VimDQuote{OW\VimTT{\_}}用于所有的与窗
+口相关的函数。}
+
+\item{把你自己定义的函数集中放在一个脚本文件中。
+
+设置一个全局变量以标志你的函数定义
+是否已经被Vim载入\VimMyFootnote{译注：此处载入指Vim读取磁盘文件中的函数定义，
+并将定义的函数加入已定义的函数表中}。下次再执行该文件时，
+可以据此先unload这些函数定义。}
+\end{itemize}
+如：
+
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+" This is the XXX package
+
+if exists("XXX_loaded")
+delfun XXX_one
+delfun XXX_two
+endif
+
+function XXX_one(a)
+... body of function ...
+endfun
+
+function XXX_two(b)
+... body of function ...
+endfun
+
+let XXX_loaded = 1
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimSecDest{41.11}{\ChapterFortyOneSectionElevenTitle} \VimToRight{\VimCommonDest{write-plugin}}
+
+你可以写这样一种脚本：其它的Vim用户把你的脚本文件放入它们的plugin目录，马上就能
+使用其中的功能，这种脚本叫plugin. 参见\VimCommonSrc{add-plugin}
+
+共有两种类型的plugin:
+
+全局plugin：对所有类型的文件生效。
+\paragraph{} filetype相关的plugins：只会应用到特定类型的文件上。
+
+本节中将讨论第一种类型的plugin. 写一个filetype相关的plugin涉及很多因素，下节将
+讨论这一主题 \VimCommonSrc{write-filetype-plugin}. 
+
+
+\VimSubSection{名字}
+
+首先要为自己定制的plugin起一个名字。名字应该能让人望文生义，
+同时避免选取这样的名字：其它plugin已经使用了类似的名字，但实际上执行的操作却与你
+将要定制的操作大相径庭。另外，为避免在老式Windows上引起问题，
+限制plugin的名字在8个字符以内\VimMyFootnote{译注：包括8个字符}。
+执行纠错功能的脚本可以叫\VimDQuote{typecorr.vim}. 这里我们就以此为例。
+
+写一个人人能用的plugin有一些规则必需遵循。我将一步步解释这些规则。一个plugin的完
+整例子列在本文的最后。
+
+
+\VimSubSection{正文}
+
+我们以plugin的正文开始，下面是执行实际操作的命令：
+\begin{VimVBexcmdNoAdjustSpace}
+14     iabbrev teh the
+15     iabbrev otehr other
+16     iabbrev wnat want
+17     iabbrev synchronisation
+18             \ synchronization
+19     let s:count = 4
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+当然，现实世界中的脚本要比这里列出的长多了。
+
+这里出现的行号为了解说的便利，写你自己的plugin可别把它放在你的脚本里！
+
+
+\VimSubSection{头部}
+
+一旦你写了一个脚本，很可能接下来你会对该脚本做一些修改，然后这个脚本就有了几个
+不同的版本。所以当你公开发布你的plugin脚本时，他人可能会想知道是谁写了这么好的
+东东，或者，他也可以把赞扬或批评发给你。所以，最好在你的plugin脚本的开头放上
+类似于这样的注释：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+1     " Vim global plugin for correcting typing mistakes
+2     " Last Change:  2000 Oct 15
+3     " Maintainer:   Bram Moolenaar <Bram\VimAt{}vim.org>
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+关于版权和许可证：由于plugins非常有用同时又难以限制它的传播，所以请你把
+自己的plugins置为公共域软件或者使用Vim版权 \VimCommonSrc{license}. 象上例中
+的一个简短声明就足够了：
+
+\begin{VimVBDisplay}[xrightmargin=-1cm,commandchars=\\\{\}]
+4     " License:      This file is placed in the public domain.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimSubSectionDest{续行问题，避免副作用} \VimToRight{\VimCommonDest{use-cpo-save}}
+
+上面例子中的第18行代码中，一行内容被延续到下一行继续，这种机制在Vim字典里叫
+\VimCommonSrc{line-continuation}. 打开了\VimOption{compatible}设置的用户可能会
+因此遇上麻烦，Vim将对此报告一个错误。但是不能简单地关闭\VimOption{compatible}
+选项，因为这会带来很多的副作用。解决这个问题可以把\VimOption{cpoptions}选项临时
+设为它的默认值，之后再恢复它。这样可以利用续行机制的好处同时让脚本能在不同的用
+户设置环境中都正常工作。具体做法如下：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+11     let s:save_cpo = &cpo
+12     set cpo&vim
+..
+42     let &cpo = s:save_cpo
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+首先我们把\VimOption{cpoptions}选项的值保存在变量s:save\VimTT{\_}cpo中，plugin结束时再恢复它。
+
+注意这里对局部于脚本的变量\VimCommonSrc{s:var}的使用。使用全局变量的话，变量有可能已经在别的地方
+被用过了。所以做这种针对脚本的操作时尽量使用这种局部于脚本的变量。
+
+
+\VimSubSection{避免载入}
+
+%%
+%% 冯亮指正：问题=> 总是
+%%
+可能用户并不总是想载入某个plugin. 
+或者系统管理员把某个plugin放在了一个公共目录，但是用户有他自己版本的plugin. 
+所以用户应该有机会避免载入某个plugin. 下面的脚本可以处理这种情况：
+\hypertarget{v73_bugfix_41_ex_cmd_1}{}
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+6     if exists("g:loaded_typecorr")
+7       finish
+8     endif
+9     let g:loaded_typecorr = 1
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+这种做法同时避免了同一脚本被载入两次，一个脚本被载入一次以上可能会引起错误，
+比如重新定义函数引起的错误，多次定义autocommand引起的错误。
+
+关于变量的命名我们推荐以\VimDQuote{loaded\_}开头，接下来是plugin的文件名。
+\VimMyFootnote{译注：不带扩展名部分，因为这里的名字用作变量名，实际上有些
+合法的文件名对Vim的变量名却是不允许的，如对多数Unix系统，技术上只
+有ASCII为0的NUL和/两个字符不能作为文件名，但象\VimDQuote{.}这样的字符不能
+作为Vim变量名的一部分}变量名前辍以\VimDQuote{g:}是为了避免在函数中使用该变量时
+引起错误(如果没有\VimDQuote{g:}它就会被当作函数中的局部变量)
+
+\VimDQuote{finish}命令的作用是让Vim停止读取该脚本文件，这比用if-endif把整个文
+件包起来要快得多。
+
+\VimSubSection{映射}
+
+现在我们来把plugin弄得更有趣一点：在plugin中加入拼写校正。当然可以直接写一
+个mapping. 但mapping的名字可能已被使用了。为避免重定义一个在别处已经定义过
+的mapping, 可以在map命令中使用\VimSpecialChar{<Leader>}
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+22   map \VimSpecialChar{<unique>} \VimSpecialChar{<Leader>}a  \VimSpecialChar{<Plug>}TypecorrAdd
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{\VimSpecialChar{<Plug>}TypecorrAdd}执行真正的动作。
+
+用户可以将变量\VimDQuote{mapleader}设置为一个新的值，这样被map的键序列就必需以该值开头才
+会生效。如下：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+let mapleader = "_"
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+该命令将定义一个名为\VimDQuote{\VimTT{\_}a}的map. 如果没有设置变量
+\VimDQuote{mapleader}, 则使用其默认值--反斜杠。即\VimDQuote{\VimBS{}a}将被map.
+
+注意这里使用了\VimSpecialChar{<unique>}, 这使得重定义一个键序列时Vim报告错误。
+\VimCommonSrc{:map-unique}
+
+但是如果用户想定义自己的健值序列呢？看下面的命令：
+% vim: no special highlight in verbatim
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+21     if !hasmapto('<Plug>TypecorrAdd')
+22       map <unique> <Leader>a  <Plug>TypecorrAdd
+23     endif
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+这段脚本检查是否已经有一个键被映射为了
+\VimDQuote{\VimSpecialChar{<Plug>}TypecorrAdd}, 只有在不存在这样的map时，才重新
+定义\VimDQuote{\VimSpecialChar{<Leader>}a}.  用户可以把这段代码安全地放入自己的
+初始化脚本中：
+% vim: no special highlight in verbatim
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+map ,c  <Plug>TypecorrAdd
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+这样被映射的键将是\VimDQuote{,c}而不是\VimDQuote{\VimTT{\_}a}或\VimDQuote{\VimBS{}a}. 
+
+
+\VimSubSection{分块}
+
+脚本变得越来越长时，用户往往希望把它们分隔为小的代码块。可以用函数和map来做到
+这一点。但是引入函数和map又可能和其它脚本中的同名元素发生冲突。比如，你定义
+了一个函数Add(), 而另一个脚本也试图定义一个同名的函数。为避免这种情况，可以在函
+数名前面加上\VimDQuote{s:}以使该函数局部有效于当前脚本\VimMyFootnote{译注：s代
+表script}。
+
+下面新增的函数执行一个新的拼写校正：
+\begin{VimVBCodeSippet}[xleftmargin=-0.5cm,xrightmargin=-0.5cm,commandchars=\\\{\}]
+30     function s:Add(from, correct)
+31       let to = input("type the correction for " . a:from . ": ")
+32       exe ":iabbrev " . a:from . " " . to
+..
+36     endfunction
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+现在可以在脚本里调用函数s:Add(). 如果另一个脚本也定义了一个s:Add(),
+也不会有任何冲突，那是它自己的s:Add()函数。此外，
+还可以定义一个全局的Add()函数，同样区别于各个脚本中名为s:Add()的函数。
+
+\VimSpecialChar{<SID>}也可用于map. 它将使VIM为当前脚本生成一个ID, 这个ID将唯一标识当前脚本。
+在我们的拼写校正的plugin例子中我们使用了这样的命令：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[xrightmargin=-2cm,commandchars=\\\{\}]
+24     noremap <unique> <script> <Plug>TypecorrAdd  <SID>Add
+..
+28     noremap <SID>Add  :call <SID>Add(expand("<cword>"), 1)<CR>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+当用户键入\VimDQuote{\VimBS{}a}时，将执行以下操作：
+% vim: no special highlight in verbatim, replace_backslash
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+\a  ->  <Plug>TypecorrAdd  ->  <SID>Add  ->  :call <SID>Add()
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果另一个脚本中也映射了\VimSpecialChar{<SID>}Add, 它将得到一个不同的脚本ID, 所以实际映射的内容
+也因之不同。
+
+注意这里我们使用了\VimSpecialChar{<SID>}Add()而不是s:Add(). 这是因为被映射的键将由最终用户
+键入，所以应该在脚本外仍然生效。\VimSpecialChar{<SID>}将被转换为一个脚本ID, VIM将据此决定在
+哪些脚本文件中查找Add()函数的定义。
+
+这看起来真麻烦，但要使多个plugin能和谐共存，引入这样的复杂性是必需的。
+基本的规则是：在map中使用\VimSpecialChar{<SID>}Add(), 而其它情况下使用s:Add()(脚本自己
+，autocommands, 用户自定义的命令)
+
+也可以加入一个菜单项做同样的事情：
+% vim: no special highlight in verbatim
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+26     noremenu <script> Plugin.Add Correction      <SID>Add
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+推荐在\VimDQuote{Plugin}菜单下增加这样的菜单项。此处只用到了一个菜单项，要增加多个菜单项
+时，最好是为它们创建一个子菜单。比如，要加入CVS相关操作的\VimDQuote{Plugin.CVS.checkin},
+\VimDQuote{Plugin.CVS.checkout}, 可以加入一个名为\VimDQuote{Plugin.CVS}的子菜单。
+
+注意 第28行的\VimDQuote{:noremap}命令，这可用于避免一个循环的或深层的map引入的
+问题。比如\VimDQuote{:call}可能已经被人映射为其它的某个东西。第24行也用到了
+\VimDQuote{:noremap}, 但此处希望被映射的是\VimDQuote{\VimSpecialChar{<SID>}Add}. 
+所以使用了\VimDQuote{\VimSpecialChar{<script>}}关键字。它使这个mapping只局部有效
+于当前的脚本。\VimCommonSrc{:map-script}, 第26行使用\VimDQuote{:noremenu}的情
+况与此类似。
+
+\VimSubSection{\VimSpecialChar{<SID>} 和 \VimSpecialChar{<Plug>}}
+\VimToRight{\VimCommonDest{using-<Plug>}}
+
+\VimSpecialChar{<SID>}和\VimSpecialChar{<Plug>}都是用于避免映射之间的混乱。注意两者的差别：
+
+\VimSpecialChar{<Plug>} 对脚本外部是可见的。它用来定义一个键映射。\VimSpecialChar{<Plug>}代表一个不可能键入的特殊代码。为了最大限制地避免出现重复的键映射，最好使用这样的结构：
+\VimSpecialChar{<Plug>} 脚本名 映射名。在此例中脚本名是\VimDQuote{Typecorr}, 映射名是\VimDQuote{Add}. 
+结果就是\VimDQuote{\VimSpecialChar{<Plug>}TypecorrAdd}. 只有脚本名和映射名的第一个字符是大写的，
+这样可以看清楚映射名部分是从哪开始的。
+
+\VimSpecialChar{<SID>}是脚本ID, 脚本的唯一标识符。Vim在内部
+把\VimSpecialChar{<SID>}转换为类型\VimDQuote{\VimSpecialChar{<SNR>}123\VimTT{\_}}的
+形式，其中\VimDQuote{123}可以任何其它数字。
+所以\VimDQuote{\VimSpecialChar{<SID>}Add()}可能在一个脚本中的
+是\VimDQuote{\VimSpecialChar{<SNR>}11\VimTT{\_}Add()}, 在另一个脚本中
+就是\VimDQuote{\VimSpecialChar{<SNR>}22\VimTT{\_}Add()}. 如果你用\VimDQuote{:function}
+命令来列表系统中定义的函数时，你可能就会看到它。映射中的\VimSpecialChar{<SID>}与此完全
+一样，这样你可以在映射中调用一个脚本的局部函数。
+
+
+\VimSubSection{用户命令}
+
+现在我们来添加一个用户定义命令来执行纠错：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+38     if !exists(":Correct")
+39       command -nargs=1  Correct  :call s:Add(<q-args>, 0)
+40     endif
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+用户自定义命令只有在没有同名命令存在的前提下才能定义。否则会得到一个错误。用
+\VimDQuote{:command!}命令覆盖原先的定义可不是好办法，这可能会让人疑惑为什么自己定义的
+命令现在不行了。请参考\VimCommonSrc{:command}
+
+
+\VimSubSection{脚本变量}
+
+以\VimDQuote{s:}开始的变量是脚本变量。它只能在脚本内部使用。对脚本外来说它是不可见的。这
+样就避免了在不同脚本中使用同名变量的冲突。脚本变量在Vim运行其间将一直存在。下次
+执行该脚本时它将保持原值。
+
+有趣的是这些脚本变量还可以用在同一个脚本中定义的函数，自动命令和用户自定义
+命令中。在上例中我们可以增加几行统计纠错的次数：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+19     let s:count = 4
+..
+30     function s:Add(from, correct)
+..
+34       let s:count = s:count + 1
+35       echo s:count . " corrections now"
+36     endfunction
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+首先s:count变量在脚本中被初始化为4. 稍后调用s:Add()时，该变量增1. 从何处
+调用该函数并不重要，因为它的定义是在当前脚本中，所以它可以使用这些局部于脚本
+的变量。
+
+
+\VimSubSection{结果}
+
+下面是完整的例子：
+% vim: no special highlight in verbatim, replace_backslash
+\begin{VimVBCodeSippet}[xleftmargin=-0.5cm,xrightmargin=-0.5cm,commandchars=\\\{\}]
+1     " Vim global plugin for correcting typing mistakes
+2     " Last Change:  2000 Oct 15
+3     " Maintainer:   Bram Moolenaar <Bram\VimAt{}vim.org>
+4
+5     if exists("g:loaded_typecorr")
+6       finish
+7     endif
+8     let g:loaded_typecorr = 1
+9
+
+10    let s:save_cpo = &cpo
+11    set cpo&vim
+12
+13    iabbrev teh the
+14    iabbrev otehr other
+15    iabbrev wnat want
+16    iabbrev synchronisation
+17            \ synchronization
+18    let s:count = 4
+19
+20    if !hasmapto('<Plug>TypecorrAdd')
+21      map <unique> <Leader>a  <Plug>TypecorrAdd
+22    endif
+23    noremap <unique> <script> <Plug>TypecorrAdd  <SID>Add
+24
+25    noremenu <script> Plugin.Add\ Correction      <SID>Add
+26
+27    noremap <SID>Add  :call <SID>Add(expand("<cword>"), 1)<CR>
+28
+29    function s:Add(from, correct)
+30      let to = input("type the correction for " . a:from . ": ")
+31      exe ":iabbrev " . a:from . " " . to
+32      if a:correct | exe "normal viws\<C-R>\" \b\e" | endif
+33      let s:count = s:count + 1
+34      echo s:count . " corrections now"
+35    endfunction
+36
+37    if !exists(":Correct")
+38      command -nargs=1  Correct  :call s:Add(<q-args>, 0)
+39    endif
+40
+41    let &cpo = s:save_cpo
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+这里面第33行还没有提到。它的作用是对当前光标下的word进行拼写校正。这里用
+\VimCommonSrc{:normal}命令来执行新定义的缩写替换。注意此处映射和缩写都进行了扩展，即使是从
+一个以\VimDQuote{:noremap}定义的映射中进行函数调用。
+
+推荐将\VimOption{fileformat}选项设为\VimDQuote{unix}. 这样Vim脚本在什么平台
+上都能正常工作。将\VimOption{fileformat}设为\VimDQuote{dos}的脚本在Unix上就
+不行了。参考\VimCommonSrc{\VimTT{:source\_crn}}. 下面的命令可以确保文件格式设置正确：
+\begin{VimVBshcmd}[commandchars=\\\{\}]
+:set fileformat=unix
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSectionDest{文档} \VimToRight{\VimCommonDest{write-local-help}}
+
+为你自己的plugin编写文档是个好习惯。尤其是用户可以对你的plugin作出改变时。请
+参考\VimCommonSrc{add-local-help}了解如何安装帮助。
+
+这里是一个简单的plugin帮助文件，叫\VimDQuote{typecorr.txt}:
+% vim: no special highlight in verbatim
+\begin{VimVBDisplay}[xleftmargin=-1cm,xrightmargin=-1cm,commandchars=\\\{\}]
+1  *typecorr.txt*  Plugin for correcting typing mistakes
+2
+3  If you make typing mistakes, this plugin will have them corrected
+4  automatically.
+5
+6  There are currently only a few corrections.  Add your own if you like.
+7
+8  Mappings:
+9  <Leader>a   or   <Plug>TypecorrAdd
+10          Add a correction for the word under the cursor.
+11
+12  Commands:
+13  :Correct \{word\}
+14          Add a correction for \{word\}.
+15
+16  *typecorr-settings*
+17  This plugin doesn't have any settings.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+整个文件中唯一必需遵循的格式是第一行。该行内容将被取出来放在文件help.txt的
+\VimDQuote{LOCAL ADDITIONS:}小节中，参考\VimCommonSrc{local-additions}. 第一行
+的第一列必需是字符\VimDQuote{*}. 
+
+你可以在你的帮助文件中定义很多标签，放在两个**之路。但注意不要与已有的帮助主题
+冲突。最好在主题名中加入你的plugin本身的名字，比如此例中的
+\VimDQuote{typecorr-settings}. 
+
+推荐你在自己的帮助文件中引用别的帮助主题时把它放在||中。这会方便用户找到相关的
+帮助。
+
+
+\VimSubSectionDest{小结} \VimToRight{\VimCommonDest{plugin-special}}
+
+使用plugin时注意事项总结：
+
+\begin{tabular}{l|l}
+s:name             &    局部于脚本的变量 \\ \hline
+\VimSpecialChar{<SID>}       &          脚本ID, 定义局部于脚本的映射和函数时使用。\\ \hline
+hasmapto()          &   用来测试用户是否已经定义了实现某种功能的映射的函数 \\ \hline
+
+\VimSpecialChar{<Leader>}        &      \VimDQuote{mapleader}, 用户定义的plugin映射名的起始符号。\\ \hline
+:map \VimSpecialChar{<unique>}   &      如果映射已经存在给出一个警告信息 \\ \hline
+
+:noremap \VimSpecialChar{<script>}   &  使映射局部于脚本，对脚本以外不可见。\\ \hline
+
+exists(\VimDQuote{:Cmd})    &     检查一个用户命令是否存在。\\ \hline
+\end{tabular}
+
+%======...
+\VimSepartor
+
+\VimSecDest{41.12}{\ChapterFortyOneSectionTwelveTitle} \VimToRight{\VimCommonDest{write-filetype-plugin} \VimCommonDest{ftplugin}}
+
+文件类型plugin类似于全局的plugin, 只不过它设置的选项和定义的映射只对当前
+缓冲区有效。参考\VimCommonSrc{add-filetype-plugin}了解如何使用这种plugin.
+
+请先阅读\VimSecSrc{41.10}中关于全局plugin的部分。其中的内容对文件类型plugin都同样有效。
+不同的部分会在此特别指出。最主要的一点是文件类型plugin应该只影响到当前缓冲区。
+
+\VimSubSection{禁用}
+
+如果你在写一个可能会被很多人用到的plugin, 别人就会需要一个禁用它的办法。在
+你的plugin开头放上这样一段脚本：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+" Only do this when not done yet for this buffer
+if exists("b:did_ftplugin")
+finish
+endif
+let b:did_ftplugin = 1
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+这段脚本也兼有避免同一个plugin被执行多次的功能(比如使用\VimDQuote{:edit}而没有指定参数时)
+
+现在用户可以用下面的命令来定义一个文件类型plugin来禁用你的plugin:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+let b:did_ftplugin = 1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+当然这需要他/她的plugin目录在\VimOption{runtimepath}中出现中\$VIMRUNTIME之前。
+
+如果你想用默认的plugin, 但又要改变它的部分设置，你可以在脚本中设置不同的选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+setlocal textwidth=70
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在把脚本放在\VimDQuote{after}目录下，
+这样它就会在标准发布的\VimDQuote{vim.vim}之后被执行。
+参考\VimCommonSrc{after-directory}. 在Unix上该文件的位置为
+\VimDQuote{\VimTT{\~}/.vim/after/ftplugin/vim.vim}. 注意默认的plugin会设置
+\VimDQuote{\VimTT{b:did\_ftplugin}}, 但此处忽略了该变量。
+
+\VimSubSection{选项}
+
+要让文件类型plugin只影响当前的缓冲区可以用
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:setlocal
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_218}{view_218}\hypertarget{view_218}{}\fbox{\textcolor{red}{Review}}\\
+命令来设置选项。同时只设置那些局部于缓冲区的选项(请参考关于选项的帮助检查
+一个选项是否局部于缓冲区). 用\VimCommonSrc{:setlocal}命令来设置一个全局选项或局部于窗口
+的选项时，作出的改变会同时影响多个缓冲区，这可不是一个文件类型plugin应该做
+的事。
+
+如果选项的类型是标志和可选项的集合，
+最好用\VimDQuote{\VimTT{+=}}和\VimDQuote{\VimTT{-=}}来保留原值。注意用户自己
+可能已经改变了该选项。所以先把选项设为默认值再进行调整会更好。比如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:setlocal formatoptions& formatoptions+=ro
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{映射}
+
+要使映射只对当前缓冲区生效，可以用
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map <buffer>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_219}{view_219}\hypertarget{view_219}{}\fbox{\textcolor{red}{Review}}\\
+命令。这需要用到上面提到的两步映射法。下面是在一个文件类型plugin中定义某个功能
+的例子：
+% vim: no special highlight in verbatim
+\begin{VimVBCodeSippet}[xrightmargin=-2cm,commandchars=\\\{\}]
+if !hasmapto('<Plug>JavaImport')
+map <buffer> <unique> <LocalLeader>i <Plug>JavaImport
+endif
+noremap <buffer> <unique> <Plug>JavaImport oimport ""<Left><Esc>
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+\VimCommonSrc{hasmapto()}用来检查是否用户已经定义了一个映射来执行
+\VimSpecialChar{<Plug>}JavaImport. 如果没有，则定义默认的映射。以
+$\mid$\VimSpecialChar{<LocalLeader>}$\mid$开始，这样可以让用户决定映射的起始符号
+。默认是反斜杠。 \VimDQuote{\VimSpecialChar{<unique>}}使映射已经定义或者与一个既
+有映射功能重叠时给出错误消息。\VimCommonSrc{:noremap}用于避免其它映射的介入。
+你可能希望用\VimDQuote{:noremap \VimSpecialChar{<script>}}来避免在脚本中重定义以
+\VimSpecialChar{<SID>}开头的映射。
+
+用户必需有机会禁用在文件类型plugin中定义的映射，同时又不伤及其它功能。下面是
+一个邮件plugin中实现这一目的的例子：
+% vim: no special highlight in verbatim
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+" Add mappings, unless the user didn't want this.
+if !exists("no_plugin_maps") && !exists("no_mail_maps")
+  " Quote text by inserting "> "
+  if !hasmapto('<Plug>MailQuote')
+    vmap <buffer> <LocalLeader>q <Plug>MailQuote
+    nmap <buffer> <LocalLeader>q <Plug>MailQuote
+  endif
+  vnoremap <buffer> <Plug>MailQuote :s/^/> /<CR>
+  nnoremap <buffer> <Plug>MailQuote :.,$s/^/> /<CR>
+endif
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+这里用到了两个全局变量：
+\VimNoIndent{}\VimTT{no\_plugin\_maps}        禁用所有文件类型plugins中的映射\\
+\VimTT{no\_mail\_maps}          禁用邮件plugin中的映射
+
+
+\VimSubSection{用户命令}
+
+要为某种特定类型的文件加一个命令，并使该命令只能在当前缓冲区中使用。
+可以为\VimCommonSrc{:command}命令加\VimDQuote{-buffer}参数。如
+\VimMyFootnote{译注：此处的one buffer有歧义}:
+\begin{VimVBexcmdNoAdjustSpace}
+:command -buffer  Make  make %:r.s
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{变量}
+
+Vim会对缓冲区执行相应的plugin脚本。脚本局部变量\VimCommonSrc{s:var}会在脚本的
+多次执行中被共享。如果你想让某个变量局部于缓冲那就代而使用缓冲区局部变量。
+
+
+\VimSubSection{函数}
+
+函数只需定义一次。但文件类型plugin却要在每个缓冲区符合其目标文件类型时都被执行
+。下面的技巧可以避免函数的多次定义：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:if !exists("*s:Func")
+:  function s:Func(arg)
+:    ...
+:  endfunction
+:endif
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+\VimSubSectionDest{撤消} \VimToRight{\VimCommonDest{\VimTT{undo\_ftplugin}}}
+
+当用户执行了\VimDQuote{:setfiletype xyz}时前一次设置文件类型的效果就撤消了。
+可以把\VimDQuote{\VimTT{b:undo\_ftplugin}}变量赋予为撤消设置的命令。如下：
+
+\begin{VimVBexcmdNoAdjustSpace}
+let b:undo_ftplugin = "setlocal fo< com< tw< commentstring<"
+    \ . "| unlet b:match_ignorecase b:match_words b:match_skip"
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+使用\VimDQuote{:setlocal}然后在选项名后面跟上\VimDQuote{\VimTT{<}}将会
+把选项重置为全局设置值。这可能是重置选项的最佳策略。
+
+上面的例子要求选项\VimOption{cpoptions}中不包括\VimDQuote{C}项，以支持
+跨行命令，参考\VimCommonSrc{use-cpo-save}. 
+
+
+\VimSubSection{文件名}
+
+文件的类型名必需包含在plugin文件名中，参考\VimCommonSrc{ftplugin-name}. 可以
+采用下面的3种形式之一：
+
+\begin{VimVBList}[commandchars=\\\{\}]
+.../ftplugin/stuff.vim
+.../ftplugin/stuff_foo.vim
+.../ftplugin/stuff/bar.vim
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimDQuote{stuff} 是文件类型名，
+\VimDQuote{foo}和\VimDQuote{bar}可以是任意的名字。
+
+\VimSubSectionDest{小结} \VimToRight{\VimCommonDest{ftplugin-special}}
+
+使用文件类型plugin的注意事项小结：
+
+\begin{tabular}{l|p{.7\textwidth}{l}}
+\VimSpecialChar{<LocalLeader>}  &       \VimDQuote{maplocalleader}, 用户定义的文件类型plugin中定义的映射的起始符号。\\ \hline
+:map \VimSpecialChar{<buffer>}    &     定义局部于缓冲区的映射 \\ \hline
+:noremap \VimSpecialChar{<script>}   &  只重映射在当前脚本中以\VimSpecialChar{<SID>}起始的映射 \\ \hline
+:setlocal      &        只对当前缓冲区设置选项 \\ \hline
+:command -buffer    &   定义一个局部于当前缓冲区的命令 \\ \hline
+exists(\VimDQuote{*s:Func})   &   检查一个函数是否定义 \\ \hline
+\end{tabular}
+
+请参考\VimCommonSrc{plugin-special}了解适用于所有的plugin的技巧。
+
+%======...
+\VimSepartor
+
+\VimSecDest{41.13}{\ChapterFortyOneSectionThirteenTitle}
+\VimToRight{\VimCommonDest{write-compiler-plugin}}
+
+一个编译器plugin为某种特定的编译器设置选项。用户可以用\VimCommonSrc{:compiler}命令载入它。
+它最大的用途就是设置\VimOption{errorformat}和\VimOption{makeprg}两个选项。
+
+最好先看一个例子，下面的命令将会编辑所有默认的编译器plugin:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:next $VIMRUNTIME/compiler/*.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_220}{view_220}\hypertarget{view_220}{}\fbox{\textcolor{red}{Review}}\\
+使用\VimCommonSrc{:next}命令到下一个plugin文件。
+
+这些文件有两个特别之处。其一是它提供了一种机制允许用户覆盖缺省的文件或向缺省文件增加
+设置。缺省文件一般这样开头：
+\begin{VimVBCodeSippet}[commandchars=\\\{\}]
+:if exists("current_compiler")
+:  finish
+:endif
+:let current_compiler = "mine"
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+一旦你写了自己的编译器plugin并把它放到了自己的runtime目录(比如在Unix上是
+\~{}/.vim/compiler), 你就可以在其中设置\VimDQuote{\VimTT{current\_compiler}}变量以避免
+缺省的编译器plugin设置。
+
+第二是用\VimDQuote{:set}设置\VimDQuote{:compiler!}, 用\VimDQuote{:setlocal}
+设置\VimDQuote{:compiler}. Vim定义了一个用户命令\VimDQuote{:CompilerSet}来
+进行这一设置，不过老版的Vim中没有，这时你就要在自己的plugin中定义了，如下：
+
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[xrightmargin=-2cm,commandchars=\\\{\}]
+if exists(":CompilerSet") != 2
+command -nargs=* CompilerSet setlocal <args>
+endif
+CompilerSet errorformat&              " use the default 'errorformat'
+CompilerSet makeprg=nmake
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你要写一个供整个系统使用或放到Vim发行版中的编译器plugin, 最好使用上面示范
+的机制。这样用户就可以通过\VimDQuote{\VimTT{current\_compiler}}变量来决定对
+该plugin的取舍了。
+
+如果你要写的编译器plugin目的是覆盖掉缺省plugin的设置，那就不要检查
+\VimDQuote{\VimTT{current\_compiler}}. 这样的plugin被系统假设是最后执行的，所以它所在的目录
+应该位于\VimOption{runtimepath}的末尾。对Unix系统来说很可能是
+\~{}/.vim/runtime/after/compiler.
+
+%======...
+\VimSepartor
+\VimSecDest{41.14}{\ChapterFortyOneSectionFourteenTitle}
+\VimToRight{\VimCommonDest{write-plugin-quickload}}
+当一个插件变得越来越长，而你又很少每次都会用到它时，由此引起的启动时的延时就很
+值得考虑了。这时我们需要的是快速载入插件。
+
+基本思路是插件被载入两次。第一次载入用来定义用户命令和键映射以指定功能。第二次
+载入时才定义那些实现功能的函数。
+
+可能乍听起来会觉得两次载入一个脚本还称作快速载入很奇怪。所谓快速是指第一次载入
+时很快，把大部分的脚本载入延后到第二次载入，而第二次载入只有你真正用到它时才会
+触发。如果你很经常使用这一功能的话快速载入确实事实上更慢。
+
+\VimCaution{
+\VimCautionTitle{注意}从Vim 7开始提供了一种变通方法：使用
+\VimCommonSrc{autoload}功能 \VimSecSrc{41.15}. 
+} %end VimCaution
+
+下面的例子展示了快速载入是如何实现的：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+" Vim global plugin for demonstrating quick loading
+" Last Change:  2005 Feb 25
+" Maintainer:   Bram Moolenaar <Bram\VimAt{}vim.org>
+" License:      This file is placed in the public domain.
+
+if !exists("s:did_load")
+        command -nargs=* BNRead  call BufNetRead(<f-args>)
+        map <F19> :call BufNetWrite('something')<CR>
+        
+        let s:did_load = 1
+        exe 'au FuncUndefined BufNet* source ' . expand('<sfile>')
+        finish
+endif
+
+function BufNetRead(...)
+        echo 'BufNetRead(' . string(a:000) . ')'
+        " read functionality here
+endfunction
+
+function BufNetWrite(...)
+        echo 'BufNetWrite(' . string(a:000) . ')'
+        " write functionality here
+endfunction
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_221}{view_221}\hypertarget{view_221}{}\fbox{\textcolor{red}{Review}}\\
+脚本首次被载入时\VimDQuote{s:did\_load}没有设置。所以\VimDQuote{if}和
+\VimDQuote{endif}之间的命令会被执行。这些命令以\VimCommonSrc{:finish}结束，所
+以脚本的剩余部分不会被执行到。
+
+第二次脚本被载入时因为\VimDQuote{s:did\_did}已经存在了，所以
+\VimDQuote{endif}之后的脚本被执行。这将会定义(可能是很长的函
+数)BufNetRead()和BufNetWrite()函数。
+
+如果你把这段脚本放在你的插件目录下Vim就会在启动时执行它。下面是各类事件发生的
+次序：
+
+1. 启动时脚本被执行，\VimDQuote{BNRead}命令被定义并且\VimSpecialChar{<F19>}键被映射。
+一个\VimCommonSrc{FuncUndefined}自动命令也被定义。\VimDQuote{:finish}命令使得
+脚本的执行提早结束。
+
+2. 用户键入了BNRead命令或按下了\VimSpecialChar{<F19>}键。BufNetRead()函数
+和BufNetWrite()函数将被调用。
+
+3. Vim找不到被调函数\VimCommonSrc{FuncUndefined}自动命令被触发。因为被调函数匹
+配给定的模式\VimDQuote{BufNet*}, 所以命令\VimDQuote{source fname}将会被执行。
+不管脚本被置于何处，\VimDQuote{fname}总能指向正确的脚本名，因为它是通过
+\VimDQuote{\VimSpecialChar{<sfile>}}扩展来的(参考\VimCommonSrc{expand()}).
+
+4. 脚本被再次执行，变量\VimDQuote{s:did\_load}存在所以函数被定义。
+
+注意函数的定义发生在\VimCommonSrc{FuncUndefined}自动命令中指定的模式匹配到了其
+名字之后，所以你必需确保其它的插件不要定义会匹配到给定模式的函数。
+%======...
+\VimSepartor
+\VimSecDest{41.15}{\ChapterFortyOneSectionFivteenTitle}
+\VimToRight{\VimCommonDest{write-library-script}}
+有些功能在好几个地方都会被用到。当这些功能需要相当行数的代码才能实现时你可能更
+希望把它放在一个脚本中，然后从多个引用到它的脚本中调用它。我们把这种脚本叫做脚
+本库。
+
+手工载入一个脚本库是可能的，只要你能避免在它已经载入时不要重载一遍。可以通过
+\VimCommonSrc{exists()}函数来判断。如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+if !exists('*MyLibFunction')
+   runtime library/mylibscript.vim
+endif
+call MyLibFunction(arg)
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_222}{view_222}\hypertarget{view_222}{}\fbox{\textcolor{red}{Review}}\\
+这里你要留意MyLibFunction()是由位于\VimOption{runtimepath}中指定的路径中
+的脚本\VimDQuote{library/mylibscript.vim}定义的。
+
+Vim提供了autoload机制来简化这种实现。这样上面的例子可以简化为：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+call mylib#myfunction(arg)
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_223}{view_223}\hypertarget{view_223}{}\fbox{\textcolor{red}{Review}}\\
+这下可简单多了，是不是？Vim会从中识别出函数名，并且在函数没定义时从
+\VimOption{runtimepath}指定的路径中找到脚本\VimDQuote{autoload/mylib.vim}. 该
+脚本必需定义\VimDQuote{mylib\#myfunction}函数。
+
+你可以往mylib.vim脚本中放入很多其它的函数，也可以自行决定脚本库如何组织。但是
+你必需准确指定由\VimSQstr{\#}之前的部分指定的脚本库中那个函数，否则Vim就无从决断要
+载入哪个脚本了。
+
+如果你是个真正的狂热份子并且写了太多的脚本库，你可能会用到子目录，象这样：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+call netlib#ftp#read('somefile')
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_224}{view_224}\hypertarget{view_224}{}\fbox{\textcolor{red}{Review}}\\
+对Unix来说命令中指定的脚本库可能是：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+~/.vim/autoload/netlib/ftp.vim
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_225}{view_225}\hypertarget{view_225}{}\fbox{\textcolor{red}{Review}}\\
+其中的函数则可能是这样定义的：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+function netlib#ftp#read(fname)
+"  Read the file fname through ftp
+endfunction
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_226}{view_226}\hypertarget{view_226}{}\fbox{\textcolor{red}{Review}}\\
+注意定义的函数名跟调用处引用的函数名要一模一样。\VimSQstr{\#}之前的部分则严格
+跟子目录和脚本名一致。
+
+你还可以对变量也使用同样的机制：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+let weekdays = dutch#weekdays
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_227}{view_227}\hypertarget{view_227}{}\fbox{\textcolor{red}{Review}}\\
+这会载入脚本\VimDQuote{autoload/dutch.vim}, 里面可能定义着：
+% vim: replace_backslash
+\begin{VimVBexcmd}[xleftmargin=-0.5cm,xrightmargin=-0.5cm,commandchars=\\\{\}]
+let dutch#weekdays = ['zondag', 'maandag', 'dinsdag', 'woensdag',
+        \ 'donderdag', 'vrijdag', 'zaterdag']
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_228}{view_228}\hypertarget{view_228}{}\fbox{\textcolor{red}{Review}}\\
+更多详情请参考\VimCommonSrc{autoload}. 
+%======...
+\VimSepartor
+\VimSecDest{41.16}{\ChapterFortyOneSectionSixteenTitle}
+\VimToRight{\VimCommonDest{distribute-script}}
+Vim用户会在Vim的站点\VimURL{http://www.vim.org}上查找脚本。如果你做了一些对别
+人有用的东西，共享出来！
+
+Vim脚本可以用在任何系统上。某些系统可能没有tar或gzip命令。如果你想把文件打包和
+/或压缩的话推荐用\VimDQuote{zip}命令。
+
+为了达到最大限度的可移植性可以只使用Vim自己来打包这些脚本。这可以通过Vimball这
+个小工具来实现。请参考\VimCommonSrc{vimball}. 
+
+如果你能加上一行允许脚本自动更新就太好了。请参考\VimCommonSrc{glvs-plugins}. 
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{42}  \ChapterFortyTwoTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

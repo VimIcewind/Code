@@ -1,0 +1,471 @@
+\VimNewChapter
+\VimBookMark{第20章　\ChapterTwentyTitle}{usr_20.txt}
+\VimFileNameDest{usr\VimTT{\_}20.txt}{ \VimDocVer  最后修改：2006年04月24日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{加速冒号命令\\}
+
+Vim有一些通用的特性使得命令本身的编辑也十分容易。冒号命令本身可以缩写，也可以
+编辑和重复。而补齐几乎对任何东西都适用。
+
+\VimSecList{20.1}{\ChapterTwentySectionOneTitle}
+\VimSecList{20.2}{\ChapterTwentySectionTwoTitle}
+\VimSecList{20.3}{\ChapterTwentySectionThreeTitle}
+\VimSecList{20.4}{\ChapterTwentySectionFourTitle}
+\VimSecList{20.5}{\ChapterTwentySectionFiveTitle}\VimMyInLineFootnote{译注：规律--为了浏览或编辑
+的方便，Vim往往有一个办法将一个列表或集合操作的对象放到一个窗口中去}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{21}  \ChapterTwentyOneTitle\\
+前一章：& \VimFileName{12}  \ChapterTwelveTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{20.1}{\ChapterTwentySectionOneTitle}
+
+使用冒号命令或者用/或?搜索字符串时，Vim会把光标置于屏幕底部。命令和要搜索的
+字串都在这里输入。该行叫命令行。注意在这里输入搜索字符串时它也是命令行。命令行
+上最显而易见的编辑是使用\VimSpecialChar{<BS>}键。它会删除光标之前的字符。要删除
+早先输入的光标之前的字符，你需要首先移动光标键。
+
+   比如你输入了如下的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:s/col/pig/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+按\VimSpecialChar{<Enter>}键之前，
+你想起\VimDQuote{col}应该是\VimDQuote{cow}才对。
+要更正它需要按\VimSpecialChar{<Left>}5次。光标现在
+位于\VimDQuote{col}之后了。按下\VimSpecialChar{<BS>}和\VimDQuote{w}进行改正：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:s/cow/pig/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你可以按下回车键了。无需再将光标移至命令行尾部。
+
+在命令行上最常用的一些位移键是：
+
+% vim: angle_bracket_special_key
+\begin{VimVBListNoAdjustSpace}[commandchars=\\\{\}]
+<Left>                 向左一个字符
+<Right>                向右一个字符
+<S-Left> 或 <C-Left>   向左一个单词
+<S-Right> 或 <C-Right> 向右一个单词
+CTRL-B 或 <Home>       到命令行行首
+CTRL-E 或 <End>        到命令行行尾
+\end{VimVBListNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注:}
+        \VimSpecialChar{<S-Left>}(按下Shift键的同时按下左箭头键)和\VimSpecialChar{<C-Left>}(按下CTRL键的同时按下
+        右箭头键)不一定能适用于所有的键盘。对其它的Shift和CTRL组合键也是一样。
+} %end VimCaution
+
+你也可以用鼠标来移动光标。
+
+
+\VimSubSection{删除}
+
+前面已经说过，退格键\VimSpecialChar{<BS>}可以删除光标之前的一个字符。要删除光标之前的整个单词，
+命令是\VimSpecialChar{CTRL-W}. 
+
+\begin{VimVBnormalcmdNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+/the fine pig
+
+             \VimSpecialChar{CTRL-W}
+/the fine
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimSpecialChar{CTRL-U}则删除光标之前的所有已键入的内容。让你可以完全重新开始。
+
+
+\VimSubSection{改写}
+
+插入键\VimSpecialChar{<Insert>}可以切换是插入字符还是改写两种编辑模式。如以下命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+/the fine pig
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+用2次\VimSpecialChar{<S-Left>}(或者\VimSpecialChar{<S-Left>}不能用的话，使用左箭头
+键8次)将光标移到\VimDQuote{fine}的开始处。现在按下插入键\VimSpecialChar{<Insert>}
+切换到改写模式，然后键入\VimDQuote{great}. 
+
+\begin{VimVBnormalcmd}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+/the greatpig
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+哦，天哪，空格给弄没了。现在也别再用退格键\VimSpecialChar{<BS>}了，因为它会删除
+\VimDQuote{t}(这跟替换模式还不一样). 再按一次插入键\VimSpecialChar{<Insert>}来切
+换到插入模式，键入空格：
+\begin{VimVBnormalcmd}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+/the great pig
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{撤消}
+
+一开始你想执行一个冒号命令或搜索一个字串，但中间改变了主意。
+按下\VimSpecialChar{CTRL-C}或\VimSpecialChar{<Esc>}
+可以放弃所有已经键入的命令。
+
+\VimCaution{
+	\VimCautionTitle{备注:} \VimSpecialChar{<Esc>}是一个通用的\VimDQuote{退
+出}键。不幸的是，在经典的老Vi上按下\VimSpecialChar{<Esc>}键却会执行这个冒号命令！
+这可能是一个bug, 所以Vim用\VimSpecialChar{<Esc>}来撤消命令。不过通过改变
+\VimOption{cpoptions}选项Vim还是可以兼容Vi的这种做法。同时你使用键盘映射时(可
+能是为Vi而定制的键盘映射)\VimSpecialChar{<Esc>}键也将兼容Vi的做法。所以使用
+\VimSpecialChar{CTRL-C}是通用的好办法\VimMyFootnote{译注：至少有一个例外：按
+下\VimSpecialChar{CTRL-W}开始一个窗口相关的操作时，只能用\VimSpecialChar{<Esc>}来撤消整个命令，因
+为\VimSpecialChar{CTRL-W CTRL-C}是关闭当前窗口的命令}.)
+} %end VimCaution
+
+如果光标位于冒号命令的行首，按下\VimSpecialChar{<BS>}键会撤消该命令。就好象把
+\VimDQuote{:}或\VimDQuote{/}删除了一样。
+
+%======...
+\VimSepartor
+
+\VimSecDest{20.2}{\ChapterTwentySectionTwoTitle}
+
+有一些冒号命令实在是太长了。前面已经提过\VimDQuote{:substitute}命令可以缩写为
+\VimDQuote{:s}. Vim中这是一个普适的规则，所有的冒号命令都可以被缩写。
+
+一个命令最短能有几个字符？字母一共也就26个，很多命令比如\VimDQuote{:set}也是以
+\VimDQuote{:s}开头，但\VimDQuote{:s}并不是指\VimDQuote{:set}, \VimDQuote{:set}
+对应的缩写是\VimDQuote{:se}. 
+
+   一个缩写形式同时可以对应两个命令时，它只能指代其中的一个。到底是哪一个？这
+里可没有什么诀窍，你还是得自己good good study. 在帮助文件中会提到一个命令的最
+短的缩写形式，如：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+:s[ubstitute]
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+这意味着\VimDQuote{:substitute}最短的缩写形式是\VimDQuote{:s}. 其后的字符都是
+可有可无的。\VimDQuote{:su}和\VimDQuote{:sub}也同样可以。
+
+在用户手册中我们要么用命令的全名，要么是用仍具可读性的缩写。比如
+\VimDQuote{:function}可以被缩写为\VimDQuote{:fu}. 但是多数人看不明白它是哪个单
+词的缩影，所以我们会用\VimDQuote{:fun}.  (Vim没有一个\VimDQuote{:funny}命令，要
+不然就算\VimDQuote{:fun}也会引起冲突呢).
+
+在写Vim脚本时建议大家用命令的全名。这样什么时候回头读这些脚本时就更方便了解它
+的意思。除非是一些象\VimDQuote{:w}(\VimDQuote{:write})和
+\VimDQuote{:r}(\VimDQuote{:read})一样太过常用的命令。
+
+   特别容易混淆的是\VimDQuote{:end}, 可以代表\VimDQuote{:endif}, 也可以代表
+\VimDQuote{:endwhile}或\VimDQuote{endfunction}. 所以最好全部用它们的全称。
+
+
+\VimSubSection{选项的缩写}
+
+在用户手册中选项名都用的是它的全名。很多选项都有一个相应的缩写名。跟冒号命令
+不一样，缩写名只是是固定的一个写法，比如，\VimOption{autoindent}缩写为
+\VimOption{ai}. 这两个选项效果完全一样：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+:set autoindent
+:set ai
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+你可以在\VimCommonSrc{option-list}找到一个选项名缩写的完整列表。
+
+%======...
+\VimSepartor
+
+\VimSecDest{20.3}{\ChapterTwentySectionThreeTitle}
+
+这个特性是很多人从Vi转到Vim的原因。这是一个格外诱惑人的功能，一旦你用过它就再
+也离不了了\VimMyFootnote{译注：甚至会让人产生《食神》评委薛家燕那样的感叹："天哪
+，为什么让我吃到这么好的一顿饭，我以后吃不到该怎么办\~{}\~{}\~{}\~{}!"}. 
+
+假设你有一个目录下有下面3个文件：
+\begin{VimVBList}[commandchars=\\\{\}]
+info.txt
+intro.txt
+bodyofthepaper.txt
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+要编辑最后一个文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit bodyofthepaper.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+想不出错真是太难了。更快的办法是：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit b<Tab>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+效果是一样的，怎么回事？制表符\VimSpecialChar{<Tab>}键补全了光标之后的单词。此例
+中该单词是\VimDQuote{b}.  Vim会在该目录中查看哪个文件是以\VimDQuote{b}开头的。
+正是你要找的那个文件，所以Vim为你补全了整个文件名。
+
+现在键入命令：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit i<Tab>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会报以一声蜂鸣，告诉你：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit info.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+蜂鸣声是告诉你Vim找到符合的文件可不止一个。它先用第一个(按字母顺序). 如果你再
+按一下制表符\VimSpecialChar{<Tab>}键，文件变为：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit intro.txt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+所以，如果一个\VimSpecialChar{<Tab>}补全的文件名不是你想要的，那就再按一次，有多
+个符合的文件名时，你可以一次一个把它们都过一遍。
+
+   最后一个后再按下\VimSpecialChar{<Tab>}键又会回到第一个去：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:edit i
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+它会从头再来一遍。Vim会在整个列表中轮番循环，\VimSpecialChar{CTRL-P}可以反序遍历整个列表。
+
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+      <------------------- \VimSpecialChar{<Tab>} -------------------------+
+                                                        |
+          \VimSpecialChar{<Tab>} -->                   \VimSpecialChar{<Tab>} -->
+:edit i       :edit info.txt     :edit intro.txt
+          <-- \VimSpecialChar{CTRL-P}                   <-- \VimSpecialChar{CTRL-P}
+      |
+      +---------------------- \VimSpecialChar{CTRL-P} ---------------------->
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{上下文}
+
+现在不用\VimDQuote{:edit i}, 你用命令\VimDQuote{:set i}然后按下制表符键
+\VimSpecialChar{<Tab>}试试：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set icon
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+呵，你怎么没看到\VimDQuote{:set info.txt}？这是因为Vim进行补全时考虑到了命令的
+上下文环境。用什么补全要依命令而定。Vim知道你不会在\VimDQuote{:set}命令后面跟
+一个文件名，很明显你要的是一个选项。
+
+   再重复按制表符\VimSpecialChar{<Tab>}键，Vim会轮循所有的匹配。数目可不少呢！所
+以最好是多输入几个字符再让它进行补全：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set isk<Tab>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这次补全出来的是：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set iskeyword
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在输入\VimDQuote{=}再按制表符键\VimSpecialChar{<Tab>}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set iskeyword=\VimAt{},48-57,_,192-255
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim插入了该选项目前的设置，这样你可以直接在原有内容的基础上修改了。
+
+   Vim会在\VimSpecialChar{<Tab>}之后补全它当下想要的东西。亲自去试一下你就会知道
+它是怎么回事。有些情况下补全功能也不能如你所愿，这是因为要么Vim不知道你到底想要
+什么，要么此时的补全功能还没实现。这种情况下你会看到一个真正的制表符被放在当前
+位置(以\VimSpecialChar{\^{}I}显示).
+
+
+\VimSubSection{列出所有匹配}
+
+有众多的补全候选项时，最好是能一次看清所有的候选：用\VimSpecialChar{CTRL-D}. 
+比如在下面的命令之后按
+\VimSpecialChar{CTRL-D}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set is
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+结果是：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set is
+incsearch  isfname    isident    iskeyword  isprint
+:set is
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim给出了整个列表。现在一切都对你一览无余了。如果你要的东西不在其中，还可以用
+退格键\VimSpecialChar{<BS>}来修改已输入的单词。如果你觉得整个列表太大了，可以多
+输入几个字符缩小范围然后用制表符键\VimSpecialChar{<Tab>}重新让它补全。
+
+   如果你够细心的话，你会发现上面的\VimDQuote{incsearch}并不以\VimDQuote{is}开
+头。这种情况下\VimDQuote{is}匹配的是它的缩写形式。(很多选项都同时有缩写形式)
+Vim很机灵的，它会猜到你也许是想用把缩写的选项名扩展为对应的完整名称。
+
+
+\VimSubSection{更多内容}
+
+\VimSpecialChar{CTRL-L}命令会最大限度地补全各候选项的共同部分。如果你输入了
+\VimDQuote{:edit i}, 同时有两个候选项\VimDQuote{info.txt}和
+\VimDQuote{info\VimTT{\_}backup.txt}, 它就会补全为\VimDQuote{:edit info}. 
+
+{\setlength{\parindent}{0mm}
+\VimOption{wildmode}选项可以调整补全的工作方式\\
+\VimOption{wildmenu}选项使候选项以类似菜单的形式出现\\
+\VimOption{suffixes}选项可以指定哪些文件不太重要，这些文件会被列在文件列表的最后\\
+\VimOption{wildignore}选项指定那些根本不会被列出的文件
+\VimMyFootnote{译注：(1)Vim选项众多，但多数是一小簇相互关联的选项针对某功能或某核心命令进行
+修饰、调整(2)Vim不会给出一个粗糙难用的功能，它会用各种选项来微调这项功能。使它
+真正贴近实用，这里对补全这一功能的精雕细琢就是一例}
+}
+
+更多细节请参考\VimCommonSrc{cmdline-completion}
+
+%======...
+\VimSepartor
+
+\VimSecDest{20.4}{\ChapterTwentySectionFourTitle}
+
+在第3章简要提到了历史记录。基本的思想是可以用上下箭头键来找回用过的命令。
+
+实际上有4个历史记录。这里将要提到的是冒号命令历史记录和\VimDQuote{/}及
+\VimDQuote{?}的搜索命令历史记录，\VimDQuote{/}和\VimDQuote{?}都是搜索命令，所
+以它们共享同一个历史记录。另外的两类历史记录分别是关于表达式和input()函数的输
+入内容的。请参考\VimCommonSrc{cmdline-history}
+
+假设你用过一次\VimDQuote{:set}命令，接着用过10次其它的冒号命令之后又想重复这个
+\VimDQuote{:set}命令。你可以按下\VimDQuote{:}然后按10次上箭头键
+\VimSpecialChar{<Up>}. 更快的办法是：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:se<Up>
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim会回到上一次你以\VimDQuote{se}开头的命令去。这样你离\VimDQuote{:set}命令就
+更近一些了。至少你不用按10次上箭头键\VimSpecialChar{<Up>}了(除非这中间的10个冒号
+也都是\VimDQuote{:set}命令).
+
+上箭头键\VimSpecialChar{<Up>}会根据目前键入的命令部分去跟历史记录进行比较。只有
+符合的才会被列出来。
+
+   如果没找到，你还可以用下箭头键\VimSpecialChar{<Down>}回到刚才输入的部分命令进
+行修改。或者用\VimSpecialChar{CTRL-U}命令全部删除后重来。
+
+要查看所有的历史记录，用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:history
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_140}{view_140}\hypertarget{view_140}{}\fbox{\textcolor{red}{Review}}\\
+列出的是冒号的历史记录。要查看搜索命令的历史记录，用
+\VimMyFootnote{译注：规律:跟map, autocommand, tags等这些东西一样，以一个列表或集合为操作对象
+的命令都有一个命令列出整个列表，也有遍历它们的方法}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:history /
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSpecialChar{CTRL-P}效果如同\VimSpecialChar{<Up>}, 唯一的不同是它不会根据你
+已经键入的部分去遍历记录。类似地，\VimSpecialChar{<Down>}的对应物是
+\VimSpecialChar{CTRL-N}和下箭头键。 \VimSpecialChar{CTRL-P}代表previous, 
+\VimSpecialChar{CTRL-N}代表Next. 
+\VimMyFootnote{译注：规律，\VimSpecialChar{CTRL-P}和\VimSpecialChar{CTRL-N}经常用于上下遍历
+一个列表，如shell的命令行历史。emacs中上下跳转一行，进行各种补齐，以及此处的遍
+历历史记录}
+
+%======...
+\VimSepartor
+
+\VimSecDest{20.5}{命令行窗口}
+
+命令行上的编辑跟普通的文本内容编辑不太一样。没有那么多的命令可用。
+对多数命令来说这也不是什么大问题。但有些复杂的命令就不一样了。这时命令行窗口可
+就用处大了。
+
+下面的命令可以打开命令行窗口\VimMyFootnote{译注：注意这是在normal模式下键入的
+命令}:
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+q:
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+Vim在屏幕底部打开了一个(小)窗口。该窗口的内容是历史记录，最后一行是空行：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++--------------------------------------------+
+|other window                                |
+|~                                           |
+|file.txt====================================|
+|:e c                                        |
+|:e config.h.in                              |
+|:set path=.,/usr/include,,                  |
+|:set iskeyword=\VimAt{},48-57,_,192-255     |
+|:set is                                     |
+|:q                                          |
+|:                                           |
+|command-line================================|
+|                                            |
++--------------------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在是Normal模式。可以用\VimDQuote{hjkl}四处移动。比如用\VimDQuote{5k}命令上移
+到\VimDQuote{:e config.h.in} . \VimDQuote{\$h}到单词\VimDQuote{in}的
+\VimDQuote{i}上，键入\VimDQuote{cwout}. 现在该行变为了：
+\begin{VimVBexcmd}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+:e config.h.out
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在按下回车键该命令就会被执行。而命令行窗口也同时会被关闭。
+
+   回车键会执行当前行的命令。不管Vim身处Insert模式还是Normal模式。
+
+   对命令行窗口作出的修改不会被保存。历史记录不会因此被改写。除非你执行的命令
+是被追加到历史记录中，就象其它被执行过的命令一样\VimMyFootnote{译注：历史就是这样，不能被
+改写，只能被延续。除非你有月光宝盒。\Smiley}
+
+命令历史记录窗口有时十分有用，你可以在此浏览整个历史记录，找到一个相近的命令，
+稍加修改，然后重新执行它。也可以用搜索命令来进行查找。
+
+   在上例中\VimDQuote{?config}命令就可以查找包含\VimDQuote{config}的命令。看起
+来很奇特，你在用一个命令行命令来查找命令行窗口中的另一个命令。键入这个命令行命
+令时你就不能再打开另一个命令历史记录窗口了，它只能有一个\VimMyFootnote{译注：
+用\VimSpecialChar{CTRL-W} c命令来关闭命令历史记录窗口时，Vim会在命令行上显示
+当前行的命令，此时若不想执行该命令，可以按下\VimSpecialChar{CTRL-C}或
+\VimSpecialChar{<Esc>}, 窗口同时会被关闭，否则按下回车的话，该行的命令还是会被执
+行，而用:q退出该窗口时就不会这样}
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{21}  \ChapterTwentyOneTitle\\
+版　权：请参考\VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

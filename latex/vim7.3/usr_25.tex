@@ -1,0 +1,711 @@
+\VimNewChapter
+\VimBookMark{第25章　\ChapterTwentyFiveTitle}{usr_25.txt}
+\VimFileNameDest{usr\VimTT{\_}25.txt}{ \VimDocVer  最后修改：2007年05月11日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{编辑格式化的文本\\}
+
+
+文本文件很少是一行一个句子这样规整。本章讲述如何把一个句子分段来合乎页面
+的外观要求以及其它有关格式化的东西。Vim也同样有一些特性专用于编辑单行成段
+的文本和行列分明的表格数据。
+
+\VimSecList{25.1}{\ChapterTwentyFiveSectionOneTitle}
+\VimSecList{25.2}{\ChapterTwentyFiveSectionTwoTitle}
+\VimSecList{25.3}{\ChapterTwentyFiveSectionThreeTitle}
+\VimSecList{25.4}{\ChapterTwentyFiveSectionFourTitle}
+\VimSecList{25.5}{\ChapterTwentyFiveSectionFiveTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{26}  \ChapterTwentySixTitle\\
+前一章：& \VimFileName{24}  \ChapterTwentyFourTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{25.1}{\ChapterTwentyFiveSectionOneTitle}
+
+Vim有一些功能大大便利了文本的处理。默认情况下，编辑器并不会自动换行。也就是说
+你要手工按下回车才可以换行。这在写程序时是需要的，因为你要自己决定一个语句应在
+何处断行。但如果你在写文档，希望每行最多有70个字符时，这可不是一件美差。
+
+   如果你设置了\VimOption{textwidth}选项，Vim就会自动换行。假设你想限制一行最
+多有30个字符。可以使用下面的设置：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set textwidth=30
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在再键入下面的内容(特意增加了标尺): 
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+         1         2         3
+12345678901234567890123456789012345
+\textcolor{VimHelpHeaderColor}{
+I taught programming for a whi}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+如果你接下来按了\VimDQuote{l}字符，该行的长度就已经超过30个字符了。这时Vim就会
+在此处断行：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+         1         2         3
+12345678901234567890123456789012345
+\textcolor{VimHelpHeaderColor}{
+I taught programming for a}
+\textcolor{VimHelpHeaderColor}{
+whil}
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+继续编辑，键入该段的其余文本：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{black}{
+         1         2         3}
+\textcolor{black}{
+12345678901234567890123456789012345}
+I taught programming for a
+while. One time, I was stopped
+by the Fort Worth police,
+because my homework was too
+hard. True story.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+你不需要敲回车键，Vim会自动为你断行。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        \VimOption{wrap}选项使Vim能显示需要折行的过长的行，但这是另一回事，它只是为了
+        显示的需要，并不会在文件中实际插入一个换行符。
+} %end VimCaution
+
+
+\VimSubSection{重新格式化}
+
+Vim编辑器不是一个字处理器。在一个字处理器中，你若是在一段的开头删除一些东西，
+换行的处理会被重新考虑。在Vim中不行；所以你若是删除了上例中第一行的\VimDQuote{programming}
+这个单词，结果就只是这一行变短了而已：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{black}{
+         1         2         3}
+\textcolor{black}{
+12345678901234567890123456789012345}
+I taught for a
+while. One time, I was stopped
+by the Fort Worth police,
+because my homework was too
+hard. True story.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+这可不妙。要让文本段恢复形象你可以使用\VimDQuote{gq}操作符命令。
+   我们先来看Visual选择区，在上例中的第一行键入以下命令开始：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+v4jgq
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{v}命令进入Visual模式，\VimDQuote{4j}移动到段尾然后执行\VimDQuote{gq}命令，结果将是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{black}{
+         1         2         3}
+\textcolor{black}{
+12345678901234567890123456789012345}
+I taught for a while. One
+time, I was stopped by the
+Fort Worth police, because my
+homework was too hard. True
+story.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        还可以按特殊的文本布局进行格式化，请参考\VimCommonSrc{auto-format}. 
+} %end VimCaution
+
+因为\VimDQuote{gq}是一个操作符命令，所以你可以使用此类命令所支持的3种办法来指定它的
+作用对象：Visual模式，使用移动光标的命令和文本对象。
+
+   上面的示例也可以用\VimDQuote{gq4j}命令。区别是可以少敲几个字符，但是你需要
+计算行数。一个更有用的移动命令是\VimDQuote{\}}. 它会移动到一段的末尾。所以
+\VimDQuote{gq\}}会格式化当前光标至当前段尾的文本。
+
+   一个使用\VimDQuote{gq}时非常常用的文本对象是段。试一下命令：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+gqap
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{ap}意为\VimDQuote{a-paragraph}. 这个命令会格式化一段文本(段以空行为
+分界). 包括当前光标之前的部分。
+
+   如果你的段已经是以空行分隔，你可以用下面的命令格式化整个文件：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+gggqG
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{gg}移动到第一行，\VimDQuote{gqG}将格式化进行到底(行).
+
+   警告：如果你的段并不符合上述标准，就会在格式化时被连为一段进行处理。通常
+的错误是以一个含有空格或制表符的行来分隔所谓的\VimDQuote{段}. 这是空白行，不是空行。
+
+Vim不光可以格式化普通文本文件。查看\VimCommonSrc{fo-table}了解如何处理这些非常
+规的文件。\VimOption{joinspaces}选项可以用来控制句子之间的空白间距。
+
+   也可以使用一个外部的程序来进行格式化。这在你的文件不能以Vim的内置命令很好
+地格式化时尤其有用。参看\VimOption{formatprg}选项。
+
+%======...
+\VimSepartor
+
+\VimSecDest{25.2}{\ChapterTwentyFiveSectionTwoTitle}
+
+要让一个范围的行居中，使用下面的命令：
+\begin{VimVBexcmdNoAdjustSpace}
+:{range}center [width]
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\{range\}是一个通常的命令行范围。[width]是一个用于指定行宽的可选参数。如果不指
+明[width], 它的默认值取自\VimOption{textwidth}. (如果\VimOption{textwidth}的值是0, 就取80). 
+   如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:1,5center 40
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+结果如下：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+  I taught for a while. One
+  time, I was stopped by the
+Fort Worth police, because my
+ homework was too hard. True
+            story.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimSubSection{右对齐}
+
+近似地，\VimDQuote{:right}命令可以使文本右对齐：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:1,5right 37
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+将使结果是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+    I taught for a while. One
+   time, I was stopped by the
+Fort Worth police, because my
+  homework was too hard. True
+                       story.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimSubSection{左对齐}
+
+最后还有：
+\begin{VimVBexcmdNoAdjustSpace}
+:{range}left [margin]
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+与\VimDQuote{:center}和\VimDQuote{:right}不同，\VimDQuote{:left}的可选参数的意义不再是行的长度，而是指
+左边留白的宽度。如果不予指明，就将使每行内容都向显示窗口最左边靠齐(等同
+于使用0宽度的左边留白). 如果指定了5, 所有文本就都会向右缩进5个空格。如，
+使用下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:1left 5
+:2,5left
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+后结果文本将是
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+     I taught for a while. One
+time, I was stopped by the
+Fort Worth police, because my
+homework was too hard. True
+story.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimSubSection{左右对齐}
+
+Vim并没有一个内置的命令来使文本左右对齐。不过，有一个不错的宏包可以实现
+它一功能。要使用该宏包，执行下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:runtime macros/justify.vim
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个脚本定义了一个新的visual模式下的命令\VimDQuote{\VimTT{\_}j}. 要调整一段文
+本使之左右对齐，只需在Visual模式下选定这段文本，然后执行
+\VimDQuote{\VimTT{\_}j}. 
+
+   要了解其来龙去脉还最好还是亲自看一下这个脚本做了什么。要打开该文件，在光标
+位于下面的文件名上时按\VimDQuote{gf}:
+\begin{VimVBDisplay}[commandchars=\\\{\}]
+$VIMRUNTIME/macros/justify.vim.
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+另一个变通办法是使用一个外部程序。如：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:%!fmt
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_156}{view_156}\hypertarget{view_156}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{25.3}{\ChapterTwentyFiveSectionThreeTitle}
+
+缩进可以使文本突出显示。本教程中的例子都是以8个空白的字符宽度或一个制表符来
+进行缩进的\VimMyFootnote{译注：为使例子不致超出方框，我早已打破了这一风格。不
+过显眼的框框会让它看起来更加醒目}。通常要做的只是在一行开头键入一个制表符：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+the first line
+the second line
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+需要键入的东西是制表符，一些文字，回车，再一个制表符，和其后的文字。
+   \VimOption{autoindent}选项可以自动插入缩进：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set autoindent
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+接下来的新行将会沿用其前一行中所使用的缩进。在上例中，回车之后就不再需要
+键入制表符了。
+
+
+\VimSubSection{增加缩进}
+
+要增加一行的缩进量，使用\VimDQuote{\VimTT{>}}操作符命令。通常情况下人们喜欢使用
+\VimDQuote{\VimTT{>>}}命令，这会增加当前行的缩进量。
+
+   每次缩进量增减的单位由选项\VimOption{shiftwidth}指定。其默认值是8. 
+要让\VimDQuote{\VimTT{>>}}命令只增加4个字符宽度的额外缩进量，这样设置该选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set shiftwidth=4
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+在上例中的第二行文本上使用命令\VimDQuote{\VimTT{>>}}, 结果将是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+the first line
+    the second line
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimDQuote{4\VimTT{>>}}将会增加4行\VimMyFootnote{译注：包括当前行在内}的缩进量。
+
+
+\VimSubSection{缩进量}
+
+如果你想让缩进量是4的倍数，只需要把\VimOption{shiftwidth}设为4即可。但是键入
+\VimSpecialChar{<Tab>}还是会插入一个8字符宽度的缩进。这可以通过
+\VimOption{softtabstop}选项得以改观：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set softtabstop=4
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这将会让一个制表符只插入4个字符宽度的缩进。如果已经有了4个字符宽度的空白，就
+会真正插入一个制表符来代替这总的8个字符(省了7个字符). (如果你根本不想用任何
+制表符，你可以打开\VimOption{expandtab}选项)
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        你也可以把\VimOption{tabstop}选项设置为4. 不过，如果你在\VimOption{tabstop}设置为8时打开
+        该文件可能看起来就面目全非了。被其它程序处理或在打印时也可以会出问题。
+        所以这里还是建议把\VimOption{tabstop}设置为8. 毕竟这是大众标准。
+} %end VimCaution
+
+
+\VimSubSection{调整制表符}
+
+如果你在编辑文件时使用的制表符宽度是3. 在Vim里就会很难看，因为一般的制表符
+宽度都是8. 当然你可以把\VimOption{tabstop}选项设为3. 但每次你在Vim里打开这个文件都要
+为它特别一个制表符宽度。
+
+   Vim可以改变文件中已有的制表符宽度。首先，设置\VimOption{tabstop}的值来调整缩进的外观，
+然后使用\VimDQuote{:retab}命令：
+%% 冯亮指正：:tab => :retab
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set tabstop=3
+:retab 8
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:retab}命令会把\VimOption{tabstop}改为8, 这样改变后的文件看起来还是
+一样。这个命令会把文件中连续的空白替换成制表符或空格。现在你可以保存这个文件了
+，下次再打开时就不用额外为它设置制表符宽度了。
+
+   警告：在源程序里使用\VimDQuote{:retab}时，它也会改变一个字符串常量中的制表
+符。所以最好是在字符串常量中使用\VimDQuote{\VimBS{}t}来代替实际键入一个制表符。
+
+%======...
+\VimSepartor
+
+\VimSecDest{25.4}{\ChapterTwentyFiveSectionFourTitle}
+
+有时候人们需要编辑的文本行长度会超出屏幕能显示的列宽。这时Vim会把这一行折叠到
+下一行去显示。
+
+   如果你把\VimOption{wrap}选项关闭，那不管长行短长就都只会占据屏幕上的一个行
+。超出屏幕显示的部分就看不见了。
+
+   一旦你把光标移动到这些在屏幕上看不见的字符上，它们就会被移到屏幕上显示
+，Vim会使该行内容自动向左滚动。这就好象在水平移动一个视窗一样。
+
+   默认情况下，使用GUI的Vim不会显示一个水平滚动条。如果你想用，就要使用下面的
+命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set guioptions+=b
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这时一个水平滚动条就会显示在Vim窗口的底部。
+
+如果没法使用滚动条或者有你也不想用它\VimMyFootnote{译注：多数的Vim用户都更喜欢命令行形式而
+很少使用GUI所提供的功能，包括Bram本人}，你可以用下面的命令来左右移动一个文本
+行。文本左右移动时，光标还是保持不动，除非为了显示文本它必需移动。
+
+\begin{VimVBList}[commandchars=\\\{\}]
+zh              向右滚动
+4zh             向右滚动4个字符
+zH              向右滚动半个窗口的宽度
+ze              向右移动使当前光标成为最右端的可见字符
+zl              向左滚动
+4zl             向左滚动4个字符
+zL              向左滚动半个窗口
+zs              向左移动使当前光标成为最左边的可见字符
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+我们找一个长一点的文本行来试一试。假设下面的例子中光标位于\VimDQuote{which}中的\VimDQuote{w}字符上。
+\VimDQuote{current window}这个标尺指示的是当前的可视区。下面带\VimDQuote{window}字样的标尺指示执行
+命令后的可视文本区
+
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{black}]
+                      |<-- current window -->|
+\textcolor{VimHelpHeaderColor}{
+        some long text, part of which is visible in the window}
+ze        |<--     window     -->|
+zH         |<--     window     -->|
+4zh               |<--     window     -->|
+zh                   |<--     window     -->|
+zl                     |<--     window     -->|
+4zl                       |<--     window     -->|
+zL                              |<--     window     -->|
+zs                             |<--     window     -->|
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+
+\VimSubSection{关闭折行显示时的行内移动}
+
+\VimOption{wrap}关闭状态下左右滚动文本行时，可以使用下面的命令在当前可视区移动
+光标。窗口可视区左右的文本都不受影响。这些命令也绝不会引起左右滚动。
+
+\begin{VimVBListNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{black}]
+g0              到窗口内的第一个字符
+g^              到当前窗口内第一个非空白字符
+gm              到当前窗口中间的字符上
+g$              到当前窗口的最后一个字符上
+        |<--     window    -->|
+\textcolor{VimHelpHeaderColor}{
+some long    text, part of which is visible}
+         g0  g^    gm             g$
+\end{VimVBListNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\VimSubSection{word的绕行显示} \VimToRight{\VimCommonDest{edit-no-break}}
+
+有时候在生成被另一个程序读取的文件时，可能会要求一段内容不能有断行。但
+使用\VimOption{nowrap}的话又不能看到整个句子的全貌。\VimOption{wrap}选项打开的话，又可能会
+把一个词从中间硬生生折到下一行去显示，让你看起来很费劲。
+   一个好办法是仍然打开\VimOption{wrap}, 同时打开\VimOption{linebreak}选项。这样Vim就会在适当
+的地方折叠显示长的文本行。同时文本的内容本身不受影响。
+
+   不打开\VimOption{linebreak}选项时：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++---------------------------------+
+|letter generation program for a b|
+|ank.  They wanted to send out a s|
+|pecial, personalized letter to th|
+|eir richest 1000 customers.  Unfo|
+|rtunately for the programmer, he |
++---------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+打开后：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set linebreak
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+效果将是：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++---------------------------------+
+|letter generation program for a  |
+|bank.  They wanted to send out a |
+|special, personalized letter to  |
+|their richest 1000 customers.    |
+|Unfortunately for the programmer,|
++---------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+\VimSubSection{相关选项：}
+
+\VimOption{breakat}指定了可以断行的字符。
+
+\VimOption{showbreak}可以指定一个字符串显示在接续显示的行的开头。
+
+把\VimOption{textwidth}设置为0可以避免自动断行。
+
+
+\VimSubSection{移动可视屏幕行}
+
+\VimDQuote{j}和\VimDQuote{k}命令可以上下移动文本行。这两个命令作用于长的文本行
+时每次移动的屏幕显示的行可能会多于1行\VimMyFootnote{译注：文本行指有一个换行符
+的行，屏幕显示行指在屏幕上占据一个显示行位置的行，一个太长而需要折叠到下行显示
+的文本行需要多个屏幕上的显示行来显示}。
+
+   要精确地每次只移动一个屏幕显示行，使用\VimDQuote{gj}和\VimDQuote{gk}命令。
+对于根本无需折叠显示的行，这两个命令与\VimDQuote{j}和\VimDQuote{k}命令的效果一
+样，如果一个长行需要折叠显示，这两个命令就会只移动一个屏幕显示行。
+
+   使用下面绑定到箭头键的映射往往是更好的选择：
+% vim: no special highlight in verbatim
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:map <Up> gk
+:map <Down> gj
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimSubSection{合并多行文本}
+
+如果你要把文件导入到一个如MS-Word的程序中去，那就应该每个段只占据一行。如果你
+的每段文本现在都是以空行分隔的，下面的命令可以把每个段放到同一行上：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:g/./,/^$/join
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+看起来挺复杂。我们一点一点来解释：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:g/./    一个全局命令，查找那些至少有一个字符的行
+,/^$/    指定一个范围，从当前行开始(非空行)直到一个空行
+join     ":join"命令把指定范围内的行连为一行
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+下面一段文本在30列处断行，共8行：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++----------------------------------+
+|A letter generation program       |
+|for a bank.  They wanted to       |
+|send out a special,               |
+|personalized letter.              |
+|                                  |
+|To their richest 1000             |
+|customers.  Unfortunately for     |
+|the programmer,                   |
++----------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+执行该命令后变为两行：
+\begin{VimVBDisplay}[commandchars=\\\{\}]
++----------------------------------+
+|A letter generation program for a |
+|bank.  They wanted to send out a s|
+|pecial, personalized letter.      |
+|To their richest 1000 customers.  |
+|Unfortunately for the programmer, |
++----------------------------------+
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+注意如果分隔段的行含有空白字符的话可不是所谓空行；上面的命令就不行了。如果
+你的分隔行含有空格或制表符这些字符的话。代之以这个命令：
+\begin{VimVBexcmdNoAdjustSpace}
+:g/\S/,/^\s*$/join
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+还是需要段尾有一个特别的行来标识段的结束。
+
+%======...
+\VimSepartor
+
+\VimSecDest{25.5}{\ChapterTwentyFiveSectionFiveTitle}
+
+假设你正在编辑这面这样的一个四栏表格：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+nice table        test 1        test 2      test 3
+input A           0.534
+input B           0.913
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+现在需要在第3栏里输入数字。最普通的做法是移到第二行去，使用命令\VimDQuote{A}, 
+然后输入一些空格，对齐位置后输入你的数字。
+
+   对于这类编辑任务有一个特殊的选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+set virtualedit=all
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你可以把光标移到空无一物的虚位置上去了。这叫\VimDQuote{虚空白}. 这时编辑上
+面这样的表格就容易多了。
+
+   通过搜索最后一栏的标题来移动光标：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/test 3
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+现在按下\VimDQuote{j}命令光标就刚好在你要输入数字的位置上了，假如输入了
+\VimDQuote{0.693}结果将是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+nice table        test 1     test 2      test 3
+input A           0.534                  0.693
+input B           0.913
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+Vim会自动填充你新输入的内容之前的空旷地带。现在可以用\VimDQuote{Bj}命令开始输
+入下一个栏位的内容了。\VimDQuote{B}将光标移回到输入新内容之前的位置。
+\VimDQuote{j}则将光标又下移一行。
+
+\VimCaution{
+        \VimCautionTitle{备注：}
+        你可以把光标移到任何位置上去，即使是在一行行尾的后面。但除非你真正
+        输入了新的内容，否则Vim不会因此就填充留出的空白。
+} %end VimCaution
+
+
+\VimSubSection{复制一个表格的列}
+
+假设你要增加一列，该列位于\VimDQuote{test 1}列之前，内容上近似于第3列。这可以通过
+以下7步完成：
+\begin{enumerate}
+\renewcommand{\labelenumi}{\arabic{enumi}.}
+\item{将光标移动到该列的左上角，比如，用\VimDQuote{/test 3}.}
+\item{接下\VimSpecialChar{CTRL-V}进入列选择模式。}
+\item{将光标下移两行：\VimDQuote{2j}. 现在光标已在\VimDQuote{虚空白}上，\VimDQuote{test 3}列在\VimDQuote{input B}那一行的位置上。}
+\item{右移光标，把整个列都选择进来，还要加上列间距。使用\VimDQuote{9l}.}
+\item{用\VimDQuote{y}选择被选择的矩形区域。}
+\item{将光标移至\VimDQuote{test 1}, 新的列即将被放在这里。}
+\item{按下\VimDQuote{P}命令。}
+\end{enumerate}
+
+结果如下：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+nice table        test 3    test 1     test 2      test 3
+input A           0.693     0.534                  0.693
+input B                     0.913
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+注意两个\VimDQuote{test 1}列都被右移了，包括那些\VimDQuote{test 3}栏位并没有内容的那些行。
+
+下面的命令使光标移动命令的行为恢复到正常状态：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set virtualedit=
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_157}{view_157}\hypertarget{view_157}{}\fbox{\textcolor{red}{Review}}\\
+\VimSubSection{虚替换模式}
+
+使用\VimOption{virtualedit}选项的缺点是让人感觉怪怪的。把光标移到行尾后面的时候你也不
+知道那里有什么，空格还是制表符？另外还有一种替代它的办法：虚替换模式。
+
+   假设你的表格中有下面一行，有制表符，也有其它字符。在第一个制表符上使用\VimDQuote{rx}
+命令可能会弄乱整个内容：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+inp     0.693   0.534   0.693}
+
+       |
+   rx  |
+       V
+
+\textcolor{VimHelpHeaderColor}{
+inpx0.693   0.534       0.693}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+要避免这样的结果，代之以\VimDQuote{gr}命令：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+inp     0.693   0.534   0.693}
+
+       |
+  grx  |
+       V
+
+\textcolor{VimHelpHeaderColor}{
+inpx    0.693   0.534   0.693}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+不同在于\VimDQuote{gr}命令总是让被替换的文本占据它所应有的屏幕空间。空出的间隙
+会以额外的空格或制表符来填充。实际执行的就相当于把制表符替换为字符
+\VimDQuote{x}然后又增加了一些空白来让其后的内容保持在固定位置。该例中插入了一
+个制表符。
+
+   使用\VimDQuote{R}命令到replace模式下(参看\VimSecSrc{04.9})替换多个字符时也
+一样，原有的整洁布局被弄乱：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+inp     0       0.534   0.693}
+
+        |
+ R0.786 |
+        V
+
+\textcolor{VimHelpHeaderColor}{
+inp     0.78634 0.693}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+对应的\VimDQuote{gR}命令使用虚替换模式。它将保持页面的良好布局：
+\begin{VimVBDisplayNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+inp     0       0.534   0.693}
+
+        |
+gR0.786 |
+        V
+
+\textcolor{VimHelpHeaderColor}{
+inp     0.786   0.534   0.693}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{26}  \ChapterTwentySixTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}

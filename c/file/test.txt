@@ -1,0 +1,2 @@
+a string write by POSIXFile!
+ string write by POSIXFile!

@@ -1,0 +1,14 @@
+all:
+	@ for dir in $(SUBDIRS); do  \
+		if [ -f $$dir/Makefile ]; then \
+				echo "==> making $@ in $$dir"; \
+				(cd $$dir && $(MAKE) ) || exit 1; \
+		fi \
+	done
+clean:
+	@ for dir in $(SUBDIRS); do  \
+		if [ -f $$dir/Makefile ]; then \
+				echo "==> making $@ in $$dir"; \
+				(cd $$dir && $(MAKE) clean) || exit 1; \
+		fi \
+	done

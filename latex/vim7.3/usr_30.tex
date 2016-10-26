@@ -1,0 +1,786 @@
+\VimNewChapter
+\VimBookMark{第30章　\ChapterThirtyTitle}{usr_30.txt}
+\VimFileNameDest{usr\VimTT{\_}30.txt}{ \VimDocVer  最后修改：2007年11月10日}
+
+\VimBookTitle{VIM用户手册 --- 作者：Bram Moolenaar\\}
+
+\VimBookChapter{程序的编辑\\}
+
+Vim有一些命令专用于辅助编码。比如直接在编辑器里编译源程序，跳转到编译器报
+错的行号上。或者自动为众多语言设置相应的缩进，以及对注释的格式化等等。
+
+\VimSecList{30.1}{\ChapterThirtySectionOneTitle}
+\VimSecList{30.2}{\ChapterThirtySectionTwoTitle}
+\VimSecList{30.3}{\ChapterThirtySectionThreeTitle}
+\VimSecList{30.4}{\ChapterThirtySectionFourTitle}
+\VimSecList{30.5}{\ChapterThirtySectionFiveTitle}
+\VimSecList{30.6}{\ChapterThirtySectionSixTitle}
+
+\VimSibleChapter{
+\begin{tabular}{ll}
+下一章：& \VimFileName{31}  \ChapterThirtyOneTitle\\
+前一章：& \VimFileName{29}  \ChapterTwentyNineTitle\\
+目　录：& \VimFileName{toc}\\
+\end{tabular}
+}
+
+%======...
+\VimSepartor
+
+\VimSecDest{30.1}{\ChapterThirtySectionOneTitle}
+
+Vim有一个叫\VimDQuote{quickfix}的命令集。这些命令可以让程序员在Vim中编辑程序，如果编译
+器报告了程序的错误，你还能在这些错误中自由遍历，修补后再重新编译，如此反复，
+直到你的程序编译无误为止。
+
+下面的命令运行程序\VimDQuote{make}(如果你要跟什么参数的话，直接放在后面就行了)并捕捉它
+可能的错误：
+\begin{VimVBexcmdNoAdjustSpace}
+:make {arguments}
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+如果有错误产生，Vim会自动将光标定位于第一个错误的事发地点。
+
+   看一下下面这个使用\VimDQuote{:make}的例子。(典型情况下，:make命令会产生众多的错误，
+其中还有一些看起来很蠢错误) \VimDQuote{:make}命令执行之后的屏幕显示可能是这样的：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+:!make | &tee /tmp/vim215953.err
+gcc -g -Wall -o prog main.c sub.c
+main.c: In function 'main':
+main.c:6: too many arguments to function 'do_sub'
+main.c: At top level:
+main.c:10: parse error before '\VimTT{\}}'
+make: *** [prog] Error 1
+
+2 returned
+"main.c" 11L, 111C
+(3 of 6): too many arguments to function 'do_sub'
+Hit ENTER or type command to continue
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+从这里你可以看出文件\VimDQuote{main.c}中有错误。按下\VimSpecialChar{<Enter>}之后，Vim会载入文件\VimDQuote{main.c}并把光标定位在第6行，也就是引发第一个错误的程
+序行。整个过程不需要你来指示哪个文件哪一行，Vim会根据错误信息自动判断事发现场。
+
+\begin{VimVBCodeSippet}[xrightmargin=-1cm,commandchars=\\\{\}]
+          +---------------------------------------------------+
+          |int main()                                         |
+          |\VimTT{\{}                                                  |
+          |       int i=3;                                    |
+cursor -> |       do_sub("foo");                              |
+          |       ++i;                                        |
+          |       return (0);                                 |
+          |\VimTT{\}}                                                  |
+          |\VimTT{\}}                                                  |
+          | ~                                                 |
+          |(3 of 12): too many arguments to function 'do_sub' |
+          +---------------------------------------------------+
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+下面的命令会带你到下一个错误的事发地点：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:cnext
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+此例中Vim会跳转到文件的第10行，那里多出来了一个\VimDQuote{\}}字符。
+
+   屏幕上可用的空间紧张时，Vim会缩减必需显示的错误信息。要查看完整的错误信息描
+述，使用下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:cc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{:clist}命令会列出一个所有错误信息的列表，输出的信息类似于：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:clist}
+3 main.c: 6:too many arguments to function 'do_sub'
+5 main.c: 10:parse error before '\VimTT{\}}'
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+这里只列出了包含文件名和一个行号的简要信息，Vim认为这些对于理解一个错误是最重
+要的，其它的行相对就没那么要紧了。然而事实上有时候被忽略掉的那些行正是你想要的
+东西。比如链接器报告说哪个函数没有定义。这只要在\VimDQuote{:clist}命令后加一个
+\VimDQuote{!}就可以列出完整的错误信息列表：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+\textcolor{VimExampleColor}{
+:clist!}
+1 gcc -g -Wall -o prog main.c sub.c
+2 main.c: In function 'main':
+3 main.c:6: too many arguments to function 'do_sub'
+4 main.c: At top level:
+5 main.c:10: parse error before '\VimTT{\}}'
+6 make: *** [prog] Error 1
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+Vim会以特殊颜色显示当前的错误。要回到前一个错误去，使用命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:cprevious
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+此外还有一些其它的命令用于遍历整个错误列表：
+\begin{VimVBList}[commandchars=\\\{\}]
+:cfirst         到第一个错误处
+:clast          到最后一个错误处
+:cc 3           到第3个错误处
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+\VimSubSection{使用其它的编译器}
+
+\VimOption{makeprg}选项定义了\VimDQuote{:make}命令被执行时要实际调用的外部程序
+。通常情况是\VimDQuote{make}程序，不过Visual \VimCPP{}的用户就需要把它定义为
+\VimDQuote{nmake}\VimMyFootnote{译注：\VimDQuote{nmake}随同Visual \VimCPP{}发
+布。是微软版的make}:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set makeprg=nmake
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个选项中还可以跟上命令的参数，注意其中的特殊字符要用反斜杠来特殊处理：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set makeprg=nmake -f project.mak
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+在这个选项\VimMyFootnote{译注：规律：Vim的命令行上允许使用一些特殊字符}中还可
+以引用一些Vim的关键字。字符\VimTT{\%}代表当前的文件名。所以如果你这样
+设置该选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set makeprg=make %
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+当你编辑的文件是main.c时，\VimDQuote{:make}命令就会实际执行：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+make main.c
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这在实际中用处不大，最好是对上面的设定稍事调整，使用:r这个修饰标志：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set makeprg=make %:r.o
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在命令执行起来就是：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+make main.o
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+关于这些修饰标志，请参考：\VimCommonSrc{filename-modifiers}
+
+\VimSubSection{上一个错误列表}
+
+假设你正在用命令\VimDQuote{:make}来构建一个程序，编译过程中出现了两个错误
+\VimMyFootnote{译注：此处的错误兼指Warning和Error}，一个是位于某个源文件中的一
+个警告，另一个是位于另一个是位于另一源文件中的错误。一般来说你会先去修改产生了
+\VimDQuote{错误}的源文件，然后重新编译该文件以检查是否真正排除了这个错误，但是
+现在你却不能在现在的错误列表中看到刚才的那个警告信息了，因为这一次的
+\VimDQuote{:make}只是针对产生错误的这一个文件，而不是整个项目\VimMyFootnote{译
+注：一般来说，编译器将编译过程中产生的问题按严重程度分门别类，比如warning,
+error, fatal error. warning的严重程度较之error为轻，fatal error最严重，所以此
+处举例中先去解决error}，还好，Vim在内部维护了一个关于错误列表的列表。每次的
+\VimDQuote{:make}命令都会产生一个错误列表，多次执行\VimDQuote{:make}就形成一个
+关于错误列表的列表，你可以用下面的命令回到前一个错误列表：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:colder
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在你就可以使用\VimDQuote{:clist}命令和\VimDQuote{:cc \{nr\}}命令来针对前一个
+错误清单进行操作，回到刚才引起warning的位置了。
+
+   要向前查看下一个错误清单，使用下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:cnewer
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+Vim可以同时记住10个错误清单列表。
+
+
+\VimSubSection{使用不同的编译器}
+
+如此诱人的功能不是白给的，你得告诉Vim你所用的编译器产生的错误信息的格式是
+什么样子。这可以通过对\VimOption{errorformat}选项的设置来完成。该选项的语法略有些复杂
+不过也正因为如此它才可以应用于几乎是任何的编译器。你可以在\VimCommonSrc{errorformat}处
+发现对该选项的解释。
+
+有可能你在工作中要使用不同的编译器。不过每次都去分别设置\VimOption{makeprg}和\VimOption{errorformat}
+可不是一件容易的事。Vim为此提供了一个简易办法，比如说，现在你要切换到使
+用Microsoft Visual \VimCPP{}的编译器就可以使用下面的命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:compiler msvc
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这个命令会自动查看关于\VimDQuote{msvc}这个编译器设置的Vim脚本并应用里面的设置。
+   你也可以自己量身打造一个为某种编译器进行设置的脚本文件。请查看
+\VimCommonSrc{write-compile-plugin}. 
+
+
+\VimSubSection{输出重定向}
+
+\VimDQuote{:make}命令的幕后工作是把编译过程的输出重定向到一个记录错误信息的文
+件中。这个过程需要几个Vim选项的紧密配合，比如\VimOption{shell}. 如果你的
+\VimDQuote{:make}命令不能捕获错误，请检查\VimOption{makeef}和
+\VimOption{shellpipe}这两个选项，\VimOption{shellquote}和
+\VimOption{shellxquote}的设置也可能与此有关。
+
+如果你不能把\VimDQuote{:make}命令重定向到文件，还有别的办法，你还可以单独编译
+程序并把编译输出重定向到一个文件中，然后使用下面的命令读取这个错误信息文件：
+\begin{VimVBexcmdNoAdjustSpace}
+:cfile {filename}
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这会跟使用\VimDQuote{:make}命令一样能让你跳转到出错地点去。
+
+%======...
+\VimSepartor
+
+\VimSecDest{30.2}{\ChapterThirtySectionTwoTitle}
+
+程序缩进得当的话会大大提高可读性。Vim有几种措施来协助进行缩进。对C程序或者
+是C风格的程序比如Java或C++来说，打开\VimOption{cindent}选项即可，Vim对C程序有良好
+的支持，它会为你的C程序以良好的风格缩进做大量的工作。对于多级缩进你还可以通过
+\VimOption{shiftwidth}选项的值来调整缩进量。4个空格是一个不错的选择。一个
+\VimDQuote{:set}命令就可以设置妥当：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set cindent shiftwidth=4
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+在上面的设置下，你若键入了\VimDQuote{if (x)}这样的语句，那么下一行就会自动向右缩进一级。
+
+\begin{VimVBListNoAdjustSpace}
+                            if (flag)
+自动缩进           --->         do_the_work();
+自动减小缩进 <--            if (other_flag) {
+自动缩进           --->         do_file();
+保持当前缩进                    do_some_more();
+自动减小缩进 <--            }
+\end{VimVBListNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+如果你是在花括号里键入一个语句块，Vim会在语句块的开始进行缩进，在语句块以\VimDQuote{\}}
+结束时减小缩进，因为毕竟Vim无法得知你会在中间写下什么东西。
+
+使用自动缩进的另一个辅助作用是帮助你发现程序里的错误。当你键入一个\}符号来结束
+一个函数的定义时，如果发现缩量与你的期望有出入时，很可能是在函数体中哪里漏掉
+了一个右花括号\}. 可以使用\VimDQuote{\VimTT{\%}}命令来帮你找到当前的右花括号跟哪一个左花括号相匹配。
+
+   丢了)和;符号也一样会引起异常的缩进。所以如果你看到缩进量多于预期时，最好检
+查一下前面的程序段。
+
+如果你正在接手一些缩进格式相当糟糕的代码，或者要在已有的代码里增删修补时。或许
+你会想重新对这些代码的缩进进行整理。使用\VimDQuote{=}操作符命令，最简单的形式是：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+==
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+这个简单的命令会重新为当前行进行适当的缩进。与其它的操作符命令一样，它有三种
+命令形式。在Visual模式下\VimDQuote{=}命令为被选择的行设定缩进。对于可用的文件对象，\VimDQuote{a\{}
+是有最用的--它选择的对象是当前的\{\}程序块。所以下面的命令会为当前的代码块重新
+设定缩进：
+\begin{VimVBnormalcmdNoAdjustSpace}
+=a{
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+如果手头的代码实在是糟糕透顶，你也可以用下面的命令重新为整个文件进行缩进：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+gg=G
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+不过，对于用手工精心打造出来的缩进格式可不要轻易这么做，虽然Vim的自动缩进功能
+不错，不过人们总是有自己的偏好。
+
+
+\VimSubSection{设置缩进风格}
+
+不同的人喜欢不同风格的缩进，Vim对缩进风格的设置对90\%的程序来说正是他们所喜欢
+的。不过，还是应该允许不同的风格存在，你可以在\VimOption{cinoptions}选项里定义自己的
+缩进风格。
+
+   默认情况下\VimOption{cinoptions}选项的值是一个空字串，Vim会使用默认的风格。如果你
+希望有改变某些情况下的缩进风格。比如，让花括号的缩进看起来象下面这样：
+\begin{VimVBCodeSippetNoAdjustSpace}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+if (flag)
+  {
+    i = 8;
+    j = 0;
+  }
+\end{VimVBCodeSippetNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+可以使用下面的命令：
+\begin{VimVBexcmdNoAdjustSpace}
+:set cinoptions+={2
+\end{VimVBexcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+还可以设置很多这样的在特定情形下的缩进风格，请参考\VimCommonSrc{cinoptions-value}. 
+
+%======...
+\VimSepartor
+
+\VimSecDest{30.3}{\ChapterThirtySectionThreeTitle}
+
+虽然由编辑器为你的程序进行缩进是个不错的主意，你也不会想每次打开一个C文件时
+都去手工把\VimOption{cindent}选项打开，这样的工作完全可以自动化：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:filetype indent on
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+实际上，这个命令所做的远不至仅仅为C文件打开\VimOption{cindent}选项这么简单。首先，它会
+检查文件的类型。这与设置语法高亮时所做的类型检查是一样的。
+
+   一旦Vim确定了文件类型，它就会为此类型的文件搜索一个对应的定义其缩进风格的
+文件。Vim的发布版中包含了很多为每种语言设置不同缩进风格的脚本文件。这些脚本
+文件正是为你在编辑中使用自动缩进功能进行准备工作。
+
+如果你不想用自动缩进的话，还可以再把它关闭掉：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:filetype indent off
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+如果你只是不想对某种类型的文件使用自动缩进，可以创建一个只包含下面一行的文件：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:let b:did_indent = 1
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在给它起个名字保存为：
+\begin{VimVBListNoAdjustSpace}[commandchars=\\\{\}]
+\VimSpecialChar{\{directory\}}/indent/\VimSpecialChar{\{filetype\}}.vim
+\end{VimVBListNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+其中的\{filetype\}就是你想避免它自动缩进的文件类型，比如\VimDQuote{cpp}或\VimDQuote{java}. 你可以用
+下面的命令查看Vim检测到的当前文件类型到底是什么：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set filetype
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+对现在这个文件来说，它的类型是：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+filetype=help
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+这里你的\{filetype\}就是\VimDQuote{help}. 
+
+   对于\{directory\}部分你需要知道你的运行时目录。检查下面命令的输出：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+set runtimepath
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+使用第一个逗号之前的那一项即可。如果它的输出看起来是：
+\begin{VimVBDisplay}[xrightmargin=-2cm,commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+runtimepath=~/.vim,/usr/local/share/vim/vim60/runtime,~/.vim/after
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+你的\{directory\}就可以指定为\VimDQuote{\~{}/.vim}. 所以完整的文件名就是：
+\begin{VimVBList}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+~/.vim/indent/help.vim
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+除了简单地关闭自动缩进功能之外，你还可以定制自己的自动缩进文件。
+在\VimCommonSrc{indenting-expression}里对此有详细解释。
+
+%======...
+\VimSepartor
+
+\VimSecDest{30.4}{\ChapterThirtySectionFourTitle}
+
+使用自动缩进最简单的形式是打开\VimOption{autoindent}选项。它使用当前行前面一行
+的缩进。一个更智能一点的方案是使用\VimOption{smartindent}选项。这主要用于没有缩
+进文件的程序语言。 \VimOption{smartindent}并没有\VimOption{cindent}对缩进考虑
+的那么周全，不过它比\VimOption{autoindent}还是智能一点。
+
+   打开\VimOption{smartindent}选项的话，每一个开花括号之后都会增加一级的缩进，
+而在对应的闭花括号\}之后再撤去这一级的缩进。此外，也会在遇到
+\VimOption{cinwords}选项中列出的词时增加一级缩进。以符号\#开始的行也会被特殊对
+待：不使用任何缩进。这样所有的预处理器指示器就都从第1列开始\VimMyFootnote{译注
+：这里作者的假设是C/\VimCPP{}语言}。下一行又会恢复在此之前的缩进量
+
+\VimSubSection{修正缩进}
+
+如果你使用\VimOption{autoindent}或\VimOption{smartindent}得到了前一行的缩进量，很可能这个缩进量不是
+你刚好想要的。一个快速增减当前缩进量的办法是在Insert模式下使用
+\VimSpecialChar{CTRL-D}和\VimSpecialChar{CTRL-T}\VimMyFootnote{译注：减小/增
+加一个缩进单位}. 
+
+   比如，你正在键入如下的shell脚本：
+\begin{VimVBshcmd}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+if test -n a; then
+   echo a
+   echo "-------"
+fi
+\end{VimVBshcmd}
+\vspace{-1.3\parskip}
+
+在开始之前你设置了如下的选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set autoindent shiftwidth=3
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+键入第一行之后，你按下回车键开始第二行：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+if test -n a; then
+echo
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+现在你需要增加该行的缩进量。按\VimSpecialChar{CTRL-T}. 结果将是：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+if test -n a; then
+   echo
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+Insert模式下的\VimSpecialChar{CTRL-T}命令会向当前的缩进量附加由
+\VimOption{shiftwidth}指定的字符宽度。不管光标的当前位置在该行中的任何位置都可
+使用这一命令\VimMyFootnote{译注：来自使用\VimSpecialChar{<Tab>}的经验使多数人直
+觉光标应处在第一列才会把后面的所有内容向后\VimDQuote{推}, 不是这样的！}。
+
+   继续刚才第二行，按下回车开始第三行，第三行的缩进刚好，但是再回车之后的第四行
+看起来就...:
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+if test -n a; then
+   echo a
+   echo "-------"
+   fi
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+按\VimSpecialChar{CTRL-D}可以移除第4行中超额的缩进量。它所减小的缩进量也是
+\VimOption{shiftwidth}指定的字符宽度，同样，这一命令不管光标位于该行的何处都一
+样发挥作用。
+
+   在Normal模式下，你也可以使用\VimDQuote{\VimTT{>>}}和\VimDQuote{\VimTT{<<}}
+命令来向右/左\VimMyFootnote{译注：规律：Vim一些命令具有象形文字的示意功能}。
+\VimDQuote{\VimTT{>}}和\VimDQuote{\VimTT{<}}其实是操作符命令，所以仍然可以使用此类命
+令的3种形式\VimMyFootnote{译注：规律：Vim的命令如此众多的一个重要原因就是这种基本命令*操
+作模式产生的爆炸组合}。下面是一个比较有用的组合：
+\begin{VimVBnormalcmdNoAdjustSpace}
+>i{
+\end{VimVBnormalcmdNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+这为\{\}内的所有行增加一个缩进单位\VimMyFootnote{译注：这里的一个缩进单位即是
+指由\VimOption{shiftwidth}选项指定的字符宽度}. \VimDQuote{>a\{}命令则包括了\{
+与\}所在的行本身。假设下例中的光标停于\VimDQuote{printf}上\VimMyFootnote{译注：
+\VimDQuote{>a\{}命令之后是指以原始内容为基础执行该命令，而不是基于第一个
+\VimDQuote{>i\{}命令执行后的结果}:
+\begin{VimVBDisplayNoAdjustSpace}[xrightmargin=-2cm,formatcom=\color{VimHelpHeaderColor}]
+\textcolor{black}{
+原始内容                ">i{"命令之后           ">a{"命令之后}
+
+if (flag)               if (flag)               if (flag)
+{                       {                           {
+printf("yes");              printf("yes");          printf("yes");
+flag = 0;                   flag = 0;               flag = 0; 
+}                       }                           }
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+%======...
+\VimSepartor
+
+\VimSecDest{30.5}{\ChapterThirtySectionFiveTitle}
+
+\VimOption{tabstop}选项的默认值是8. 虽然你可以改变这个值，不过很快你就会遇到麻
+烦。因为其它的程序都假设一个制表符占据8个字符宽度，似乎突然之间你的文件看起来
+就大不一样了。另外，大多数打印机也都假设一个固定制表符的宽度是8. 所以最好还是
+保留\VimOption{tabstop}的值为8不要动。(如果你在编辑一个制表符宽度不是8的文件，
+请参考\VimSecSrc{25.3}里的建议).
+
+   但对于源程序的缩进来说，如果使用8个字符的话，程序行很容易就
+会超屏幕的可视区。而用1个字符宽度的话又太不显眼。所以很多人选择了4, 这是一个
+不错的折衷。
+
+   因为一个制表符是8个字符而你想用4个空格来进行缩进，所以不能通过插入制表符来
+进行缩进。有两个办法可以解决这个问题：
+
+\begin{enumerate}
+\renewcommand{\labelenumi}{\arabic{enumi}.}
+\item{混合使用制表符和空格。因为一个制表符占8个字符的宽度，所以你的文件就可以少
+些字符。而插入一个制表符也比插入8个空格快得多，使用退格键也挺快。}
+
+\item{只用空格。这可以避免有些程序使用不同的制表符宽度引起的问题。}
+\end{enumerate}
+
+幸运的是Vim能同时支持上面两种办法。
+
+
+\VimSubSection{空格和制表符}
+
+如果你是在混合使用空格和制表符，你就只管编辑吧，Vim会在幕后处理这些工作。
+
+   你可以使用\VimOption{softtabstop}选项来简化工作。
+这个选项告诉Vim让一个\VimSpecialChar{<Tab>}看起来
+就象是由\VimOption{softtabstop}所设置的宽度，但实际上是对制表符和空格的混合。
+
+   执行下面的命令后，每次你按下制表符键，光标就会向前移动4列：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set softtabstop=4
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+当你在第一列按下制表符后，文件中被插入4个空格。再按下制表符Vim会在4个空格后
+加一个制表符(这样一共是8列). Vim以此来尽可能地使用制表符，不足的宽度再以空格
+来补充。
+
+   使用退格键时是另一种情况。一个退格键总是删除由\VimOption{softtabstop}指定的宽度。同样
+剩余的空白会尽可能多地使用制表符，留下的间隙用空格来填充。
+
+   下例图示了按下跳格键及使用退格键时的情景。一个\VimDQuote{.}代表一个空格，
+\VimDQuote{------->}代表制表符。
+
+% vim: angle_bracket_special_key
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{black}]
+\textcolor{VimHelpHeaderColor}{
+键入                     结果}
+<Tab>                    ....
+<Tab><Tab>               ------->
+<Tab><Tab><Tab>          ------->....
+<Tab><Tab><Tab><BS>      ------->
+<Tab><Tab><Tab><BS><BS>  ....
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+另一个办法是使用\VimOption{smarttab}选项。打开该选项时，Vim会在缩进时应用
+\VimOption{shiftwidth}选项的值\VimMyFootnote{译注：意为一级缩进的宽度是由
+\VimOption{shiftwidth}, 具体插入空格还是制表符还得看当前缩进量是否够一
+个tabstop}，而在第一个非空白字符之后再按下\VimSpecialChar{<Tab>}就插入真正的制表符
+。不过此时的退格键就不象使用\VimOption{softtabstop}时那么配合了。
+
+\VimSubSection{只用空格}
+
+如果你根本不想在文件中看到制表符， 你可以设置\VimOption{expandtab}选项：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set expandtab
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+打开该选项之后\VimMyFootnote{译注：术语：打开某选项暗示这个选项的值类型是boolean型，只有开
+和关两种状态}，按下制表符就会插入相应宽度的空格来代替。看起来空白区域的宽度
+都是一样，但是文件中实际上不会有制表符。
+
+   此时的退格键只会删除一个空格，所以按下一个\VimSpecialChar{<Tab>}键你得按8次退
+格键才能删除由它所插入的空格。如果这些空白是缩进，按下\VimSpecialChar{CTRL-D}
+会更快。
+
+
+\VimSubSection{把制表符变为空格(或反之)}
+
+打开 \VimOption{expandtab}选项并不会影响到此前输入的制表符。换句话说，文件里原
+来有多少制表符还在还是不变，如果你想把所有的制表符都转为空格，可以使用
+\VimDQuote{:retab}命令：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set expandtab
+:%retab
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+现在Vim就会把所有缩进中的制表符改为空格了。但是在非空白字符之后的制表符还是保留
+了下来。如果你想把所有的制表符都转为空白，在命令后加一个\VimMyFootnote{译注：!加在命令后表示
+强制，全部，忽略}!:
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:%retab!
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+这样作有一些风险，因为这可能会改变那些作为字符串内容的制表符。你可以用下面的
+搜索命令检查当前文件里有没有这样的情况：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+/"[^"t]*t[^"]*"
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+不过最好还是不要在字符串中以一个实实在在的\VimSpecialChar{<Tab>}来代表制表符，可以用\VimDQuote{\VimBS{}t}来
+代替它以避免此类的麻烦。
+
+要反过来转换这样即可：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set noexpandtab
+:%retab!
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+% \pdfbookmark[1]{view_164}{view_164}\hypertarget{view_164}{}\fbox{\textcolor{red}{Review}}\\
+%======...
+\VimSepartor
+
+\VimSecDest{30.6}{\ChapterThirtySectionSixTitle}
+
+Vim的另一个引人之处是它能理解注释。你可以让Vim来格式化你的注释。
+   假如你有下面的注释：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+/*
+ * This is a test
+ * of the text formatting.
+ */
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+你可以把光标置到注释的开始，然后用如下命令来格式它：
+\begin{VimVBnormalcmd}[commandchars=\\\{\}]
+gq]/
+\end{VimVBnormalcmd}
+\vspace{-1.3\parskip}
+
+\VimDQuote{gq}是格式化命令的操作符。\VimDQuote{]/}是移动到注释结尾的移动命令。执行后结果是：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+/*
+ * This is a test of the text formatting.
+ */
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+注意Vim已经正确处理了注释中的每一行的开头。
+
+   另一个办法是在Visual模式下先选定要格式化的内容然后再按下命令\VimDQuote{gq}. 
+
+要在注释中加入一行，把光标放在其中一行上，然后按\VimDQuote{o}. 结果看起来会是：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+/*
+ * This is a test of the text formatting.
+ *
+ */
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+Vim会自动为你新加的注释行插入一个星号和一个空格。现在你直接写注释就行了。如果
+你写入的内容超出了\VimOption{textwidth}的限制，Vim还会自动为你断行，断行时它同时不会忘
+了为新行注释插入星号和一个空格：
+\begin{VimVBCodeSippet}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+/*
+ * This is a test of the text formatting.
+ * Typing a lot of text here will make Vim
+ * break
+ */
+\end{VimVBCodeSippet}
+\vspace{-1.3\parskip}
+
+要达到上述功能就必需在\VimOption{formatoptions}选项里设置正确的标志：
+\begin{VimVBList}[commandchars=\\\{\}]
+r       在Insert模式下按下回车时插入一个星号
+o       在Normal模式下按"o"或"O"时插入一个星号
+c       根据\VimOption{textwidth}的设置自动为注释断行
+\end{VimVBList}
+\vspace{-1.3\parskip}
+
+请参考\VimCommonSrc{fo-table}了解更多的标志字符。
+
+
+\VimSubSection{自定义注释格式}
+
+\VimOption{comments}选项定义一个注释的外观。Vim会区别对待单行注释和那种对头，体，尾
+各有规定的多行注释。
+
+   很多的多行注释都以一个特殊字符开头，\VimCPP{}中用//, Makefiles中用\#, Vim脚本用
+双引号". 比如，要让Vim理解\VimCPP{}的注释：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set comments=://
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+其中的冒号是为了分隔标志和后面的注释关键字，Vim就是根据这里的注释关键字来识别
+一个注释的。\VimOption{comments}选项的内容一般形式是：
+\begin{VimVBDisplayNoAdjustSpace}
+{flags}:{text}
+\end{VimVBDisplayNoAdjustSpace}
+\vspace{-1.3\parskip}
+
+\{flags\}部分可以是空的，就象上面的例子中一样。
+
+   多个这样的注释项定义可以串连在一起，其间用逗号分隔，这样就可以同时定义多种
+类型的注释。比如，若要想在回复e-mail信息时，使它人写的以\VimDQuote{>}和
+\VimDQuote{!}字符开头的内容成为注释，可以这样：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set comments=n:>,n:!
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+   这里有两个注释项定义，分别定义了以\VimDQuote{>}开头的注释和以\VimDQuote{!}
+开头的注释。两者的定义都使用了标志\VimDQuote{n}. 该标志是说这些注释可以是嵌套
+的。这样以\VimDQuote{>}开头的后面内容本身也可能是注释，这样的定义下格式化后的
+内容可能是这样：
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+> ! Did you see that site?
+> ! It looks really great.
+> I don't like it.  The
+> colors are terrible.
+What is the URL of that
+site?
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+试着为\VimOption{textwidth}选项设置不同的值，然后在Visual模式下选定这段文本以
+\VimDQuote{gq}命令格式化，结果可能是\VimMyFootnote{译注：gq命令根据indent,
+comments, textwidth等多个选项进行工作}:
+
+\begin{VimVBDisplay}[commandchars=\\\{\},formatcom=\color{VimHelpHeaderColor}]
+> ! Did you see that site? It looks really great.
+> I don't like it.  The colors are terrible.
+What is the URL of that site?
+\end{VimVBDisplay}
+\vspace{-1.3\parskip}
+
+注意到没有，Vim不会把属于一种类型的注释文本挪到另一种类型的注释中去。第2行里的
+\VimDQuote{I}本可以放在第1行的末尾，但因为第1行以\VimDQuote{> !}而第2行以
+\VimDQuote{>}开头，所以Vim认为这是两种不同类型的注释。因此要放在不同的行上。
+
+
+\VimSubSection{三段式注释}
+
+典型的C风格的多行注释以\VimDQuote{/*}开头，中间的注释行以\VimDQuote{*}开头，注释的最后以\VimDQuote{*/}结尾。
+这三段对应于\VimOption{comments}这样的形式：
+\begin{VimVBexcmd}[commandchars=\\\{\}]
+:set comments=s1:/*,mb:*,ex:*/
+\end{VimVBexcmd}
+\vspace{-1.3\parskip}
+
+注释的开头以\VimDQuote{s1:/*}定义。\VimDQuote{s}意为start. 冒号是用于分隔
+标志字符和其后的注释关键字\VimDQuote{/*}. 
+注释中还有一个\VimDQuote{1}. 这是告诉Vim三段式注释的中间行要有一个字符宽度的右偏移。
+
+   中间部分的定义是\VimDQuote{mb:*}, 其中\VimDQuote{m}意为middle,
+\VimDQuote{b}标志是说注释关键字\VimDQuote{*}之后要有空格。否则Vim会认为象
+\VimDQuote{*pointer}这样的指针定义也是三段式注释的一部分。
+
+   结尾的定义：\VimDQuote{ex:*/}, \VimDQuote{e}意为注释的结尾
+(end)\VimMyFootnote{译注：指对三段式注释结束的标识}\VimDQuote{x}标志在这里有一
+层特殊含义，它告诉Vim自动插入一个星号后，如果接下来输入了一个/字符，就要移除多
+余的空格。
+
+更多的信息请参数\VimCommonSrc{format-comments}. 
+
+%======...
+\VimSepartor
+
+\VimChapterEnd{
+下一章：\VimFileName{31}  \ChapterThirtyOneTitle\\
+版　权：请参考 \VimCommonSrc{manual-copyright}  vim:tw=78:ts=8:ft=help:norl:
+}
