@@ -1,5 +1,5 @@
 SHELL=/bin/sh
 
-SUBDIRS=c c++ java
+SUBDIRS=c cpp java
 
 include ${HOME}/Code/make/Make-subdir-targets
