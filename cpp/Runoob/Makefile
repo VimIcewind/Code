@@ -4,7 +4,8 @@ OBJ = hi hello lenth localvar globalvar localglobalvar define const signed \
       stringfunc stringend NULLpointer pointer pointerplusplus \
       pointerminusminus pointercmp pointerVSarrays pointerpointer \
       pointerreturn pointerparameter reference referencesreturn currenttime \
-      tm cout cin cerr clog struct structparameter structpoint typedef
+      tm cout cin cerr clog struct structparameter structpoint typedef \
+      class
 
 All : $(OBJ)
 
