@@ -7,7 +7,7 @@ OBJ = hi hello lenth localvar globalvar localglobalvar define const signed \
       tm cout cin cerr clog struct structparameter structpoint typedef \
       class classmethod public private protected constructor \
       constructorparameter constructorparameter1 destructor \
-      copyconstructor copyconstructor1
+      copyconstructor copyconstructor1 friend
 
 All : $(OBJ)
 
