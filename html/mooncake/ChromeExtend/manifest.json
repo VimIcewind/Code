@@ -1,0 +1,21 @@
+{
+    "manifest_version": 2,
+    "name": "抢月饼",
+    "version": "1.0",
+    "description": "人生就像抢月饼，你永远不知道会发生什么",
+    "content_scripts": [{
+        "matches": ["file://*/*"],
+        "js": ["js/grab-mooncake.js"]
+    }],
+    "browser_action": {
+        "default_icon": {
+            "19": "img/grab.png",
+            "38": "img/grab.png"
+        }
+    },
+    "icons": {
+        "16": "img/grab.png",
+        "48": "img/grab.png",
+        "128": "img/grab.png"
+    }
+}
