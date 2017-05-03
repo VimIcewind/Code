@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<project name="propertyStudy" default="example">
+    <property name="name" value="VimIcewind"/>
+    <property name="age" value="26"/>
+    <target name="example">
+        <echo message="name: ${name}, age: ${age}"/>
+    </target>
+</project>

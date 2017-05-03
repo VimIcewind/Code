@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<project name="antwebproject" default="war" basedir=".">
+    <property name="classes" value="build/classes"/>
+    <property name="build" value="build"/>
+    <property name="lib" value="WebRoot/WEB-INF/lib"/>
+    <!-- 删除build路径 -->
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <!-- 建立build/classes路径，并编译class文件到build/classes路径下 -->
+    <target name="compile" depends="clean">
+        <mkdir dir="${classes}"/>
+        <javac srcdir="src" destdir="${classes}"/>
+    </target>
+
+    <!-- 打war包 -->
+    <target name="war" depends="compile">
+        <war destfile="${build}/antwebproject.war" webxml="WebRoot/WEB-INF/web.xml">
+            <!-- 拷贝WebRoot下除了WEB-INF和META-INF的两个文件夹 -->
+            <fileset dir="WebRoot" includes="**/*.jsp"/>
+            <!-- 拷贝lib目录下的jar包 -->
+            <lib dir="${lib}"/>
+            <!-- 拷贝build/classes下的class文件 -->
+            <classes dir="${classes}"/>
+        </war>
+    </target>
+</project>

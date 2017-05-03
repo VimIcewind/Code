@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<project name="targetStudy">
+    <target name="targetA" if="ant.java.version">
+        <echo message="Java Version: ${ant.java.version}"/>
+    </target>
+    <target name="targetB" depends="targetA" unless="user">
+        <description>
+            a depend example!
+        </description>
+        <echo message="The base dir is: ${basedir}" />
+    </target>
+</project>
+

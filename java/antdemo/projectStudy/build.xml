@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<project name="projectStudy" default="sayBaseDir" >
+    <target name="sayBaseDir">
+        <echo message="The base dir is: ${basedir}"/>
+    </target>
+</project>
+
