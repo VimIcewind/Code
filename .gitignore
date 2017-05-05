@@ -3,3 +3,5 @@ golang
 target/
 *.o
 *.class
+
+.gradle/
