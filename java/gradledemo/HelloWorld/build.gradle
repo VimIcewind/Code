@@ -1,4 +1,4 @@
-task hi {
+task hi << {
     println "Hi, Gradle!"
 }
 
