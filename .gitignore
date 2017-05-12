@@ -1,5 +1,8 @@
 golang
 
+*~
+*.swp
+
 target/
 *.o
 *.class
