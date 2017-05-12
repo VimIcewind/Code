@@ -11,6 +11,7 @@
     <modules>
         <module>account-email</module>
         <module>account-persist</module>
+        <module>account-captcha</module>
     </modules>
     <properties>
         <springframework.version>3.0.3.RELEASE</springframework.version>
