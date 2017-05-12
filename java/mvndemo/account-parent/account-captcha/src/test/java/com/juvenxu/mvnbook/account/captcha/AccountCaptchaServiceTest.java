@@ -40,7 +40,7 @@ public class AccountCaptchaServiceTest {
                 output.close();
             }
         }
-        assertTrue(image.exists()  &&image.length() > 0);
+        assertTrue(image.exists() && image.length() > 0);
     }
 
     @Test
