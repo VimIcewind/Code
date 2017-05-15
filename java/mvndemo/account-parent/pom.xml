@@ -12,6 +12,8 @@
         <module>account-email</module>
         <module>account-persist</module>
         <module>account-captcha</module>
+        <module>account-service</module>
+        <module>account-web</module>
     </modules>
     <properties>
         <springframework.version>3.0.3.RELEASE</springframework.version>
@@ -37,6 +39,11 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context-support</artifactId>
+                <version>${springframework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
                 <version>${springframework.version}</version>
             </dependency>
             <dependency>
