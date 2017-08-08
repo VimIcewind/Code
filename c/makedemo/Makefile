@@ -13,4 +13,4 @@ files.o : files.c defs.h buffer.h command.h
 utils.o : utils.c defs.h
 .PHONY : clean
 clean :
-	rm edit $(objects)
+	-rm edit $(objects)
