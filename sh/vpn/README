@@ -1,0 +1,20 @@
+VPN 一键安装脚本 阿里云专用网络需要创建安全组规则，放行入方向UDP 500, 1701, 4500端口
+ubuntu
+wget https://git.io/vpnsetup -O vpnsetup.sh
+修改脚本内变量
+vi vpnsetup.sh
+YOUR_IPSEC_PSK='JustDoIT'
+YOUR_USERNAME='Username'
+YOUR_PASSWORD='Passw0rd'
+执行脚本
+sh vpnsetup.sh
+
+CentOS
+wget https://git.io/vpnsetup-centos -O vpnsetup_centos.sh
+修改脚本内变量
+vi vpnsetup_centos.sh
+YOUR_IPSEC_PSK='JustDoIT'
+YOUR_USERNAME='Username'
+YOUR_PASSWORD='Passw0rd'
+执行脚本
+sh vpnsetup_centos.sh
