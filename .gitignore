@@ -2,6 +2,7 @@ golang
 
 *~
 *.swp
+.#*
 
 target/
 *.o
