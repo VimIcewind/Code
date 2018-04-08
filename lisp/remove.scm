@@ -1,0 +1,8 @@
+(define (remove x ls)
+  (if (null? ls)
+      '()
+      (let ((h (car ls)))
+	((if (eqv? x h)
+	     (lambda (y) y)
+	     (lambda (y) (cons h y)))
+	 (remove x (cdr ls))))))
