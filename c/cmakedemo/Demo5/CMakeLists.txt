@@ -27,6 +27,10 @@ endif (USE_MYMATH)
 # 并将名称保存到 DIR_SRCS 变量
 aux_source_directory(. DIR_SRCS)
 
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_C_FLAGS_DEBUG "$ENV{CFLAGS} -O0 -Wall -g -ggdb")
+set(CMAKE_C_FLAGS_RELEASE "$ENV{CFLAGS} -O3 -Wall")
+
 # 指定生成目标
 add_executable(Demo ${DIR_SRCS})
 # 添加链接库
