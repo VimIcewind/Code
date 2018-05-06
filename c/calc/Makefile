@@ -1,10 +1,10 @@
 CC=gcc
 CFLAGS=-g
-OBJECT=main.o getop.o stack.o getch.o
+OBJECTS=main.o getop.o stack.o getch.o
 
-calc : $(OBJECT)
-	$(CC) $(CFLAGS) -o calc $(OBJECT)
+calc : $(OBJECTS)
+	$(CC) $(CFLAGS) -o calc $(OBJECTS)
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
 clean :
-	rm -rf calc $(OBJECT)
+	rm -rf calc $(OBJECTS)
