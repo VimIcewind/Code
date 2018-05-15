@@ -1,6 +1,9 @@
-all : hello
+all : hello various_storage
 
 hello : hello.c
 	gcc -o hello hello.c
+various_storage : various_storage.c
+	gcc -o various_storage various_storage.c
+
 clean :
-	rm -rf hello *.o
+	rm -rf *.o hello various_storage
