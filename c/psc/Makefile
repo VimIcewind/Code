@@ -1,4 +1,4 @@
-all : hello various_storage SimpleSection SpecialSymbol ManualNameMangling
+all : hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt
 
 hello : hello.c
 	gcc -o hello hello.c
@@ -12,6 +12,11 @@ SpecialSymbol : SpecialSymbol.c
 	gcc -o SpecialSymbol SpecialSymbol.c
 ManualNameMangling : ManualNameMangling.cpp
 	g++ -o ManualNameMangling ManualNameMangling.cpp
+single-thread-pt : pthread.c
+	gcc -o single-thread-pt pthread.c
+multi-thread-pt : pthread.c
+	gcc -o multi-thread-pt pthread.c -lpthread
 
 clean :
-	rm -rf *.o hello various_storage SimpleSection SpecialSymbol ManualNameMangling
+	rm -rf *.o hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt
+
