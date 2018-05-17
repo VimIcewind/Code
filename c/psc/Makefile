@@ -1,4 +1,4 @@
-all : hello various_storage SimpleSection SpecialSymbol
+all : hello various_storage SimpleSection SpecialSymbol ManualNameMangling
 
 hello : hello.c
 	gcc -o hello hello.c
@@ -10,6 +10,8 @@ SimpleSection.o : SimpleSection.c
 	gcc -c SimpleSection.c
 SpecialSymbol : SpecialSymbol.c
 	gcc -o SpecialSymbol SpecialSymbol.c
+ManualNameMangling : ManualNameMangling.cpp
+	g++ -o ManualNameMangling ManualNameMangling.cpp
 
 clean :
-	rm -rf *.o hello various_storage SimpleSection SpecialSymbol
+	rm -rf *.o hello various_storage SimpleSection SpecialSymbol ManualNameMangling
