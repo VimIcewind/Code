@@ -1,4 +1,4 @@
-all : hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt
+all : hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds
 
 hello : hello.c
 	gcc -o hello hello.c
@@ -16,7 +16,18 @@ single-thread-pt : pthread.c
 	gcc -o single-thread-pt pthread.c
 multi-thread-pt : pthread.c
 	gcc -o multi-thread-pt pthread.c -lpthread
+ab : a.o b.o
+	gcc -o ab a.o b.o
+a.o : a.c
+	gcc -c a.c
+b.o : b.c
+	gcc -c b.c
+TinyHelloWorld : TinyHelloWorld.o
+	ld -static -e nomain -o TinyHelloWorld TinyHelloWorld.o
+TinyHelloWorld.o : TinyHelloWorld.c
+	gcc -c -fno-builtin TinyHelloWorld.c
+TinyHelloWorld_lds : TinyHelloWorld.o
+	ld -static -T TinyHelloWorld.lds -o TinyHelloWorld_lds TinyHelloWorld.o
 
 clean :
-	rm -rf *.o hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt
-
+	rm -rf *.o hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds
