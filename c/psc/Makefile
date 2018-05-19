@@ -1,4 +1,5 @@
-all : hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds target
+all : hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds target \
+	SectionMapping SectionMapping.elf malloc_maximum
 
 hello : hello.c
 	gcc -o hello hello.c
@@ -30,6 +31,13 @@ TinyHelloWorld_lds : TinyHelloWorld.o
 	ld -static -T TinyHelloWorld.lds -o TinyHelloWorld_lds TinyHelloWorld.o
 target : target.c
 	gcc -o target target.c -lbfd
+SectionMapping : SectionMapping.c
+	gcc -o SectionMapping SectionMapping.c
+SectionMapping.elf : SectionMapping.c
+	gcc -static -o SectionMapping.elf SectionMapping.c
+malloc_maximum : malloc_maximum.c
+	gcc -o malloc_maximum malloc_maximum.c
 
 clean :
-	rm -rf *.o hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds target
+	rm -rf *.o hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds target \
+		SectionMapping SectionMapping.elf malloc_maximum
