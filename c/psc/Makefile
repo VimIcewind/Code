@@ -1,5 +1,6 @@
 all : hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds target \
-	SectionMapping SectionMapping.elf malloc_maximum minibash
+	SectionMapping SectionMapping.elf malloc_maximum minibash Lib.so Program1 Program2
+
 
 hello : hello.c
 	gcc -o hello hello.c
@@ -39,7 +40,14 @@ malloc_maximum : malloc_maximum.c
 	gcc -o malloc_maximum malloc_maximum.c
 minibash : minibash.c
 	gcc -o minibash minibash.c
+Lib.so : Lib.c
+	gcc -fPIC -shared -o Lib.so Lib.c
+Program1 : Program1.c
+	gcc -o Program1 Program1.c ./Lib.so
+Program2 : Program2.c
+	gcc -o Program2 Program2.c ./Lib.so
 
 clean :
 	rm -rf *.o hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds target \
-		SectionMapping SectionMapping.elf malloc_maximum minibash
+		SectionMapping SectionMapping.elf malloc_maximum minibash \
+		Lib.so Program1 Program2
