@@ -7,9 +7,9 @@ int main(int argc, char *argv[])
 	long i;
 	Elf64_auxv_t *aux;
 
-	printf("Argument count: %d\n", *(p-1));
+	printf("Argument count: %ld\n", *(p-1));
 	for (i = 0; i < *(p-1); ++i) {
-		printf("Argument %d : %s\n", i, *(p + i));
+		printf("Argument %ld : %s\n", i, (char *) *(p + i));
 	}
 
 	p += i;
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
 	printf("Environment:\n");
 	while (*p) {
-		printf("%s\n", *p);
+		printf("%s\n", (char *) *p);
 		p++;
 	}
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	printf("Auxiliary Vectors:\n");
 	aux = (Elf64_auxv_t *)p;
 	while (aux->a_type != AT_NULL) {
-		printf("Type: %02d Value: %x\n", aux->a_type, aux->a_un.a_val);
+		printf("Type: %02ld Value: %lx\n", aux->a_type, aux->a_un.a_val);
 		aux++;
 	}
 
