@@ -1,5 +1,6 @@
 all : hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds target \
-	SectionMapping SectionMapping.elf malloc_maximum minibash Lib.so Program1 Program2 pic.so stack_init_info a1.so a2.so b1.so b2.so main RunSoSimple
+	SectionMapping SectionMapping.elf malloc_maximum minibash Lib.so Program1 Program2 pic.so stack_init_info a1.so a2.so b1.so b2.so main RunSoSimple \
+	RunSo RunSo1
 
 
 hello : hello.c
@@ -62,7 +63,12 @@ main : main.c b1.so b2.so
 	gcc -o main main.c b1.so b2.so -Xlinker -rpath ./
 RunSoSimple : RunSoSimple.c
 	gcc -o RunSoSimple RunSoSimple.c -ldl
+RunSo : RunSo.c
+	gcc -o RunSo RunSo.c -ldl
+RunSo1 : RunSo1.c
+	gcc -o RunSo1 RunSo1.c -ldl
 
 clean :
 	rm -rf *.o hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds target \
-		SectionMapping SectionMapping.elf malloc_maximum minibash Lib.so Program1 Program2 pic.so stack_init_info a1.so a2.so b1.so b2.so main RunSoSimple
+		SectionMapping SectionMapping.elf malloc_maximum minibash Lib.so Program1 Program2 pic.so stack_init_info a1.so a2.so b1.so b2.so main RunSoSimple \
+		RunSo RunSo1
