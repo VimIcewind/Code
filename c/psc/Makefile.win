@@ -1,0 +1,11 @@
+ALL : Math.dll TestMath
+
+Math.dll : Math.c
+	cl /LDd Math.c
+TestMath.obj : TestMath.c
+	cl /c TestMath.c
+TestMath : TestMath.obj Math.lib
+	link TestMath.obj Math.lib
+clean :
+	del Math.dll Math.obj Math.lib Math.exp TestMath.obj TestMath.exe
+

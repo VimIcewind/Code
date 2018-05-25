@@ -1,0 +1,11 @@
+#include <stdio.h>
+
+__declspec(dllimport) double Sub(double a, double b);
+
+int main(int argc, const char *argv[])
+{
+	double result = Sub(3.0, 2.0);
+	printf("Result = %f\n", result);
+	return 0;
+}
+
