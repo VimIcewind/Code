@@ -9,5 +9,5 @@ TestMath : TestMath.obj Math.lib
 LoadDll : LoadDll.c
 	cl LoadDll.c
 clean :
-	del /F Math.dll Math.obj Math.lib Math.exp TestMath.obj TestMath.exe LoadDll.exe
+	rm -rf Math.dll Math.obj Math.lib Math.exp TestMath.obj TestMath.exe LoadDll.exe
 
