@@ -1,4 +1,4 @@
-ALL : Math.dll TestMath LoadDll
+ALL : Math.dll TestMath LoadDll foo.obj
 
 Math.dll : Math.c
 	cl /LDd Math.c
@@ -8,6 +8,8 @@ TestMath : TestMath.obj Math.lib
 	link TestMath.obj Math.lib
 LoadDll : LoadDll.c
 	cl LoadDll.c
+foo.obj : foo.c
+	cl foo.c
 clean :
-	rm -rf Math.dll Math.obj Math.lib Math.exp TestMath.obj TestMath.exe LoadDll.exe
+	rm -rf Math.dll Math.obj Math.lib Math.exp TestMath.obj TestMath.exe LoadDll.exe foo.obj
 
