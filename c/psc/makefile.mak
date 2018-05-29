@@ -16,5 +16,5 @@ big_thing : big_thing.c
 	cl big_thing.c
 
 clean :
-	rm -rf Math.dll Math.obj Math.lib Math.exp TestMath.obj TestMath.exe LoadDll.exe foo.obj uninit_array big_thing
+	del /F /Q *.obj *.dll *.exp *.exe
 
