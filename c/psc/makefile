@@ -9,7 +9,7 @@ TestMath : TestMath.obj Math.lib
 LoadDll : LoadDll.c
 	cl LoadDll.c
 foo.obj : foo.c
-	cl foo.c
+	cl /c foo.c
 uninit_array : uninit_array.c
 	cl uninit_array uninit_array.c
 big_thing : big_thing.c
