@@ -1,4 +1,4 @@
-ALL : Math.dll TestMath LoadDll foo.obj
+ALL : Math.dll TestMath LoadDll foo.obj uninit_array big_thing
 
 Math.dll : Math.c
 	cl /LDd Math.c
@@ -10,6 +10,11 @@ LoadDll : LoadDll.c
 	cl LoadDll.c
 foo.obj : foo.c
 	cl foo.c
+uninit_array : uninit_array.c
+	cl uninit_array uninit_array.c
+big_thing : big_thing.c
+	cl big_thing.c
+
 clean :
-	rm -rf Math.dll Math.obj Math.lib Math.exp TestMath.obj TestMath.exe LoadDll.exe foo.obj
+	rm -rf Math.dll Math.obj Math.lib Math.exp TestMath.obj TestMath.exe LoadDll.exe foo.obj uninit_array big_thing
 
