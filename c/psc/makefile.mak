@@ -1,4 +1,4 @@
-ALL : Math.dll TestMath LoadDll foo.obj uninit_array big_thing cpp_obj ms_tls mem my_init
+ALL : Math.dll TestMath LoadDll foo.obj uninit_array big_thing cpp_obj ms_tls mem my_init fread
 
 Math.dll : Math.c
 	cl /LDd Math.c
@@ -22,7 +22,9 @@ mem : mem.c
 	cl mem.c
 my_init : my_init.cpp
 	cl my_init.cpp
+fread : fread.c
+	cl fread.c
 
 clean :
-	del /F /Q *.obj *.dll *.exp *.exe
+	del /F /Q *.obj *.dll *.exp *.exe fread
 
