@@ -1,4 +1,4 @@
-ALL : Math.dll TestMath LoadDll foo.obj uninit_array big_thing cpp_obj
+ALL : Math.dll TestMath LoadDll foo.obj uninit_array big_thing cpp_obj ms_tls
 
 Math.dll : Math.c
 	cl /LDd Math.c
@@ -16,6 +16,8 @@ big_thing : big_thing.c
 	cl big_thing.c
 cpp_obj : cpp_obj.cpp
 	cl cpp_obj.cpp
+ms_tls : ms_tls.c
+	cl ms_tls.c
 
 clean :
 	del /F /Q *.obj *.dll *.exp *.exe
