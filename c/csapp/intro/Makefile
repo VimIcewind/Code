@@ -1,9 +1,13 @@
 CFLAG=-g
-OBJECT=main.o code.o exchange.o
+OBJECT=hello.i hello.s hello.o hello
 
-prog : main.o code.o
-	gcc -o prog main.o code.o
-exchange : exchange.o
-	gcc -o exchange exchange.o
+hello : hello.o
+	gcc -o hello hello.o
+hello.o : hello.s
+	gcc -c hello.s
+hello.s : hello.i
+	gcc -S hello.i
+hello.i : hello.c
+	gcc -o hello.i -E hello.c
 clean :
-	rm -rf prog exchange *.o
+	rm -rf hello hello.o hello.s hello.i
