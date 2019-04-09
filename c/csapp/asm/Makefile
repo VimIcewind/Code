@@ -1,5 +1,7 @@
 CFLAG=-g
 
+all : prog mstore.s mstore.asm mstore.o
+
 prog : main.c mstore.c
 	gcc -Og -o prog main.c mstore.c
 mstore.s : mstore.c
