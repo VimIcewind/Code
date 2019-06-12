@@ -1,4 +1,4 @@
-CFLAG=-g
+CFLAG=-g -Og
 
 all : prog mstore.s mstore.asm mstore.o
 
