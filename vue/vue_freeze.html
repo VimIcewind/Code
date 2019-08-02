@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Vue</title>
+</head>
+<body>
+    <div id="app">
+        <p>{{ foo }}</p>
+        <button v-on:click="foo = 'baz'">Change it</button>
+    </div>
+</body>
+
+<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+<script>
+    var obj = {
+        foo: 'bar'
+    }
+
+    //Object.freeze(obj)
+
+    new Vue({
+        el: '#app',
+        data: obj
+    })
+</script>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Vue</title>
+</head>
+<body>
+    <div id="example">
+    </div>
+</body>
+
+<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+<script>
+    var data = {a: 1}
+    var vm = new Vue({
+        el: '#example',
+        data: data
+    })
+
+    console.log(vm.$data === data)
+    console.log(vm.$el === document.getElementById('example'))
+
+    // $watch 是一个实例方法
+    vm.$watch('a', function(newValue, oldValue){
+        // 这个回调将在 'vm.a' 改变后调用
+        console.log("a's value has been changed")
+    })
+</script>
+</html>
