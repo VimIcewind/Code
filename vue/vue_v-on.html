@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Vue</title>
+    <link rel="stylesheet" href="https://keepfool.github.io/vue-tutorials/01.GettingStarted/styles/demo.css" />
+</head>
+
+<body>
+    <div id="app">
+        <p><input type="text" v-model="message"></p>
+        <p>
+            <!-- click事件直接绑定一个方法 -->
+            <button v-on:click="greet">Greet</button>
+        </p>
+        <p>
+            <!-- click事件使用内联语句 -->
+            <button v-on:click="say('Hi')">Hi</button>
+        </p>
+    </div>
+</body>
+
+<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello, Vue.js!'
+        },
+        methods: {
+            greet: function() {
+                //  方法内 `this` 指向 vm
+                alert(this.message)
+            },
+            say: function(msg) {
+                alert(msg)
+            }
+        }
+    })
+</script>
+</html>
