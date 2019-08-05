@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Vue</title>
+</head>
+<body>
+    <div id="demo">{{ fullName }}</div>
+</body>
+
+<script src="https://cn.vuejs.org/js/vue.js"></script>
+<script>
+    var vm = new Vue({
+        el: '#demo',
+        data: {
+            firstName: 'Foo',
+            lastName: 'Bar',
+        },
+        computed: {
+            fullName: function() {
+                return this.firstName + ' ' + this.lastName
+            }
+        }
+    })
+</script>
+</html>
