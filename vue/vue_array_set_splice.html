@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Vue</title>
+</head>
+<body>
+    <div id="app">
+        <div v-for="(item, index) in items">
+            <p>{{ index  }} - {{ item }}</p>
+        </div>
+    </div>
+</body>
+
+<script src="https://cn.vuejs.org/js/vue.js"></script>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            items: ['a', 'b', 'c']
+        }
+    })
+    vm.items[1] = 'x' // 不是响应属性
+    vm.items.length = 2 // 不是响应属性
+
+    // Vue.set
+    Vue.set(vm.items, 0, 'x')
+    // Array.prototype.splice
+    vm.items.splice(1, 1, 'y')
+    // vm.$set 实例方法，该方法是全局方法 Vue.set 的一个别名
+    vm.$set(vm.items, 2, 'x')
+
+    vm.items.splice(2)
+</script>
+</html>
