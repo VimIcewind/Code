@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Vue</title>
+</head>
+<body>
+    <div id="app">
+        <!-- 只有在 `key` 是`Enter` 时调用 `vm.submit()` -->
+        <input v-on:keyup.enter="submit">
+        <!-- 你可以直接将 KeyboardEvent.key 暴露的任意有效案件名转换为 kebab-case 来作为修饰符 -->
+        <!-- 在 $event.key 等于 PageDown 时被调用 -->
+        <input v-on:keyup.page-down="onPageDown">
+
+        <!-- keyCode 的事件用法已经被废弃了并可能不会被最新的浏览器支持 -->
+        <input v-on:key.13="submit">
+    </div>
+</body>
+
+<script src="https://cn.vuejs.org/js/vue.js"></script>
+<script>
+    var example3 = new Vue({
+        el: '#app'
+    })
+    // 你还可以通过全局 config.keyCodes 对象自定义案件修饰符别名
+    // 可以使用 `v-on:keyup.f1`
+    Vue.config.keyCodes.f1 = 112
+</script>
+</html>
