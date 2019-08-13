@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Vue</title>
+</head>
+<body>
+    <div id="components-demo">
+        <blog-post
+            v-for="post in posts"
+            v-bind:key="post.id"
+            v-bind:post="post"
+        ></blog-post>
+    </div>
+</body>
+
+<script src="https://cn.vuejs.org/js/vue.js"></script>
+<script>
+    Vue.component('blog-post', {
+        props: ['post'],
+        template: `
+            <div class="blog-post">
+                <h3>{{ post.title }}</h3>
+                <div v-html="post.content"></div>
+            </div>
+            `
+    })
+    var vm = new Vue({
+        el: '#components-demo',
+        data: {
+            posts: [
+                {id: 1, title: 'My journey with Vue'},
+                {id: 2, title: 'Blogging with Vue'},
+                {id: 3, title: 'Why vue is so fun'}
+            ]
+        }
+    })
+</script>
+</html>

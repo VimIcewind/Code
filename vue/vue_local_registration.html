@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Vue</title>
+</head>
+
+<body>
+    <div id="app">
+        <component-a></component-a>
+        <component-b></component-b>
+        <component-c></component-c>
+    </div>
+</body>
+
+<script src="https://cn.vuejs.org/js/vue.js"></script>
+<script>
+    var ComponentA = {
+        template: `<p></p>`
+    }
+    var ComponentB = {
+        template: `<p></p>`
+    }
+    var ComponentC = {
+        template: `<p></p>`
+    }
+
+    new Vue({
+        el: '#app',
+        components: {
+            'component-a': ComponentA,
+            'component-b': ComponentB,
+            'component-c': ComponentC
+        }
+    })
+</script>
+
+</html>

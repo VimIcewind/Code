@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Vue</title>
+</head>
+<body>
+    <div id="blog-posts-events-demo">
+        <input v-model="searchText">
+        <input
+            v-bind:value="searchText"
+            v-on:input="searchText = $event.tar.get.value"
+        >
+        <custom-input
+            v-bind:value="searchText"
+            v-on:input="searchText = $event"
+        ></custom-input>
+        <custom-input v-model="searchText"></custom-input>
+    </div>
+</body>
+
+<script src="https://cn.vuejs.org/js/vue.js"></script>
+<script>
+    Vue.component('custom-input', {
+        props:['value'],
+        template: `
+            <input
+                v-bind:value="value"
+                v-on:input="$emit('input', $event.target.value)"
+            >
+        `
+    })
+    var vm = new Vue({
+        el: '#blog-posts-events-demo',
+        data: {
+            searchText: 'Vue'
+        }
+    })
+</script>
+</html>
