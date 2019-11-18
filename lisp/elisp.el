@@ -153,9 +153,9 @@
 (defun greeting (name)
   (let ((your-name "Bastien"))
     (insert (format "Hello %s!\n\nI am %s."
-		    name
-		    your-name ; 局部变量
-		    ))))
+                    name
+                    your-name ; 局部变量
+                    ))))
 
 ;; 执行greeting函数，并提供"you"字符串作为参数
 (greeting "you")
@@ -170,9 +170,9 @@
 (defun greeting (from-name)
   (let ((your-name (read-from-minibuffer "Enter your name: ")))
     (insert (format "Hello!\n\nI am %s and you are %s."
-		    from-name ; 格式化输出参数1
-		    your-name ; 格式化输出参数2
-		    ))))
+                    from-name ; 格式化输出参数1
+                    your-name ; 格式化输出参数2
+                    ))))
 
 ;; 执行这个函数
 (greeting "Bastien")
@@ -233,7 +233,7 @@
   (switch-to-buffer-other-window "*test*")
   (goto-char (point-min)) ;该函数把光标移到buffer的开头
   (while (search-forward "Hello")
-    (replace-match "Bonjour"))
+         (replace-match "Bonjour"))
   (other-window 1))
 
 ;; 其中 (search-forward "Hello") 在当前的buffer中做前向搜索
@@ -264,7 +264,7 @@
   (goto-char (point-min))
   ;; 搜索Hello替换成Bonjour
   (while (search-forward "Hello" nil t)
-    (replace-match "Bonjour"))
+         (replace-match "Bonjour"))
   (other-window 1))
 
 ;; 执行这个函数
@@ -277,10 +277,10 @@
 (defun boldify-names ()
   (switch-to-buffer-other-window "*test*")
   (goto-char (point-min))
-  (while (re-search-forward "Bonjour \\(.+\\)!" nil t)
-    (add-text-properties (match-beginning 1) ;返回匹配模式中，最先匹配的位置
-			 (match-end 1) ;返回最后匹配的位置
-			 (list 'face 'bold)))
+  (while (re-search-forward "Bonjour \<span class='MathJax_Preview'>\(.+\\)</span>!" nil t)
+         (add-text-properties (match-beginning 1) ;返回匹配模式中，最先匹配的位置
+                              (match-end 1) ;返回最后匹配的位置
+                              (list 'face 'bold)))
   (other-window 1))
 
 ;; 执行这个函数
@@ -307,3 +307,4 @@
 ;; - Alan Schmitt
 ;; - LinXitoW
 ;; - Aaron Meurer
+
