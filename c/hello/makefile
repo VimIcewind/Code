@@ -3,4 +3,4 @@ hello : hello.o
 hello.o : hello.c
 	gcc -g -c hello.c
 clean : 
-	rm -rf hello hello.o
+	rm -rf hello hello.o a.out
