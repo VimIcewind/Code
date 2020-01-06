@@ -5,10 +5,16 @@
         <title>demo</title>
     </head>
     <body>
-	<a href="/about"  onclick="alert('this is the thing');" >About</a>
 	<script>
-	 console.log('this is the thing!');
+	 function add(x, y) {
+	     return x + y;
+	 }
+
+	 var other = add;
 	</script>
-	<script type="text/javascript" src="jquery-1.11.3.js" ></script>
+	<script>
+	 console.log(add(100, 200));
+	 console.log(other(300, 400));
+	</script>
     </body>
 </html>
