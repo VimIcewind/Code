@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <title>demo</title>
+    </head>
+    <body>
+	<script>
+	 window.color = "red";
+	 var o = {color: "blue"};
+
+	 function sayColor() {
+	     console.log(this.color);
+	 }
+
+	 // JavaScript 中的 this 与 Java 中的不一样，在 JavaScript 中，每次对函数的调用都有一个上下文对象, this 关键字引用它
+	 // 如果函数归属于某个对象，则 this 关键字将引用此对象，它就是本次函数调用的上下文。
+	 sayColor(); // red
+	 // this 引用的函数上下文对象是可以动态改变的，使用函数对象的 call 方法可以动态的指定它：
+	 sayColor.call(this); // red
+	 sayColor.call(window); // red
+	 sayColor.call(o); // blue
+	</script>
+    </body>
+</html>
