@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <title>demo</title>
+    </head>
+    <body>
+	<script>
+	 function func(x, y) {
+	     var value = 300;
+	     return function() {
+		 return value + x + y;
+	     }
+	 }
+	</script>
+	<script>
+	 console.info(func(100, 200)());
+	</script>
+    </body>
+</html>
