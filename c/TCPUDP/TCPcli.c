@@ -1,13 +1,10 @@
 /****************************************
-
 *TCP客户端步骤：
 *创建套接字socket
 *与远程服务程序连接connect
 *读写数据recv,send
 *终止连接close
-
 *****************************************/
-
 #include<stdio.h>
 #include <stdlib.h>
 #include <string.h>
