@@ -1,0 +1,19 @@
+automake 入门示例
+新建三个文件:
+helloworld.c
+configure.in
+Makefile.am
+
+然后执行:
+autoscan
+aclocal
+autoconf
+automake --add-missing
+./configure
+make
+./helloworld
+就可以看到Makefile被产生出来,而且可以将helloworld.c编译通过.
+
+下列命令清理生成的文件
+rm -rf autoscan.log configure.scan autom4te.cache  aclocal.m4  configure  missing install-sh depcomp Makefile.in  config.log Makefile helloworld.o helloworld
+
