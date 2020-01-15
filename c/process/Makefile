@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -g
 
-all : fork exec upper wrapper
+all : fork exec upper wrapper zombie waitpid
 
 clean :
-	rm -rf fork exec upper wrapper *.o
+	rm -rf fork exec upper wrapper zombie waitpid *.o
