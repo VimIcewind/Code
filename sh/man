@@ -1,0 +1,233 @@
+#! /bin/sh
+# man.sh -- simple manpage reader script for MSYS
+#
+# Written by Keith Marshall <keithmarshall@users.sourceforge.net>
+#        and Wu Yongwei     <adah@users.sourceforge.net>
+#
+# Last update: 2005-11-14 10:30 GMT
+#
+# Public domain: install as /usr/local/bin/man
+
+USAGE='Usage: man [-adw] [-C config-file] [-M path] [section] name ...'
+
+# Adjust these defaults, to suit your configuration...
+
+MANSECT_DEFAULT=1:1p:8:2:3:3p:4:5:6:7:9:0p:tcl:n:l:p:o
+MANPATH_DEFAULT=/mingw/man:/mingw/share/man:/usr/local/man:/usr/local/share/man
+# Some manpages may require filtering through any subset
+# of the following `groff' preprocessors...
+# ( p = pic, e = eqn, t = tbl )
+#
+MANROFFSEQ_ALLOWED='p:e:t'
+
+# You should not need to change anything, from here onward...
+# These set defaults for the command line options.
+#
+MANDEBUG=no
+MANCONFIG=''
+SHOWPATH=no
+ALLPAGES=no
+
+# Parse command line options...
+#
+while getopts aC:dM:w opt
+do
+  case $opt in
+    a) ALLPAGES=yes ;;
+    C) MANCONFIG=$OPTARG ;;
+    d) MANDEBUG=yes ;;
+    M) MANPATH=$OPTARG ;;
+    w) SHOWPATH=yes ;;
+    *) exec >&2; echo $USAGE; exit 1 ;;
+  esac
+done
+
+# $OPTIND always ends up being too big by one...
+# Adjust, and discard option arguments, (already parsed).
+#
+set dummy "$@"; shift $OPTIND
+
+# Try to locate a configuration file...
+# Prefer `-C config-file' option, then these common locations, in order.
+#
+for name in /usr/local/lib/man.conf /usr/share/lib/man.conf /etc/man.conf
+do
+  [ -n "$MANCONFIG" ] && break
+  [ -r $name ] && MANCONFIG=$name
+done
+if [ -n "$MANCONFIG" ] && [ $MANDEBUG = yes ]; then
+  echo >&2 "Reading configuration file $MANCONFIG"
+fi
+
+# Establish the search order for manual sections...
+# Prefer user's $MANSECT, config-file setting, $MANSECT_DEFAULT,
+# in that order.
+#
+if [ -z "$MANSECT" ]; then
+  CONFIG_KEY='/^[[:space:]]*MANSECT[[:space:]]*/s///p'
+  [ -n "$MANCONFIG" ] && MANSECT=`sed -n $CONFIG_KEY $MANCONFIG 2>/dev/null`
+  [ -z "$MANSECT" ] && MANSECT=$MANSECT_DEFAULT
+  if [ $MANDEBUG = yes ]; then
+    echo >&2
+    echo >&2 "Searching manual sections $MANSECT"
+  fi
+fi
+
+# Construct the MANPATH file system search path...
+# Prefer user's $MANPATH, config-file settings, $MANPATH_DEFAULT,
+# in that order.
+#
+if [ -z "$MANPATH" ]; then
+  CONFIG_KEY='/^[[:space:]]*MANPATH[[:space:]]\+/{s///;s/%/%25/g;s/ /%20/g;p;}'
+  for name in `[ -n "$MANCONFIG" ] && sed -n "$CONFIG_KEY" $MANCONFIG 2>/dev/null`
+  do
+    name=`echo "$name" | sed 's/%20/ /g;s/%25/%/g' 2>/dev/null`
+    [ -n "$name" ] && name=`exec 2>/dev/null; cd "$name" && pwd`
+    if [ -n "$name" ]; then
+      if [ $MANDEBUG = yes ]; then
+        [ -z "$MANPATH" ] && echo >&2
+        echo >&2 "Adding $name to MANPATH"
+      fi
+      name=`echo $name | sed 's/%/%25/g;s/ /%20/g' 2>/dev/null`
+      [ -n "$MANPATH" ] && MANPATH="$MANPATH:$name" || MANPATH="$name"
+    fi
+  done
+  [ -z "$MANPATH" ] && MANPATH="$MANPATH_DEFAULT"
+fi
+
+# From here on...
+# We need `IFS=:', so we can split $MANSECT and $MANPATH.
+#
+IFS=:
+
+# If first non-option argument matches any $MANSECT component,
+# then set up to perform a restricted search, for just that section,
+# and establish `not found' message format appropriately.
+#
+NOTFOUND='No manual entry for $name'
+for MSECT in $MANSECT
+do
+  [ "$1" = "$MANSECT" ] && break
+  if [ "$1" = "$MSECT" ]; then
+    MANSECT="$1"
+    NOTFOUND='No entry for $name in section'" $1 of the manual"
+    shift
+  fi
+done
+
+# Ensure we have at least one topic name to search for,
+# unless we are just using the `-w' option to show the MANPATH.
+#
+if [ $# -lt 1 ]; then
+  if [ $SHOWPATH = yes ]; then
+    echo 2>&- "MANPATH=$MANPATH"
+    exit 0
+  else
+    echo >&2 "What manual page do you want?"
+    echo >&2 "$USAGE"
+    exit 1
+  fi
+fi
+
+# Establish PAGER command to be used...
+# Prefer $MANPAGER, $PAGER, config-file setting, `less -irs',
+# in that order.
+#
+[ -n "$MANPAGER" ] && PAGER="$MANPAGER"
+if [ -z "$PAGER" ]; then
+  CONFIG_KEY='/^[[:space:]]*PAGER[[:space:]]*/s///p'
+  [ -n "$MANCONFIG" ] && PAGER=`sed -n "$CONFIG_KEY" $MANCONFIG 2>/dev/null`
+  [ -z "$PAGER" ] && PAGER="less -irs"
+fi
+
+# Establish NROFF command to be used...
+# Prefer config-file setting, `groff -Tascii -mandoc -P-c',
+# in that order.
+#
+CONFIG_KEY='/^[[:space:]]*NROFF[[:space:]]*/s///p'
+[ -n "$MANCONFIG" ] && NROFF=`sed -n "$CONFIG_KEY" $MANCONFIG 2>/dev/null`
+[ -z "$NROFF" ] && NROFF="groff -Tascii -mandoc -P-c"
+
+# Establish the default sequence of NROFF filters to deploy...
+# Prefer $MANROFFSEQ, config-file setting, `t' (tbl), in that order.
+#
+if [ -z "$MANROFFSEQ" ]; then
+  CONFIG_KEY='/^[[:space:]]*MANROFFSEQ[[:space:]]*/s///p'
+  [ -n "$MANCONFIG" ] && MANROFFSEQ=`sed -n "$CONFIG_KEY" $MANCONFIG 2>/dev/null`
+  [ -z "$MANROFFSEQ" ] && MANROFFSEQ=t
+fi
+
+# Establish display width for manpages...
+# Prefer $MANWIDTH, $COLS, `mandoc' default, in that order.
+#
+[ -n "$MANWIDTH" ] && COLS=$MANWIDTH
+[ -n "$COLS" ] && NROFF="$NROFF -rLL=${COLS}m"
+
+# For each specified topic name argument...
+# Walk the MANPATH, looking in each effective MANSECT directory,
+# for a matching topic file, and display the first matching entry.
+# If the `-a' option is in effect, continue for any other MANSECTs,
+# otherwise, move on to next topic, if any, after first match.
+#
+ERRNO=0
+for name
+do
+  COMPLAIN='echo >&2'
+  for MPATH in $MANPATH
+  do
+    for MSECT in $MANSECT
+    do
+      # Normalise the file name.
+      #
+      MFILE=`echo "$MPATH/man$MSECT/$name.$MSECT" | sed 's/%20/ /g;s/%25/%/g'`
+      if [ -f "$MFILE" ]; then
+        COMPLAIN='false'
+        if [ "$SHOWPATH" = yes ]; then
+          echo 2>&- "$MFILE"
+        else
+          # Establish the list of preprocessors to deploy...
+          # Prefer any list specified in the manpage file itself,
+          # falling back to $MANROFFSEQ, if none.
+          #
+          MSEQ=""
+          FILTERS=`sed -n "/^'"'\\\\"[[:space:]]\+\([A-Za-z]\+\)$/s//\1/p;1q' "$MFILE"`
+          [ -z "$FILTERS" ] && FILTERS="$MANROFFSEQ"
+          for filter in $MANROFFSEQ_ALLOWED
+          do
+            echo $FILTERS | grep $filter >/dev/null 2>&1 && MSEQ=$MSEQ$filter
+          done
+          [ -n "$MSEQ" ] && MSEQ=" -$MSEQ"
+
+          # Display the selected manpage,
+          # or its appropriate formatting command, if debugging.
+          #
+          if [ $MANDEBUG = yes ]; then
+            echo >&2
+            echo >&2 "Not executing command:"
+            echo >&2 " $NROFF$MSEQ \"$MFILE\" | $PAGER"
+          else
+            eval $NROFF$MSEQ "\"$MFILE\"" | eval $PAGER
+          fi
+        fi
+
+        # If `-a' option given,
+        # keep looking for other pages related to the given topic,
+        # otherwise, break out to try a new topic.
+        #
+        [ $ALLPAGES = yes ] || break 2
+      fi
+    done
+  done
+
+  # Handle diagnostics, and error code, for missing topics.
+  #
+  [ "$COMPLAIN" = "false" ] || ERRNO=1
+  eval $COMPLAIN $NOTFOUND
+done
+
+# All done...
+# Exit with appropriate error code.
+#
+exit $ERRNO
+
+# man.sh: end of file.
