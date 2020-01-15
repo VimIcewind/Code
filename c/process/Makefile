@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -g
 
-all : fork
+all : fork exec upper wrapper
 
 clean :
-	rm -rf fork *.o
+	rm -rf fork exec upper wrapper *.o
