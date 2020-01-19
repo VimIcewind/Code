@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	}
 
 	for (; n > 0; n--) {
-		printf(message);
+		printf("%s",message);
 		sleep(1);
 	}
 	return 0;
