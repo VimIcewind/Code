@@ -1,5 +1,5 @@
 SHELL=/bin/sh
 
-SUBDIRS=calc csapp env file funcpoint funcparam hello hellogcc hou io libc mem msg pscan so TCPUDP test thread Car time TCPIP process coredumpdemo signal
+SUBDIRS=calc csapp env file funcpoint funcparam hello hellogcc hou io libc mem msg pscan so TCPUDP test thread Car time TCPIP process coredumpdemo signal bit
 
 include ../make/Make-subdir-targets
