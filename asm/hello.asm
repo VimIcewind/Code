@@ -1,13 +1,19 @@
-section .text
-global _start
-_start:
-	mov rax, 4	;4号调用
-	mov rbx, 1	;ebx送1表示stdout
-	mov rcx, msg	;字符串的首地址送入ecx
-	mov rdx, 14	;字符串的长度送入edx
-	int 80h		;输出字串
-	mov rax, 1	;1号调用
-	int 80h		;结束
-msg:
-	db "Hello World!",0ah,0dh
+; ----------------------------------------------------------------------------------------
+; This is a Win64 console program that writes "Hello World!" on one line and then exits.
+; It uses puts from the C library.  To assemble and run:
+;
+;     nasm -fwin64 hello.asm && gcc hello.obj -o hello.exe && hello.exe
+; ----------------------------------------------------------------------------------------
+
+        global  main
+        extern  puts
+        section .text
+main:
+        sub     rsp, 28h                        ; Reserve the shadow space
+        mov     rcx, message                    ; First argument is address of message
+        call    puts                            ; puts(message)
+        add     rsp, 28h                        ; Remove shadow space
+        ret
+message:
+        db      'Hello World!', 0                      ; C strings need a zero byte at the end
 
