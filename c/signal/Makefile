@@ -1,7 +1,9 @@
 CC=gcc
 CFLAGS=-g
 
-ALL : dieloop alarm printsigset mysleep
+DST=dieloop alarm printsigset mysleep globalvar sig_atomic_t sig_atomic_t_volatile
+
+ALL : $(DST) 
 
 dieloop : dieloop.c
 	gcc -o dieloop dieloop.c
@@ -15,5 +17,8 @@ printsigset : printsigset.c
 mysleep : mysleep.c
 	gcc -o mysleep mysleep.c
 
+globalvar : globalvar.c
+	gcc -o globalvar globalvar.c
+
 clean :
-	rm -rf dieloop alarm printsigset mysleep core core.* *.o
+	rm -rf $(DST) core core.* *.o
