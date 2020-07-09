@@ -1,0 +1,2 @@
+10 PRINT "SARA IS THE BEST"
+20 goto 10
