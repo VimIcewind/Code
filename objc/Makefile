@@ -1,14 +1,14 @@
 CFLAGS=`gnustep-config --objc-flags` -L /usr/GNUstep/System/Library/Libraries -fconstant-string-class=NSConstantString -lobjc -lgnustep-base
 CC=clang
 
-OBJECT = hello hi
+OBJECT = hello main
 
 all : $(OBJECT)
 
 hello : hello.m
 	$(CC) $(CFLAGS) -o hello hello.m
-hi : hi.m
-	$(CC) $(CFLAGS) -o hi hi.m
+main : main.m
+	$(CC) $(CFLAGS) -o main main.m
 
 clean :
 	rm -rf $(OBJECT) *.d
