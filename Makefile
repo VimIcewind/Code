@@ -1,5 +1,5 @@
 SHELL=/bin/sh
 
-SUBDIRS=c asm cpp java
+SUBDIRS=c cpp objc asm java
 
 include make/Make-subdir-targets
