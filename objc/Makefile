@@ -1,7 +1,7 @@
 CFLAGS=`gnustep-config --objc-flags` -L /usr/GNUstep/System/Library/Libraries -fconstant-string-class=NSConstantString -lobjc -lgnustep-base
 CC=clang
 
-OBJECT = hello main TimeAfterTime nil
+OBJECT = hello main TimeAfterTime nil id
 
 all : $(OBJECT)
 
@@ -13,6 +13,8 @@ TimeAfterTime : TimeAfterTime.m
 	$(CC) $(CFLAGS) -o TimeAfterTime TimeAfterTime.m
 nil : nil.m
 	$(CC) $(CFLAGS) -o nil nil.m
+id : id.m
+	$(CC) $(CFLAGS) -o id id.m
 
 clean :
 	rm -rf $(OBJECT) *.d
