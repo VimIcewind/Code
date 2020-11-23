@@ -1,7 +1,7 @@
 CFLAGS=-g -Wall
 CC=gcc
 
-OBJECT = blockread nonblockread nonblockread_timeout
+OBJECT = blockread nonblockread nonblockread_timeout nonblockread_stdin
 
 ALL: $(OBJECT)
 
