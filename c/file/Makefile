@@ -1,6 +1,8 @@
-CFLAG=-g
+CFLAG=-g -Wall
 
-all : ANSIFile POSIXFile c_file_test1 c_file_test2 copy
+OBJECT = ANSIFile POSIXFile c_file_test1 c_file_test2 copy
+
+all : $(OBJECT)
 
 clean :
-	rm -rf ANSIFile POSIXFile c_file_test1 c_file_test2 copy *.o
+	rm -rf $(OBJECT) *.o
