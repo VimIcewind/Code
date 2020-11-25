@@ -1,6 +1,6 @@
 all : hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds target \
 	SectionMapping SectionMapping.elf malloc_maximum minibash Lib.so Program1 Program2 pic.so stack_init_info a1.so a2.so b1.so b2.so main RunSoSimple \
-	RunSo RunSo1 heap foo.o uninit_array big_thing cpp_obj malloc_free foo atexit ffile arg_fmt_err setjmp fread file fork environ
+	RunSo RunSo1 heap foo.o uninit_array big_thing cpp_obj malloc_free foo atexit ffile arg_fmt_err setjmp fread file fork
 
 
 hello : hello.c
@@ -95,10 +95,8 @@ file : file.c
 	gcc -o file file.c
 fork : fork.c
 	gcc -o fork fork.c
-environ : environ.c
-	gcc -o environ environ.c
 
 clean :
 	rm -rf *.o hello various_storage SimpleSection SpecialSymbol ManualNameMangling single-thread-pt multi-thread-pt ab TinyHelloWorld TinyHelloWorld_lds target \
 		SectionMapping SectionMapping.elf malloc_maximum minibash Lib.so Program1 Program2 pic.so stack_init_info a1.so a2.so b1.so b2.so main RunSoSimple \
-		RunSo RunSo1 heap uninit_array big_thing cpp_obj malloc_free foo atexit ffile arg_fmt_err setjmp fread file fork environ
+		RunSo RunSo1 heap uninit_array big_thing cpp_obj malloc_free foo atexit ffile arg_fmt_err setjmp fread file fork
