@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include "Car.h"
+
 int main()
 {
-	Car_Factory* car_factory = new_car_factory();
-	Base_Car* benzeCar = car_factory->create_new_car(CAR_BENZE);
-	Base_Car* bmwCar = car_factory->create_new_car(CAR_BMW);
-	Base_Car* audiCar = car_factory->create_new_car(CAR_AUDI);
+	Car_Factory *car_factory = new_car_factory();
+	Base_Car *benzeCar = car_factory->create_new_car(CAR_BENZE);
+	Base_Car *bmwCar = car_factory->create_new_car(CAR_BMW);
+	Base_Car *audiCar = car_factory->create_new_car(CAR_AUDI);
 
 	benzeCar->speaker(benzeCar);
 	bmwCar->speaker(bmwCar);
