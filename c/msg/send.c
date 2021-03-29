@@ -37,8 +37,8 @@ int main(void)
 		if (msg_type == 0)
 			break;
 		printf("input message to be sent:");
-		//scanf("%s",str);
-		scanf("%49[^\n]", str);
+		scanf("%s",str);
+		//scanf("%49s[^\n]", str);
 		msgs.msgtype = msg_type;
 		strcpy(msgs.msgtext, str);
 		/* 发送消息队列 */
