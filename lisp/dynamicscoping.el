@@ -6,3 +6,4 @@
 (let ((x 3))
   (funcall f 2))
 ;;(funcall f 2)
+'(lambda (y) (* x y))
