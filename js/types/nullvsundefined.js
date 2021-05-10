@@ -11,6 +11,27 @@ if (!null) {
 }
 // null is false
 
+if (!false) {
+    console.log('false');
+}
+// false
+
+if (!0) {
+    console.log('0 is false');
+}
+// 0 is false
+
+if (!'') {
+    console.log("'' is false");
+}
+// '' is false
+
+if (!"") {
+    console.log('"" is false');
+}
+// "" is false
+
+
 console.log(undefined == null);
 // true
 console.log(undefined === null);
