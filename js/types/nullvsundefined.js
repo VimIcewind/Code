@@ -83,13 +83,11 @@ if ('') {
 }
 // 没有任何输出
 
-
 // 注意，空数组[] 和空对象{} 对应的布尔值，都是 true
 if ([]) {
     console.log('true');
 }
 // true
-
 if ([]) {
     console.log('true');
 }
