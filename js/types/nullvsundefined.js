@@ -38,6 +38,7 @@ function f(x) {
 }
 console.log(f())
 // undefined
+console.log(f() == f(undefined))
 
 // 对象没事有赋值的属性
 var o = new Object();
