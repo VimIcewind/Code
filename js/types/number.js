@@ -313,6 +313,9 @@ console.log(parseInt(1000000000000000000000.5))
 console.log(parseInt('1e+21'))
 // 1
 
+console.log(parseInt(100000000000000000000.5))
+// 100000000000000000000
+
 console.log(parseInt(0.0000008))
 // 8
 // 等同于
