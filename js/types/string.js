@@ -32,8 +32,11 @@ console.log('1\n2')
 // 2
 
 console.log('\251')
+// ©
 console.log('\xA9')
+// ©
 console.log('\u00A9')
+// ©
 
 console.log('\172' === 'z')
 // true
