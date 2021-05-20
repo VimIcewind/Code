@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+    <script>
+        function f() {
+                        console.log("Hello World");
+                    }
+    </script>
+</head>
+
+<body>
+    <p>
+        <a href="http://vimemacs.com" onclick="f(); return false;">点击</a>
+        <!-- 上面代码中，点击连接后，会先执行 onclick 的代码，由于 onclick 返回 false,
+            所以浏览器不会跳转到 example.com -->
+    </p>
+    <p>
+        <!-- void运算符可以取代上面的写法 -->
+        <a href="javascript: void(f())">文字</a>
+    </p>
+    <p>
+        <!-- 下面是个更实际的例子，用户点击链接提交表单，但是不会产生页面跳转 -->
+        <a href="javascript: void(document.form.submit())">提交</a>
+    </p>
+</body>
+
+</html>
+
