@@ -9,7 +9,7 @@ print('Hi, function!');
 // 除了用 function 命令声明函数, 还可以采用变量赋值的写法
 // 这种写法将一个匿名函数赋值给变量。这时，这个匿名函数又称函数表达式(Function Expression),
 // 因为赋值语句的等号右侧只能放表达式
-var print = function(s) {
+var print = function (s) {
     console.log(s);
 };
 print('Hi, function!');
@@ -141,17 +141,17 @@ function func() {}
 // 被提升到了代码头部，也就是在调用之前已经声明了。
 // 但是，如果采用赋值语句定义函数，JavaScript 就会报错
 // f1();
-// var f1 = function(){};
+// var f1 = function () {};
 // f1 is not a function
 // 等同于
 // var f1;
 // f1();
-// f1 = function(){};
+// f1 = function () {};
 // f1 is not a function
 
 // 注意，如果像下面例子那样，采用 function 命令和 var 赋值语句声明同一个函数，由于存在
 // 函数提升，最后会采用 var 赋值语句的定义
-var f = function() {
+var f = function () {
     console.log('1');
 }
 
@@ -169,7 +169,7 @@ function f1() {}
 console.log(f1.name)
 // f1
 
-var f2 = function() {};
+var f2 = function () {};
 console.log(f2.name)
 // f2
 
@@ -178,7 +178,7 @@ console.log(f3.name)
 // myName
 
 // name 属性的一个用处，就是获取参数函数的名字
-var myFunc = function() {};
+var myFunc = function () {};
 
 function test(f) {
     console.log(f.name);
@@ -232,7 +232,7 @@ console.log(fm.toString())
 //     多行注释
 // */}
 
-var multiline = function(fn) {
+var multiline = function (fn) {
     var arr = fn.toString().split('\n');
     return arr.slice(1, arr.length - 1).join('\n');
 };
@@ -296,7 +296,7 @@ function foo(x) {
 // 函数本身也是一个值，也有自己的作用域。它的作用域与变量一样，就是其声明所在的作用域，
 // 与其运行时所在的作用域无关
 var a = 1;
-var x = function() {
+var x = function () {
     console.log(a);
 };
 
@@ -458,7 +458,7 @@ fargs(1, 2, 3)
 // 2
 // 3
 
-var fcargs = function(a, b) {
+var fcargs = function (a, b) {
     arguments[0] = 3;
     arguments[1] = 2;
     return a + b;
@@ -469,7 +469,7 @@ console.log(fcargs(1, 1))
 
 // 严格模式下，arguments 对象与函数参数不具有联动关系。也就是说，修改
 // arguments 对象不会影响到实际的函数参数
-var fus = function(a, b) {
+var fus = function (a, b) {
     'use strict'; // 开启严格模式
     arguments[0] = 3;
     arguments[1] = 2;
@@ -512,7 +512,7 @@ console.log(args2array(1, 2, 3))
 
 
 // arguments 对象带有一个 callee 属性，返回它所对应的原函数
-var fca = function() {
+var fca = function () {
     console.log(arguments.callee === fca);
 }
 
@@ -545,7 +545,7 @@ result();
 // 即闭包可以使得它诞生环境一直存在。
 // 请看下面的例子，闭包使得内部变量记住了上一次调用时的运算结果
 function createIncrementor(start) {
-    return function() {
+    return function () {
         return start++;
     };
 }
@@ -596,7 +596,7 @@ console.log(p1.getAge());
 
 // 根据 JavaScript 的语法，圆括号 () 跟在函数名之后，表示调用该函数。比如，print() 就表示调用 print函数。
 // 有时，我们需要在定义函数之后，立即调用该函数。这时，你不能在函数的定义之后加上圆括号，这会产生语法错误。
-// function() { /* code */ }();
+// function () { /* code */ }();
 // SyntaxError: Function statements require a function name
 // function errorFuncUse() { /* code */ }();
 // SyntaxError: Unexpected token ')'
@@ -623,24 +623,24 @@ console.log(typeof one);
 
 // 函数定义后立即调用的解决方法，就是不要让 function 出现在行首，让引擎将其理解成一个表达式。
 // 最简单的处理，就是将其放在一个圆括号里面。
-(function(){ /* code */ }());
-(function(){ /* code */ })();
+(function () { /* code */ }());
+(function () { /* code */ })();
 // 上面两种写法都是以圆括号开头，引擎就会认为后面跟的是一个表达式，而不是函数定义语句，所以就可以避免了错误。
 // 这就叫做"立即调用的函数表达式" (Immediately-Invoked Function Expression)，简称 IIFE。
 
-// (function(){ /* code */ }())
-// (function(){ /* code */ }())
+// (function () { /* code */ }())
+// (function () { /* code */ }())
 // 上面两行之间没有分号，JavaScript 会将它们连在一起解释，将第二行解释为第一行的参数。
 
 // 推而广之，任何让解释器以表达式来处理函数定义的方法，都能产生同样的效果，比如下面三种写法。
-var i = function(){return 10;}();
-true && function(){/* code */}();
-0, function(){/* code */}();
+var i = function () {return 10;}();
+true && function () {/* code */}();
+0, function (){/* code */}();
 //甚至像下面这样写，也是可以的
-!function() { /* code */ }();
-~function() { /* code */ }();
--function() { /* code */ }();
-+function() { /* code */ }();
+!function () { /* code */ }();
+~function () { /* code */ }();
+-function () { /* code */ }();
++function () { /* code */ }();
 
 // 通常情况下，只对匿名函数使用这种"立即执行的函数表达式"。它的目的有两个：
 // 一是 不必为函数命名，避免了污染全局变量；

@@ -15,7 +15,7 @@ console.log(arr1);
 var arr2 = [
     {a: 1},
     [1, 2, 3],
-    function() {return true;}
+    function () {return true;}
 ];
 console.log(arr2);
 // [ { a: 1 }, [ 1, 2, 3 ], [Function (anonymous)] ]
@@ -282,7 +282,7 @@ console.log(a.length);
 // 数组的 forEach 方法、for...in 结构、以及 Object.keys 方法进行遍历，空位都会被跳过
 var a = [, , ,];
 
-a.forEach(function(x, i) {
+a.forEach(function (x, i) {
     console.log(i + '. ' + x);
 })
 // 不产生任何输出
@@ -298,7 +298,7 @@ console.log(Object.keys(a));
 // 某个位置是 undefined，遍历的时候就不会被跳过
 var a = [undefined, undefined, undefined];
 
-a.forEach(function(x, i) {
+a.forEach(function (x, i) {
     console.log(i + '. ' + x);
 })
 // 0. undefined
@@ -397,7 +397,7 @@ Array.prototype.forEach.call(arrayLike, print);
 // 下面的例子就是通过这种方法，在arguments 对象上面调用 forEach 方法
 // forEach 方法
 function logArgs() {
-    Array.prototype.forEach.call(arguments, function(elem, i) {
+    Array.prototype.forEach.call(arguments, function (elem, i) {
         console.log(i + '. ' + elem);
     });
 }
@@ -409,7 +409,7 @@ function logArgs() {
 }
 
 // 字符串也是类似数组的对象，所以也可以用 Array.prototype.forEach.call 遍历
-Array.prototype.forEach.call('abc', function(chr) {
+Array.prototype.forEach.call('abc', function (chr) {
     console.log(chr);
 });
 // a

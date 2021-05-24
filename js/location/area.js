@@ -2,7 +2,7 @@ function showLocation(province , city , town) {
 	
 	var loc	= new Location();
 	var title	= ['省份' , '地级市' , '市、县、区'];
-	$.each(title , function(k , v) {
+	$.each(title , function (k , v) {
 		title[k]	= '<option value="">'+v+'</option>';
 	})
 	
@@ -11,7 +11,7 @@ function showLocation(province , city , town) {
 	$('#loc_town').append(title[2]);
 	
 	
-	$('#loc_province').change(function() {
+	$('#loc_province').change(function () {
 		$('#loc_city').empty();
 		$('#loc_city').append(title[1]);
 		loc.fillOption('loc_city' , '0,'+$('#loc_province').val());
@@ -20,14 +20,14 @@ function showLocation(province , city , town) {
 		//$('input[@name=location_id]').val($(this).val());
 	})
 	
-	$('#loc_city').change(function() {
+	$('#loc_city').change(function () {
 		$('#loc_town').empty();
 		$('#loc_town').append(title[2]);
 		loc.fillOption('loc_town' , '0,' + $('#loc_province').val() + ',' + $('#loc_city').val());
 		//$('input[@name=location_id]').val($(this).val());
 	})
 	
-	$('#loc_town').change(function() {
+	$('#loc_town').change(function () {
 		$('input[@name=location_id]').val($(this).val());
 	})
 	
