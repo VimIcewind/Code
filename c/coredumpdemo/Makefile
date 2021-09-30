@@ -1,7 +1,9 @@
 CC=gcc
 CFLAGS=-g
 
-ALL : coredumpdemo
+BIN = coredumpdemo sf
+
+ALL : $(BIN)
 
 clean :
-	rm -rf coredumpdemo core.*
+	rm -rf $(BIN) core.*
