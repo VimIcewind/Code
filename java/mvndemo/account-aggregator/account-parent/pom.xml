@@ -7,7 +7,7 @@
     <packaging>pom</packaging>
     <name>Account Parent</name>
     <properties>
-        <springframework.version>3.2.18.RELEASE</springframework.version>
+        <springframework.version>5.2.22.RELEASE</springframework.version>
         <junit.version>4.7</junit.version>
     </properties>
     <dependencyManagement>
