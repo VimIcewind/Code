@@ -16,7 +16,7 @@
         <module>account-web</module>
     </modules>
     <properties>
-        <springframework.version>3.2.18.RELEASE</springframework.version>
+        <springframework.version>6.0.0</springframework.version>
         <junit.version>4.12</junit.version>
     </properties>
     <dependencyManagement>
