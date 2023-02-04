@@ -3,4 +3,4 @@ CFLAGS = -g -Wall
 %$ : %<.c
 	$(CC) -o %$ %<.c
 clean : 
-	del *.gz *.aux *.log *.dvi *.blg *.bbl *.bak
+	rm -rf *.gz *.aux *.log *.dvi *.blg *.bbl *.bak *.pdf
