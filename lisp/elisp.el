@@ -277,7 +277,7 @@
 (defun boldify-names ()
   (switch-to-buffer-other-window "*test*")
   (goto-char (point-min))
-  (while (re-search-forward "Bonjour \<span class='MathJax_Preview'>\(.+\\)</span>!" nil t)
+  (while (re-search-forward "Bonjour \\(.+\\)!" nil t)
          (add-text-properties (match-beginning 1) ;返回匹配模式中，最先匹配的位置
                               (match-end 1) ;返回最后匹配的位置
                               (list 'face 'bold)))
