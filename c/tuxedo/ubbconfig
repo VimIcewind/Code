@@ -1,0 +1,21 @@
+#file : ubbconfig
+*RESOURCES
+IPCKEY		5000
+MASTER		SITE1
+MODEL		SHM
+
+*MACHINES
+gumby		LMID=SITE1
+TUXDIR		="/usr/tuxedo"
+APPDIR		="/usr/apps/simpapp"
+TUXCONFIG	="/usr/apps/simpapp/simpapp.tux"
+
+*GROUPS
+GROUP1		LMID=SITE1	GRPNO=1
+
+*SERVERS
+simpserv	SRVGRP=GROUP1	SRVID=1
+
+*SERVICES
+TOUPPER
+
