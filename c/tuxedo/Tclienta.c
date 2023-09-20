@@ -6,6 +6,7 @@ int main(void)
 {
 	char *buf;
 	long len;
+	int cd;
 
 	if (tpinit((TPINIT *) NULL) == -1) {
 		exit(1);
@@ -15,8 +16,14 @@ int main(void)
 		exit(2);
 	}
 	strcpy(buf, "Hello world");
-	if (tpcall("TOUPPER", buf, 0, &buf, &len, 0) == -1) {
-		fprintf(stderr, "service requst fail\n");
+	if (cd = tpacall("TOUPPER", buf, len, 0) == -1) {
+		fprintf(stderr, "service requst tpacall fail\n");
+		tpfree(buf);
+		tpterm();
+		exit(3);
+	}
+	if (tpgetrply(&cd, &buf, &len, 0) == -1) {
+		fprintf(stderr, "service requst tpgetrply fail\n");
 		tpfree(buf);
 		tpterm();
 		exit(3);

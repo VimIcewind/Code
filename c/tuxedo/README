@@ -1,0 +1,9 @@
+建立一个TUXEDO应用，必须进行以下步骤：
+设置环境变量。
+TUXDIR表示TUXEDO用户目录；TUXCONFIG是二进制配置文件名；在路径中加入TUXEDO的可执行文件路径；如果用到公共库，还必须包含LD_LIBRARY_PATH，指出公共库位置。
+
+export TUXDIR=/tuxedo
+export PATH=$PATH:$TUXDIR/bin
+export TUXCONFIG=/home/hwd/tuxedo/tuxconfig
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TUXDIR/lib
+
