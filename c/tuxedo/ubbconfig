@@ -1,20 +1,23 @@
 #file : ubbconfig
 *RESOURCES
-IPCKEY		5000
-MASTER		SITE1
+IPCKEY		50000
+MASTER		LA
+MAXACCESSERS    500
+MAXSERVERS      300
 MODEL		SHM
 
 *MACHINES
-gumby		LMID=SITE1
-TUXDIR		="/usr/tuxedo"
-APPDIR		="/usr/apps/simpapp"
-TUXCONFIG	="/usr/apps/simpapp/simpapp.tux"
+LA
+LMID=LA
+TUXDIR		="/tuxedo"
+APPDIR		="/home/hwd/demo"
+TUXCONFIG	="/home/hwd/tuxedo/tuxconfig"
 
 *GROUPS
-GROUP1		LMID=SITE1	GRPNO=1
+GROUP1		LMID=LA	GRPNO=1
 
 *SERVERS
-simpserv	SRVGRP=GROUP1	SRVID=1
+demo		SRVGRP=GROUP1	SRVID=1
 
 *SERVICES
 TOUPPER

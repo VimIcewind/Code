@@ -1,3 +1,5 @@
+ALL: ubbconfig Tclient Tserver
+
 tuxconfig: ubbconfig
 	tmloadcf -y ubbconfig
 Tclient: Tclient.c
