@@ -1,0 +1,13 @@
+(define (abs x)
+        (cond ((< x 0) (- x))
+              ((= x 0) 0)
+              ((> x 0) x))
+        )
+)
+
+(display (abs 3))
+(display "\n")
+(display (abs -4))
+(display "\n")
+(display (abs 0))
+(display "\n")
