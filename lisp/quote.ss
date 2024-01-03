@@ -19,6 +19,8 @@
 
 (quote 2)
 '2
+2
 
 (quote "Hi, ChezScheme!")
 '"Hi, ChezScheme!"
+"Hi, ChezScheme!"
