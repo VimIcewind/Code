@@ -14,3 +14,5 @@
 (quote (1 2 3))
 '(1 2 3)
 
+(quote hello)
+'hello
