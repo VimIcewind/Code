@@ -16,3 +16,9 @@
 
 (quote hello)
 'hello
+
+(quote 2)
+'2
+
+(quote "Hi, ChezScheme!")
+'"Hi, ChezScheme!"
