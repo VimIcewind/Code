@@ -21,6 +21,11 @@
     (lambda (x) (- x (/ (f x) (df x))))
     guess))
 
+(define (newton f guess)
+  (fixed-point
+    (lambda (x) (- x (/ (f x) ((deriv f) x))))
+    guess))
+
 (define deriv
   (lambda (f)
     (lambda (x)
