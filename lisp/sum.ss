@@ -46,7 +46,7 @@
   (sum square a 1+ b))
 
 (define (pi-sum a b)
-  (sum (lambda (i) (/ 1 (* i (+ 1 2))))
+  (sum (lambda (i) (/ 1 (* i (+ i 2))))
        a
        (lambda (i) (+ i 4))
        b))
