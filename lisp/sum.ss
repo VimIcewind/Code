@@ -26,7 +26,7 @@
          (pi-sum (+ a 4) b))))
 
 (pi-sum 3 4)
-(display "\n")
+(newline)
 
 
 (define (sum term a next b)
@@ -55,7 +55,9 @@
 (sum-sq 3 4)
 (pi-sum 3 4)
 
-(define (sum term a next)
+(newline)
+
+(define (sum term a next b)
   (define (iter j ans)
     (if (> j b)
         ans
@@ -63,4 +65,19 @@
               (+ (term j) ans))))
   (iter a 0))
 
-(display "\n")
+(define (sum-int a b)
+  (define (identity x) x)
+  (sum identity a 1+ b))
+
+(define (sum-sq a b)
+  (sum square a 1+ b))
+
+(define (pi-sum a b)
+  (sum (lambda (i) (/ 1 (* i (+ i 2))))
+       a
+       (lambda (i) (+ i 4))
+       b))
+
+(sum-int 3 4)
+(sum-sq 3 4)
+(pi-sum 3 4)
