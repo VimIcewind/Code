@@ -40,11 +40,11 @@
                          (deriv (m2 exp) var))
            (make-product (deriv (m1 exp) var)
                          (m2 exp))))))
-; a*x*x + b*x +c
+; a*x*x + b*x + c
 (define foo
   '(+ (* a (* x x))
-     (+ (* b x)
-        c)))
+      (+ (* b x)
+         c)))
 
 ; 2*a*x + b
 (deriv foo 'x)
