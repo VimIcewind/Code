@@ -8,14 +8,14 @@
              'failed))
         ((arbitrary-constant? pat)
          (if (constant? exp)
-             (extend-dictionary pat exp dict)
+             (extend-dict pat exp dict)
              'failed))
         ((arbitrary-variable? pat)
          (if (variable? exp)
-             (extend-dictionary pat exp dict)
+             (extend-dict pat exp dict)
              'failed))
         ((arbitrary-expression? pat)
-         (extend-dictionary pat exp dict))
+         (extend-dict pat exp dict))
         ((atom? exp) 'failed)
         (else
           (match (cdr pat)
@@ -23,6 +23,10 @@
                  (match (car pat)
                         (car exp)
                         dict)))))
+
+(define mapcar map)
+
+(define user-initial-environment (scheme-report-environment 5))
 
 (define (evaluate form dict)
   (if (atom? form)
@@ -74,7 +78,7 @@
 
 (define (empty-dictionary) '())
 
-(define (extend-dictionary pat dat dict)
+(define (extend-dict pat dat dict)
   (let ((name (variable-name pat)))
     (let ((v (assq name dict)))
       (cond ((not v)
@@ -170,3 +174,9 @@
     (  (* (? c) (+ (? d) (? e)))
        (+ (* (: c) (: d)) (* (: c) (: e)))   )
     ))
+
+(define dsimp
+  (simplifier algebra-rules))
+
+(dsimp '(+ 1 0))
+
