@@ -1,5 +1,5 @@
-;; define λas lambda
-(define-syntax λ(syntax-rules () ((_ param body ...) (lambda param body ...))))
+;; define λ as lambda
+(define-syntax λ (syntax-rules () ((_ param body ...) (lambda param body ...))))
 
 
 (define (square x) (* x x))
@@ -14,7 +14,7 @@
 (newline)
 
 
-(define square (λ(x) (* x x)))
+(define square (λ (x) (* x x)))
 
 (display (square 5))
 (newline)
@@ -30,9 +30,9 @@
 ((use double) 10)
 
 
-(define double (λ(x) (* 2 x)))
+(define double (λ (x) (* 2 x)))
 
-(define use (λ(f) (λ(x) (f x))))
+(define use (λ (f) (λ (x) (f x))))
 
 (double 5)
 (double 10)
