@@ -1,1 +1,1 @@
-(display "Hi, Scheme!")
+(display "Hi, Scheme!\n")
