@@ -82,7 +82,7 @@
   (let ((name (variable-name pat)))
     (let ((v (assq name dict)))
       (cond ((not v)
-            (cons (list name dat) dict))
+             (cons (list name dat) dict))
             ((eq? (cadr v) dat) dict)
             (else 'failed)))))
 
