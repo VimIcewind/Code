@@ -55,8 +55,20 @@
 (define (simplifier the-rules)
   (define (simplifier-exp exp)
     (try-rules (if (compound? exp)
-                   (map simplifier-exp exp)
+                   (simplifier-parts exp)
                    exp)))
+
+  (define (simplifier-parts exp)
+    (if (null? exp)
+      '()
+      (cons (simplifier-exp (car exp))
+            (simplifier-parts (cdr exp)))))
+
+  ;; (define (simplifier-exp exp)
+  ;;   (try-rules (if (compound? exp)
+  ;;                  (map simplifier-exp exp)
+  ;;                  exp)))
+
 
   (define (try-rules exp)
     (define (scan rules)
