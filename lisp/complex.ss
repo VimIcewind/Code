@@ -71,7 +71,7 @@
 ;;; Rectangular package
 
 (define (make-rectangular x y)
-  (attach-type (cons x y)))
+  (attach-type 'rectangular (cons x y)))
 
 (define (real-part-rectangular z)
   (car z))
@@ -79,7 +79,7 @@
 (define (imag-part-rectangular z)
   (cdr z))
 
-(define (magnitude-tectangular z)
+(define (magnitude-rectangular z)
   (sqrt (+ (square (car z))
            (square (cdr z)))))
 
@@ -89,7 +89,7 @@
 
 ;;; Representing complex numbers as
 ;;; pairs magnitude, angle
-(define make-polar r a) (cons r a))
+(define (make-polar r a) (cons r a))
 
 (define (magnitude z) (car z))
 
@@ -172,8 +172,12 @@
   (eq? (type z) 'polar))
 
 
+;;; (put key1 key2 value)
+;;; (get key1 key2)
+
 ;;; Installing the rectangular
 ;;; operations in the table
+
 (put 'rectangular 'real-part real-part-rectangular)
 
 (put 'rectangular 'imag-part imag-part-rectangular)
@@ -212,156 +216,9 @@
   (operate 'angle obj))
 
 
-;; rational numbers
-(define (make-rat n d)
-  (cons n d))
+(define z (cons 'polar (cons 1 2)))
+(real-part z)
+(operate 'real-part z)
+((get 'Polar 'real-part) (constents z))
+(real-part-polar (cons 1 2))
 
-(define (numer x)
-  (let ((g (gcd (car x) (cdr x))))
-  (/ (car x) g)))
-
-(define (denom x)
-  (let ((g (gcd (car x) (cdr x))))
-  (/ (cdr x) g)))
-
-
-(define (+rat x y)
-  (make-rat
-    (+ (* (numer x) (denom y))
-       (* (numer y) (denom x)))
-    (* (denom x) (denom y))))
-
-(define (*rat x y)
-  (make-rat
-    (* (nuber x) (nuber y))
-    (* (denom x) (denom y))))
-
-;;; installing rational numbers in the
-;;; generic arithmetic system
-(define (make-rat x y)
-  (attach-type 'rational (cons x y)))
-
-(put 'rational 'add +rat)
-
-(put 'rational 'sub -rat)
-
-(put 'rational 'mul *rat)
-
-(put 'rational 'div /rat)
-
-
-;;; install complex numbers
-(define (make-complex z)
-  (attach-type 'complex z))
-
-(define (+complex z1 z2)
-  (make-complex (+c z1 z2)))
-
-(put 'complex 'add +complex)
-
-(define (-complex z1 z2)
-  (make-complex (-c z1 z2)))
-
-(put 'complex 'sub -complex)
-
-(define (*complex z1 z2)
-  (make-complex (*c z1 z2)))
-
-(put 'complex 'mul *complex)
-
-(define (/complex z1 z2)
-  (make-complex (/c z1 z2)))
-
-(put 'complex 'div /complex)
-
-;;; install oridinary numbers
-(define (make-number z)
-  (attach-type 'number z))
-
-(define (+number z1 z2)
-  (make-number (+c z1 z2)))
-
-(put 'number 'add +number)
-
-(define (-number z1 z2)
-  (make-number (-c z1 z2)))
-
-(put 'number 'sub -number)
-
-(define (*number z1 z2)
-  (make-number (*c z1 z2)))
-
-(put 'number 'mul *number)
-
-(define (/number z1 z2)
-  (make-number (/c z1 z2)))
-
-(put 'number 'div /number)
-
-;;;;
-
-(define (operate-2 op arg1 arg2)
-  (if
-    (eq? (type arg1) (type arg2))
-    (let ((proc (get (type arg1) op)))
-      (if (not (null? proc))
-          (proc (contents arg1)
-                (contents arg2))
-          (error
-            "Op undefined on type")))
-    (error "Args not same type")))
-
-
-;;; Installing polynomials
-(define (make-polynomial var term-list)
-  (attach-type 'polynomial
-               (cons var term-list)))
-
-(define (+poly p1 p2)
-  (if (same-var? (var p1) (var p2))
-    (make-polynomial
-      (var p1)
-      (+terms (term-list p1)
-              (term-list p2)))
-    (error "Polys not in same var")))
-
-(put 'polynomial 'add +poly)
-
-(define (+terms l1 l2)
-  (cond ((empty-termlist? l1) l2)
-        ((empty-termlist? l2) l1)
-        (else
-          (let ((t1 (first-term l1))
-                (t2 (first-term l2)))
-            (cond
-              ((> (order t1) (order t2))
-               (adjoin-term
-                 t1
-                 (+terms (rest-terms l1) l2)))
-              ((< (order t1) (order t2))
-               (adjoin-term
-                 t2
-                 (+terms l1 (rest-terms l2))))
-              (else
-                (adjoin-term
-                  (make-term (order t1)
-                             (add (coeff t1)
-                                  (coeff t2)))
-                  (+terms (rest-terms l1)
-                          (rest-terms l2))))
-            )))))
-
-;;; Rational number arithmetic
-(define (+rat x y)
-  (make-rat (add (mul (numer x) (denom y))
-               (mul (denom x) (numer y)))
-            (mul (denom x) (denom y))))
-
-(define (-rat x y) ...)
-
-(define (*rat x y)
-  (make-rat
-    (mul (nuber x) (nuber y))
-    (mul (denom x) (denom y))))
-
-(define (/rat x y) ...)

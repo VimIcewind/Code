@@ -28,180 +28,6 @@
 ; (make-polar r a)
 
 
-;;; Rectangular package
-
-(define (make-rectangular x y)
-  (attach-type (cons x y)))
-
-(define (real-part-rectangular z)
-  (car z))
-
-(define (imag-part-rectangular z)
-  (cdr z))
-
-(define (magnitude-tectangular z)
-  (sqrt (+ (square (car z))
-           (square (cdr z)))))
-
-(define (angle-rectangular z)
-  (atan (cdr z) (car z)))
-
-
-;;; Polar package
-(define (make-polar r a)
-  (attach-type 'polar (cons r a)))
-
-(define (real-part-polar z)
-  (* (car z) (cos (cdr z))))
-
-(define (imag-part-polar z)
-  (* (car z) (sin (cdr z))))
-
-(define (magnitude-polar z) (car z))
-
-(define (angle-polar z) (cdr z))
-
-
-
-;; Generic selectors for complex numbers
-(define (real-part z)
-  (cond ((rectangular? z)
-         (real-part-rectangular
-           (contents z)))
-        ((polar? z)
-         (real-part-polar
-           (contents z)))))
-
-(define (imag-part z)
-  (cond ((rectangular? z)
-         (imag-part-rectangular
-           (contents z)))
-        ((polar? z)
-         (imag-part-polar
-           (contents z)))))
-
-(define (magnitude z)
-  (cond ((rectangular? z)
-         (magnitude-tectangular
-           (contents z)))
-        ((polar? z)
-         (magnitude-polar
-           (contents z)))))
-
-(define (angle z)
-  (cond ((rectangular? z)
-         (angle-rectangular
-           (contents? z)))
-        ((polar? z)
-         (angle-polar
-           (contents z)))))
-
-
-;;; Support mechanism for mainifest types
-(define (attach-type type contents)
-  (cons type contents))
-
-(define (type datum)
-  (car datum))
-
-(define (contents datum)
-  (cdr datum))
-
-;;; type predicates
-(define (rectangular? z)
-  (eq? (type z) 'rectangular))
-
-(define (polar? z)
-  (eq? (type z) 'polar))
-
-
-
-;;; Rectangular package
-(define (make-rectangular x y)
-  (attach-type 'rectangular (cons x y)))
-
-(define (real-part-rectangular z)
-  (car z))
-
-(define (imag-part-rectangular z)
-  (cdr z))
-
-(define (magnitude-rectangular z)
-  (sqrt (+ (square (car z))
-           (square (cdr z)))))
-
-(define (angle-rectangular z)
-  (atan (cdr z) (car z)))
-
-
-;;; Representing complex numbers as
-;;; pairs magnitude, angle
-(define make-polar r a) (cons r a))
-
-(define (magnitude z) (car z))
-
-(define (angle z) (cdr z))
-
-(define (make-rectangular x y)
-  (cons (sqrt (+ (square x) (square y)))
-        (atan y x)))
-
-(define (real-part z)
-  (* (car z) (cos (cdr z))))
-
-(define (imag-part z)
-  (* (car z) (sin (cdr z))))
-
-;;; Polar package
-(define (make-polar r a)
-  (attach-type 'polar (cons r a)))
-
-(define (real-part-polar z)
-  (* (car z) (cos (cdr z))))
-
-(define (imag-part-polar z)
-  (* (car z) (sin (cdr z))))
-
-(define (magnitude-polar z) (car z))
-
-(define (angle-polar z) (cdr z))
-
-
-;; Generic selectors for complex numbers
-(define (real-part z)
-  (cond ((rectangular? z)
-         (real-part-rectangular
-           (contents z)))
-        ((polar? z)
-         (real-part-polar
-           (contents z)))))
-
-(define (imag-part z)
-  (cond ((rectangular? z)
-         (imag-part-rectangular
-           (contents z)))
-        ((polar? z)
-         (imag-part-polar
-           (contents z)))))
-
-(define (magnitude z)
-  (cond ((rectangular? z)
-         (magnitude-tectangular
-           (contents z)))
-        ((polar? z)
-         (magnitude-polar
-           (contents z)))))
-
-(define (angle z)
-  (cond ((rectangular? z)
-         (angle-rectangular
-           (contents? z)))
-        ((polar? z)
-         (angle-polar
-           (contents z)))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (+c z1 z2)
   (make-rectangular
     (+ (real-part z1) (real-part z2))
@@ -245,7 +71,7 @@
 ;;; Rectangular package
 
 (define (make-rectangular x y)
-  (attach-type (cons x y)))
+  (attach-type 'rectangular (cons x y)))
 
 (define (real-part-rectangular z)
   (car z))
@@ -253,7 +79,7 @@
 (define (imag-part-rectangular z)
   (cdr z))
 
-(define (magnitude-tectangular z)
+(define (magnitude-rectangular z)
   (sqrt (+ (square (car z))
            (square (cdr z)))))
 
@@ -263,7 +89,7 @@
 
 ;;; Representing complex numbers as
 ;;; pairs magnitude, angle
-(define make-polar r a) (cons r a))
+(define (make-polar r a) (cons r a))
 
 (define (magnitude z) (car z))
 
@@ -346,8 +172,12 @@
   (eq? (type z) 'polar))
 
 
+;;; (put key1 key2 value)
+;;; (get key1 key2)
+
 ;;; Installing the rectangular
 ;;; operations in the table
+
 (put 'rectangular 'real-part real-part-rectangular)
 
 (put 'rectangular 'imag-part imag-part-rectangular)
@@ -386,6 +216,14 @@
   (operate 'angle obj))
 
 
+(define z (cons 'polar (cons 1 2)))
+(real-part z)
+(operate 'real-part z)
+((get 'Polar 'real-part) (contents z))
+(real-part-polar (cons 1 2))
+
+
+
 ;; rational numbers
 (define (make-rat n d)
   (cons n d))
@@ -416,15 +254,13 @@
   (attach-type 'rational (cons x y)))
 
 (put 'rational 'add +rat)
-
 (put 'rational 'sub -rat)
-
 (put 'rational 'mul *rat)
-
 (put 'rational 'div /rat)
 
 
 ;;; install complex numbers
+
 (define (make-complex z)
   (attach-type 'complex z))
 
@@ -448,27 +284,29 @@
 
 (put 'complex 'div /complex)
 
-;;; install oridinary numbers
-(define (make-number z)
-  (attach-type 'number z))
 
-(define (+number z1 z2)
-  (make-number (+c z1 z2)))
+;;; install oridinary numbers
+
+(define (make-number n)
+  (attach-type 'number n))
+
+(define (+number x y)
+  (make-number (+ x y)))
 
 (put 'number 'add +number)
 
-(define (-number z1 z2)
-  (make-number (-c z1 z2)))
+(define (-number x y)
+  (make-number (- x y)))
 
 (put 'number 'sub -number)
 
-(define (*number z1 z2)
-  (make-number (*c z1 z2)))
+(define (*number x y)
+  (make-number (* x y)))
 
 (put 'number 'mul *number)
 
-(define (/number z1 z2)
-  (make-number (/c z1 z2)))
+(define (/number x y)
+  (make-number (/ x y)))
 
 (put 'number 'div /number)
 
@@ -484,6 +322,11 @@
           (error
             "Op undefined on type")))
     (error "Args not same type")))
+
+
+;; x^15 + 2x^7 + 5
+;; ((15 1) (7 2) (0 5))
+;; (polynomial x <term-list>)
 
 
 ;;; Installing polynomials
@@ -519,23 +362,25 @@
               (else
                 (adjoin-term
                   (make-term (order t1)
-                             (add (coeff t1)
+                             (ADD (coeff t1)
                                   (coeff t2)))
                   (+terms (rest-terms l1)
                           (rest-terms l2))))
             )))))
 
+
 ;;; Rational number arithmetic
+
 (define (+rat x y)
-  (make-rat (add (mul (numer x) (denom y))
-               (mul (denom x) (numer y)))
-            (mul (denom x) (denom y))))
+  (make-rat (ADD (MUL (numer x) (denom y))
+               (MUL (denom x) (numer y)))
+            (MUL (denom x) (denom y))))
 
 (define (-rat x y) ...)
 
 (define (*rat x y)
   (make-rat
-    (mul (nuber x) (nuber y))
-    (mul (denom x) (denom y))))
+    (MUL (nuber x) (nuber y))
+    (MUL (denom x) (denom y))))
 
 (define (/rat x y) ...)
