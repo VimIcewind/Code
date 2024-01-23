@@ -175,6 +175,17 @@
 ;;; (put key1 key2 value)
 ;;; (get key1 key2)
 
+(define *op-table* (make-hash-table))
+
+(define (put op type proc)
+    (hash-table/put! *op-table* (list op type) proc))
+
+(define (get op type)
+    (hash-table/get *op-table* (list op type) #f))
+
+(define (all_keys)
+    (hash-table/key-list *op-table*))
+
 ;;; Installing the rectangular
 ;;; operations in the table
 
@@ -188,6 +199,7 @@
 
 ;;; Installing the polar
 ;;; operations in the table
+
 (put 'polar 'real-part real-part-polar)
 
 (put 'polar 'imag-part imag-part-polar)
@@ -376,11 +388,11 @@
                (MUL (denom x) (numer y)))
             (MUL (denom x) (denom y))))
 
-(define (-rat x y) ...)
+; (define (-rat x y) ...)
 
 (define (*rat x y)
   (make-rat
     (MUL (nuber x) (nuber y))
     (MUL (denom x) (denom y))))
 
-(define (/rat x y) ...)
+; (define (/rat x y) ...)
