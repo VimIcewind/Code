@@ -265,6 +265,28 @@
 (define (make-rat x y)
   (attach-type 'rational (cons x y)))
 
+;;; Rational number arithmetic
+
+(define (+rat x y)
+  (make-rat (ADD (MUL (numer x) (denom y))
+               (MUL (denom x) (numer y)))
+            (MUL (denom x) (denom y))))
+
+(define (-rat x y)
+  (make-rat (SUB (MUL (numer x) (denom y))
+               (MUL (denom x) (numer y)))
+            (MUL (denom x) (denom y))))
+
+(define (*rat x y)
+  (make-rat
+    (MUL (nuber x) (nuber y))
+    (MUL (denom x) (denom y))))
+
+(define (/rat x y)
+  (make-rat
+    (MUL (nuber x) (denom y))
+    (MUL (denom x) (nuber y))))
+
 (put 'rational 'add +rat)
 (put 'rational 'sub -rat)
 (put 'rational 'mul *rat)
@@ -346,16 +368,6 @@
   (attach-type 'polynomial
                (cons var term-list)))
 
-(define (+poly p1 p2)
-  (if (same-var? (var p1) (var p2))
-    (make-polynomial
-      (var p1)
-      (+terms (term-list p1)
-              (term-list p2)))
-    (error "Polys not in same var")))
-
-(put 'polynomial 'add +poly)
-
 (define (+terms l1 l2)
   (cond ((empty-termlist? l1) l2)
         ((empty-termlist? l2) l1)
@@ -381,18 +393,13 @@
             )))))
 
 
-;;; Rational number arithmetic
+(define (+poly p1 p2)
+  (if (same-var? (var p1) (var p2))
+    (make-polynomial
+      (var p1)
+      (+terms (term-list p1)
+              (term-list p2)))
+    (error "Polys not in same var")))
 
-(define (+rat x y)
-  (make-rat (ADD (MUL (numer x) (denom y))
-               (MUL (denom x) (numer y)))
-            (MUL (denom x) (denom y))))
+(put 'polynomial 'add +poly)
 
-; (define (-rat x y) ...)
-
-(define (*rat x y)
-  (make-rat
-    (MUL (nuber x) (nuber y))
-    (MUL (denom x) (denom y))))
-
-; (define (/rat x y) ...)
