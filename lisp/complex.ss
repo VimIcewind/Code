@@ -175,6 +175,63 @@
 ;;; (put key1 key2 value)
 ;;; (get key1 key2)
 
+(define (square x) (* x x))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 前提和定义
+(define (attach-tag type-tag contents)
+  (cons type-tag contents))
+(define (type-tag datum)
+  (if (pair? datum)
+    (car datum)
+    (error "Bad tagged datum : TYPE-TAG " datum )))
+(define (contents datum)
+  (if (pair? datum)
+    (cdr datum)
+    (error "Bad tagged datum : CONTENTS " datum )))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; put/get的实现
+(define (eql? a b)
+  (define (list-eq? a b)
+    (cond
+      ((and (null? a) (null? b)) #t)
+      ((or  (null? a) (null? b)) #f)
+      ((eql? (car a) (car b)) (list-eq? (cdr a) (cdr b)))
+      (else #f)))
+  (cond
+    ((and (pair? a) (pair? b)) (list-eq? a b))
+    ((not (or (pair? a) (pair? b))) (eq? a b))
+    (else #f))
+  )
+(define (head t) (car t))
+(define (tail t) (cdr t))
+(define (key kv) (car kv))
+(define (val kv) (cdr kv))
+(define (make-kv k v) (cons k v))
+
+(define (put-kv table k v)
+  (cond
+    ((null? table) (list (make-kv k v)))
+    ((eql? k (key (head table))) (cons (make-kv k v) (tail table))) ; replace
+    (else (cons (make-kv k v) table))))
+
+(define (get-kv table k)
+  (cond
+    ((null? table) '())
+    ((eql? k (key (head table))) (val (head table)))
+    (else (get-kv (tail table) k))))
+
+;;; 系统表接口
+(define system-table '())
+(define (get op type)
+  (let ((result (get-kv (get-kv system-table op) type)))
+    (if (null? result) #f result)))
+(define (put op type item)
+  (set! system-table
+    (put-kv system-table op (put-kv (get-kv system-table op) type item))))
+
+
 ;;; Installing the rectangular
 ;;; operations in the table
 
@@ -219,6 +276,6 @@
 (define z (cons 'polar (cons 1 2)))
 (real-part z)
 (operate 'real-part z)
-((get 'Polar 'real-part) (constents z))
+((get 'polar 'real-part) (contents z))
 (real-part-polar (cons 1 2))
 
