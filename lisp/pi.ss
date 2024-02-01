@@ -1,6 +1,7 @@
 ;;; Cesaro's method for estimating Pi:
 ;;;   Prob(gcd(n1,n2)=1) = 6/(Pi*Pi)
 
+;; TODO random-init and rand-update
 (define random-init 0)
 (define (rand-update x)
   x)
