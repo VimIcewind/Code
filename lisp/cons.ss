@@ -40,6 +40,7 @@
 
 (set-car! (car b) 3)
 (car a)
+(cadr b)
 
 (newline)
 

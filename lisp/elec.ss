@@ -148,11 +148,21 @@
     (half-adder a s sum c2)
     (or-gate c1 c2 c-out)))
 
-; (probe 'sum sum)
-; SUM 0 NEW-VALUE = 0
+(define (probe name wire)
+  (add-action! wire
+               (lambda ()
+                 (newline)
+                 (display name)
+                 (display " ")
+                 (display (current-time the-agenda))
+                 (display "  NEW-VALUE = ")
+                 (display (get-signal wire)))))
 
-; (probe 'carry carry)
-; CARRY 0 NEW-VALUE = 0
+(probe 'sum sum)
+; SUM 0  NEW-VALUE = 0
+
+(probe 'carry carry)
+; CARRY 0  NEW-VALUE = 0
 
 (half-adder input-1 input-2 sum carry)
 (set-signal! input-1 1)
