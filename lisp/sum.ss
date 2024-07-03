@@ -6,7 +6,6 @@
 
 (sum-int 3 4)
 
-
 (define (sum-sq a b)
   (if (> a b)
       0
@@ -17,7 +16,6 @@
   (* x x))
 
 (sum-sq 3 4)
-
 
 (define (pi-sum a b)
   (if (> a b)
