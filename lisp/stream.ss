@@ -12,7 +12,9 @@
 
 ;; (delay <exp>)
 ;(define delay (lambda () <exp>))
-(define delay (memo-proc (lambda () <exp>)))
+;(define delay (memo-proc (lambda () <exp>)))
+;(define (delay exp) (memo-proc (lambda () exp)))
+(define (delay p) (memo-proc (lambda () p)))
 
 ;; (force p)
 (define (force p)
@@ -31,8 +33,11 @@
   (force (cdr s)))
 
 ; (the-empty-stream)
+(define the-empty-stream '())
 
 ; (empty-stream? s)
+(define (empty-stream? s)
+  (null? s))
 
 ;; For any x + y
 ;; (head (cons-stream x y)) -> x
@@ -121,25 +126,25 @@
 ;; GIVEN N : Find all Paids 0 < J < I <= N
 ;; Such that I + J is prime
 
-(flatmap
-  (lambda (i)
-    (map
-      (lambda (j) (list i j))
-      (enum-interval 1 (-1+ i))))
-  (enum-interval 1 n))
+;; (flatmap
+;;   (lambda (i)
+;;     (map
+;;       (lambda (j) (list i j))
+;;       (enum-interval 1 (-1+ i))))
+;;   (enum-interval 1 n))
 
-(filter
-  (lambda (p)
-    (prime? (+ (car p) (cadr p))))
-  (flatmap ... ))
+;; (filter
+;;   (lambda (p)
+;;     (prime? (+ (car p) (cadr p))))
+;;   (flatmap ... ))
 
-(define (prime-sum-pairs n)
-  (map
-    (lambda (p)
-      (list (car p)
-            (cadr p)
-            (+ (car p) (cadr p))))
-    (filter ... )))
+;; (define (prime-sum-pairs n)
+;;   (map
+;;     (lambda (p)
+;;       (list (car p)
+;;             (cadr p)
+;;             (+ (car p) (cadr p))))
+;;     (filter ... )))
 
 (define (prime-sumpairs n)
   (map
@@ -164,15 +169,16 @@
      (j (enum-interval 1 (-1+ i))))
     (prime? (+ i j))))
 
-
+;; TODO
 ;; (safe? <Row> <Column> <rest-of-positions>)
-(define (queens size)
-  (define (fill-cols k)
-    (if
-      (= k 0)
-      (singleton empty-board)
-      (collect ...)))
-  (fill-cols size))
+
+;; (define (queens size)
+;;   (define (fill-cols k)
+;;     (if
+;;       (= k 0)
+;;       (singleton empty-board)
+;;       (collect ...)))
+;;   (fill-cols size))
 
 (define (queens size)
   (define (fill-cols k)
