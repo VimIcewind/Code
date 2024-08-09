@@ -290,13 +290,6 @@
 ; (define dy
 ;   (map square y))
 
-(define y
-  (integral
-    (delay dy) 1 .001))
-
-(define dy
-  (map square y))
-
 (define (integral delayed-s
                   initial-value
                   dt)
@@ -307,6 +300,13 @@
         (add-streams (scale-stream dt s)
                      int))))
   int)
+
+(define y
+  (integral
+    (delay dy) 1 .001))
+
+(define dy
+  (map square y))
 
 
 (define (fact-iter n)
