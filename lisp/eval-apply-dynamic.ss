@@ -9,22 +9,22 @@
     (cond ((number? exp) exp)
           ((symbol? exp) (lookup exp env))
           ((eq? (car exp) 'quote) (cadr exp))
-          ((eq? (car exp) 'lambda) exp)
+          ((eq? (car exp) 'lambda) exp)       ;!
           ((eq? (car exp) 'cond)
            (evcond (cdr exp) env))
           (else (apply (eval (car exp) env)
                        (evlist (cdr exp) env)
-                       env)))))
+                       env)))))              ;!
 
 (define apply
-  (lambda (proc args env)
+  (lambda (proc args env)                    ;!
     (cond ((primitive? proc)
            (apply-primop proc args))
           ((eq? (car proc) 'lambda)
            (eval (cadadr proc)
                  (bind (caadr proc)
                        args
-                       env)))
+                       env)))                ;!
           (else error))))
 
 (define evlist
