@@ -67,6 +67,9 @@
           (else
             (eval (cadar clauses) env)))))
 
+(define false?
+  (lambda (x) (eq? x nil)))
+
 (define make-delay
   (lambda (exp env)
     (cons 'thunk (cons exp env))))

@@ -44,6 +44,8 @@
           (else
             (eval (cadar clauses) env)))))
 
+(define false?
+  (lambda (x) (eq? x nil)))
 (define bind
   (lambda (vars vals env)
     (cons (pair-up vars vals)
