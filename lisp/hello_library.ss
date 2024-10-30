@@ -1,0 +1,7 @@
+(library (hello-library)
+         (export hello-world)
+         (import (rnrs base)
+                 (rnrs io simple))
+         (define (hello-world)
+           (display "Hello World")
+           (newline)))
