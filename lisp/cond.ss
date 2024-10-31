@@ -8,3 +8,8 @@
     (else 2.0)))
 
 (fee 2)
+(fee 5)
+(fee 8)
+(fee 14)
+(fee 17)
+(fee 20)
