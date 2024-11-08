@@ -9,7 +9,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (list->symbol ls0)
-  (string->symbol (list->string (reverse ls0))))
+  (string->symbol (list->string (reverse! ls0))))
 
 (define (char-in c . ls)
   (let loop((ls0 ls))
@@ -25,7 +25,7 @@
         (let ((c (read-char)))
           (cond
             ((eof-object? c)
-             (reverse (if (pair? w)
+             (reverse! (if (pair? w)
                         (cons (list->symbol w) wls)
                         wls)))
             ((char-in c #\space #\linefeed #\tab #\, #\. #\ #\( #\) #\= #\? #\! #\; #\:)
