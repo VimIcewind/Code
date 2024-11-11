@@ -80,7 +80,7 @@
 ;; (defun 函数名 (参数列表) (函数体))
 (defun hello () (insert "Hello, I am " my-name))
 ;; ^ 把光标停在这里，再键入C-x C-e 执行defun命令来定义函数
-;; 通过defun命令，你已经在Emacs中安装了这个hello函数，这个函数就成为了Emacs的一部分，知道你退出Emacs或者改变hello的定义
+;; 通过defun命令，你已经在Emacs中安装了这个hello函数，这个函数就成为了Emacs的一部分，直到你退出Emacs或者改变hello的定义
 
 ;; 从下面开始，我们将不再提醒读者使用C-x C-e来定义函数和执行ELisp指令
 
@@ -108,7 +108,7 @@
 ;; C-x o的意思是: 先按下Ctrl-x 再按下o
 
 ;; 如果要执行一系列的指令，可以使用流程函数progn，把函数命令连接起来.
-;; 下面的命令,先打开一个新的buffer,再执行hello函数，该hello函数的参数是"you"
+;; 下面的命令, 先打开一个新的buffer, 再执行hello函数，该hello函数的参数是"you"
 (progn
   (switch-to-buffer-other-window "*test*")
   (hello "you"))
@@ -119,7 +119,7 @@
   (erase-buffer)
   (hello "there"))
 
-;; 在这一系列的质量后面再添加调用一个other-window函数，这样在hello函数被调用完毕之后
+;; 在这一系列的指令后面再添加调用一个other-window函数，这样在hello函数被调用完毕之后
 ;; 光标自动回到之前的buffer窗口中
 (progn
   (switch-to-buffer-other-window "*test*")
@@ -128,7 +128,7 @@
   (other-window 1))
 
 ;; let函数用来做局部变量的定义 下面的一系列命令中
-;; let函数首先定义local-name变量的值为“you”
+;; let函数首先定义local-name变量的值为"you"
 ;; 然后接着执行括号中其它的语句块部分，这个功能和progn类似
 (let ((local-name "you"))
   (switch-to-buffer-other-window "*test*")
