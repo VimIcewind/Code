@@ -1,5 +1,40 @@
 ;;; make an alist of probable spelling from a given English text
 
+(define (make-eq-hash-table)
+  (make-hash-table))
+
+(define (make-eqv-hash-table)
+  (make-hash-table))
+
+(define (make-equal-hash-table)
+  (make-hash-table))
+
+(define (make-string-hash-table)
+  (make-hash-table))
+
+(define (hash-table/get table key n)
+  (hashtable-ref table key n))
+
+(define (hash-table/put! table key value)
+  (hashtable-set! table key value))
+
+(define (hash-table->alist ht)
+  (let loop ((keys (vector->list (hashtable-keys ht)))
+             (result '()))
+    (if (null? keys)
+      result
+      (let* ((key (car keys))
+             (value (hashtable-ref ht key #f)))
+        (loop (cdr keys) (cons (list key value) result))))))
+
+(define (char-graphic? char)
+    (and (not (char=? char #\space))
+                (not (char-control? char))))
+
+(define (char-control? char)
+    (let ((code (char->integer char)))
+          (or (< code 32) (= code 127))))
+
 (define (skip-char? c)
   (or (not (char-graphic? c)) (memv c '(#\: #\; #\' #\" #\`))))
 
@@ -28,11 +63,11 @@
       (lambda ()
         (display "(define *stat-spell* \'(")
         (newline)
-        (let loop ((alst (sort (hash-table->alist char-hash)
-                                (lambda (x y) (char<? (car x) (car y))))))
+        (let loop ((alst (sort (lambda (x y) (char<? (car x) (car y)))
+                               (hash-table->alist char-hash))))
           (if (pair? alst)
             (begin
-              (wirte (car alst))
+              (write (car alst))
               (newline)
               (loop (cdr alst)))))
         (display "))")
