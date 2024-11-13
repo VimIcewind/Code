@@ -28,6 +28,45 @@ a
 (nil! a)
 a
 
+
+(define-syntax when
+  (syntax-rules ()
+    ((_ pred b1 ...)
+     (if pred (begin b1 ...)))))
+
+(let ((i 0))
+  (when (= i 0)
+    (display "i == 0")
+    (newline)))
+
+
+(define-syntax while
+  (syntax-rules ()
+    ((_ pred b1 ...)
+     (let loop () (when pred b1 ... (loop))))))
+
+(let ((i 0))
+  (while (< i 10)
+         (display i)
+         (display #\space)
+         (set! i (+ i 1))))
+
+(newline)
+
+(define-syntax for
+  (syntax-rules ()
+    ((_ (i from to) b1 ...)
+     (let loop((i from))
+       (when (< i to)
+         b1 ...
+         (loop (1+ i)))))))
+
+(for (i 0 10)
+     (display i)
+     (display #\space))
+
+(newline)
+
 ;; define λ as lambda
 (define-syntax λ
   (syntax-rules ()
