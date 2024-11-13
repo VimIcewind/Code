@@ -67,6 +67,21 @@ a
 
 (newline)
 
+
+(define-syntax incf
+  (syntax-rules ()
+    ((_ x) (begin (set! x (+ x 1)) x))
+    ((_ x i) (begin (set! x (+ x i)) x))))
+
+(let ((i 0) (j 0))
+  (incf i)
+  (incf j 3)
+  (display (list 'i '= i))
+  (newline)
+  (display (list 'j '= j)))
+
+(newline)
+
 ;; define λ as lambda
 (define-syntax λ
   (syntax-rules ()
