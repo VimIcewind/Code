@@ -17,6 +17,17 @@
 (nil! x)
 x
 
+(define (f-nil! x)
+  (set! x '()))
+
+(define a 1)
+
+(f-nil! a)
+a
+
+(nil! a)
+a
+
 ;; define λ as lambda
 (define-syntax λ
   (syntax-rules ()
