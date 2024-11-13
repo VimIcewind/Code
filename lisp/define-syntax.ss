@@ -82,6 +82,66 @@ a
 
 (newline)
 
+
+(define-syntax my-and
+  (syntax-rules ()
+    ((_) #t)
+    ((_ e) e)
+    ((_ e1 e2 ...)
+     (if e1
+       (my-and e2 ...)
+       #f))))
+
+
+(my-and)
+(my-and #t)
+(my-and #t #t)
+(my-and #t #f)
+(my-and #f #t)
+
+(newline)
+
+(define-syntax my-or
+  (syntax-rules ()
+    ((_) #f)
+    ((_ e) e)
+    ((_ e1 e2 ...)
+     (let ((t e1))
+       (if t t (my-or e2 ...))))))
+
+(my-or)
+(my-or #t)
+(my-or #t #t)
+(my-or #t #f)
+(my-or #f #t)
+
+(newline)
+
+
+(define-syntax my-cond
+  (syntax-rules (else)
+    ((_ (else e1 ...))
+     (begin e1 ...))
+    ((_ (e1 e2 ...))
+     (when e1 e2 ...))
+    ((_ (e1 e2 ...) c1 ...)
+     (if e1
+       (begin e2 ...)
+       (cond c1 ...)))))
+
+;; Local Syntax
+(let-syntax ((square (syntax-rules () ((_ x) (* x x)))))
+  (begin
+    (display (square 5))
+    (newline)))
+
+(newline)
+
+;TODO letrec-syntax demo
+
+(newline)
+
+
 ;; define λ as lambda
 (define-syntax λ
   (syntax-rules ()
