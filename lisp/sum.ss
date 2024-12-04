@@ -44,14 +44,14 @@
   (sum square a 1+ b))
 
 (define (pi-sum a b)
-  (sum (lambda (i) (/ 1 (* i (+ i 2))))
+  (sum (lambda (i) (/ 1.0 (* i (+ i 2))))
        a
        (lambda (i) (+ i 4))
        b))
 
 (sum-int 3 4)
 (sum-sq 3 4)
-(pi-sum 3 4)
+(* 8 (pi-sum 1 1000))
 
 (newline)
 
@@ -71,11 +71,11 @@
   (sum square a 1+ b))
 
 (define (pi-sum a b)
-  (sum (lambda (i) (/ 1 (* i (+ i 2))))
+  (sum (lambda (i) (/ 1.0 (* i (+ i 2))))
        a
        (lambda (i) (+ i 4))
        b))
 
 (sum-int 3 4)
 (sum-sq 3 4)
-(pi-sum 3 4)
+(* 8 (pi-sum 1 1000))
