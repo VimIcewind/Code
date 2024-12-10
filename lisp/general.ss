@@ -303,7 +303,7 @@
 
 (define (*rat x y)
   (make-rat
-    (* (nuber x) (nuber y))
+    (* (numer x) (numer y))
     (* (denom x) (denom y))))
 
 ;;; installing rational numbers in the
@@ -325,13 +325,13 @@
 
 (define (*rat x y)
   (make-rat
-    (MUL (nuber x) (nuber y))
+    (MUL (numer x) (numer y))
     (MUL (denom x) (denom y))))
 
 (define (/rat x y)
   (make-rat
-    (MUL (nuber x) (denom y))
-    (MUL (denom x) (nuber y))))
+    (MUL (numer x) (denom y))
+    (MUL (denom x) (numer y))))
 
 (put 'rational 'add +rat)
 (put 'rational 'sub -rat)

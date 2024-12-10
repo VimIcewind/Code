@@ -18,7 +18,7 @@
 
 (define (*rat x y)
   (make-rat
-    (* (nuber x) (nuber y))
+    (* (number x) (number y))
     (* (denom x) (denom y))))
 
 
